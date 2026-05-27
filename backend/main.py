@@ -452,6 +452,11 @@ def generate_script(task_id: str):
         
     return script_data
 
+# Serve frontend static files as a fallback
+FRONTEND_DIR = os.path.join(os.path.dirname(BASE_DIR), "frontend", "dist")
+if os.path.exists(FRONTEND_DIR):
+    app.mount("/", StaticFiles(directory=FRONTEND_DIR, html=True), name="frontend")
+
 if __name__ == "__main__":
     import uvicorn
     # Start server locally on port 8000

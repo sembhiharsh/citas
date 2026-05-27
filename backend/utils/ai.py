@@ -1,7 +1,10 @@
 import os
 import json
 import base64
-import ollama
+try:
+    import ollama
+except ImportError:
+    ollama = None
 from typing import List, Optional
 from pydantic import BaseModel, Field
 from PIL import Image
@@ -33,8 +36,10 @@ def save_settings(settings: dict) -> None:
     with open(CONFIG_PATH, "w") as f:
         json.dump(settings, f, indent=2)
 
-def get_ollama_client() -> ollama.Client:
+def get_ollama_client():
     """Creates a custom Ollama client using the configured URL."""
+    if ollama is None:
+        raise ImportError("The 'ollama' Python package is not installed.")
     settings = load_settings()
     url = settings.get("ollama_url", "http://localhost:11434")
     return ollama.Client(host=url)

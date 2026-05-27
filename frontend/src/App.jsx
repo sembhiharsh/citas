@@ -2,8 +2,10 @@ import React, { useState, useEffect } from 'react';
 import { Wrench, User, Phone, Calendar, Send, CheckCircle2, AlertTriangle, Settings, QrCode } from 'lucide-react';
 
 const getBackendUrl = () => {
-  // All environments use the local backend during development
-  return 'http://localhost:8000';
+  if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+    return 'http://localhost:8000';
+  }
+  return window.location.origin;
 };
 const API_BASE = getBackendUrl();
 

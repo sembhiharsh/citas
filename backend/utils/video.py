@@ -3,13 +3,11 @@ import numpy as np
 import os
 import datetime
 import subprocess
-import static_ffmpeg
-
-# Initialize static-ffmpeg to add ffmpeg paths to the environment automatically
 try:
+    import static_ffmpeg
     static_ffmpeg.add_paths()
 except Exception as e:
-    print(f"Warning: Failed to add static-ffmpeg paths: {e}")
+    print(f"Warning: static_ffmpeg import failed ({e}); expecting system ffmpeg on PATH.")
 
 def extract_audio(video_path: str, output_audio_path: str) -> bool:
     """
