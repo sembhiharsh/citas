@@ -7,7 +7,7 @@
     "license_plate": "123456",
     "service": "REVISON A",
     "datetime": "2026-05-28T14:22",
-    "status": "pending",
+    "status": "cancelled",
     "created_at": "2026-05-26T13:22:36.481278"
   },
   {
@@ -18,7 +18,7 @@
     "license_plate": "1234MKL",
     "service": "REVION L",
     "datetime": "2026-06-20T12:05",
-    "status": "pending",
+    "status": "cancelled",
     "created_at": "2026-05-27T08:49:15.299164"
   },
   {
@@ -29,7 +29,7 @@
     "license_plate": "1234ABC",
     "service": "Oil change",
     "datetime": "2024-01-01T10:00",
-    "status": "pending",
+    "status": "cancelled",
     "created_at": "2026-05-27T08:51:07.679227"
   },
   {
@@ -40,7 +40,7 @@
     "license_plate": "1234abc",
     "service": "revision m",
     "datetime": "2026-06-20T09:03",
-    "status": "pending",
+    "status": "confirmed",
     "created_at": "2026-05-27T09:17:31.523995"
   },
   {
@@ -51,7 +51,7 @@
     "license_plate": "1234ABC",
     "service": "Oil change",
     "datetime": "2024-01-01T10:00",
-    "status": "pending",
+    "status": "confirmed",
     "created_at": "2026-05-27T09:18:27.717668"
   },
   {
@@ -62,7 +62,7 @@
     "license_plate": "1234ABC",
     "service": "Oil change",
     "datetime": "2024-01-01T10:00",
-    "status": "pending",
+    "status": "confirmed",
     "created_at": "2026-05-27T09:19:05.302697"
   },
   {
@@ -84,7 +84,7 @@
     "license_plate": "1234ABC",
     "service": "Oil change",
     "datetime": "2024-01-01T10:00",
-    "status": "pending",
+    "status": "confirmed",
     "created_at": "2026-05-27T09:19:33.549689"
   },
   {
@@ -150,7 +150,7 @@
     "license_plate": "aaa",
     "service": "a",
     "datetime": "2026-06-20T08:12",
-    "status": "pending",
+    "status": "confirmed",
     "created_at": "2026-05-27T09:55:13.832515"
   },
   {
@@ -165,25 +165,80 @@
     "created_at": "2026-05-27T10:06:26.130961"
   },
   {
-    "id": "89326c69-4092-439f-8d36-daf10376aeac",
-    "name": "harshdeep",
-    "phone": "631267674",
-    "car_model": "audio",
-    "license_plate": "1234alk",
-    "service": "aa",
-    "datetime": "2026-06-20T01:02",
-    "status": "pending",
-    "created_at": "2026-05-27T10:08:45.271905"
+    "id": "f2c37ef1-a9dc-4df4-bf67-761da8feb6fa",
+    "name": "HAS",
+    "phone": "123456789",
+    "car_model": "AUDIO",
+    "license_plate": "AA",
+    "service": "A",
+    "datetime": "2026-06-12T01:23",
+    "status": "confirmed",
+    "created_at": "2026-05-28T09:27:50.234321"
   },
   {
-    "id": "cb466959-a3d9-47c2-a13e-5de2d68c71db",
-    "name": "rosi",
-    "phone": "452126354123",
-    "car_model": "erfghjmk,",
-    "license_plate": "75420.",
-    "service": "yhjm",
-    "datetime": "2026-06-20T12:02",
-    "status": "pending",
-    "created_at": "2026-05-27T11:30:19.256194"
+    "id": "750b063c-05c5-4f4d-96fe-f24751def594",
+    "name": "AUTO TALLERS ROMO",
+    "phone": "631267675",
+    "car_model": "Z",
+    "license_plate": "Sant Adri\u00e0 de Bes\u00f2s",
+    "service": "Z",
+    "datetime": "2026-06-20T08:30",
+    "status": "confirmed",
+    "created_at": "2026-05-28T09:30:04.257866"
+  },
+  {
+    "id": "c68ca0f4-0d5c-4d8f-b541-6d1b50aff12c",
+    "name": "X",
+    "phone": "X",
+    "car_model": "XXX",
+    "license_plate": "XXXXAAA",
+    "service": "XXX",
+    "datetime": "2026-06-01T01:30",
+    "status": "confirmed",
+    "created_at": "2026-05-28T09:50:12.074821"
+  },
+  {
+    "id": "0d58c028-6a9f-45b0-9801-e4f968279b82",
+    "name": "AUTO TALLERS ROMO",
+    "phone": "631267675",
+    "car_model": "Y",
+    "license_plate": "Sant Adri\u00e0 de Bes\u00f2s",
+    "service": "Y",
+    "datetime": "2026-06-12T01:23",
+    "status": "confirmed",
+    "created_at": "2026-05-28T09:53:46.309937"
+  },
+  {
+    "id": "5fdfbd7a-b93d-4f5d-a4a3-00f3e3865de5",
+    "name": "AUTO TALLERS ROMO",
+    "phone": "631267675",
+    "car_model": "33",
+    "license_plate": "Sant Adri\u00e0 de Bes\u00f2s",
+    "service": "3222",
+    "datetime": "2026-06-02T12:36",
+    "status": "confirmed",
+    "created_at": "2026-05-28T09:56:04.033427"
+  },
+  {
+    "id": "dd5c6f41-b7ef-466a-b632-8a440ee75e46",
+    "name": "AUTO TALLERS ROMO",
+    "phone": "631267675",
+    "car_model": "E",
+    "license_plate": "Sant Adri\u00e0 de Bes\u00f2s",
+    "service": "E",
+    "datetime": "2026-06-12T12:02",
+    "status": "confirmed",
+    "created_at": "2026-05-28T09:56:47.223898"
+  },
+  {
+    "id": "2b81ea4c-fe49-4960-9846-beac916589b7",
+    "name": "g",
+    "phone": "123456789",
+    "car_model": "123456",
+    "license_plate": "asa1331a",
+    "service": "a",
+    "datetime": "2026-06-12T12:05",
+    "status": "confirmed",
+    "created_at": "2026-05-28T10:24:29.799848"
   }
 ]

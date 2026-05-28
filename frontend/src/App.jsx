@@ -3,7 +3,7 @@ import { Wrench, User, Phone, Calendar, Send, CheckCircle2, AlertTriangle, Setti
 
 const getBackendUrl = () => {
   if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
-    return 'http://localhost:8000';
+    return 'http://127.0.0.1:8000';
   }
   return window.location.origin;
 };
@@ -25,7 +25,7 @@ function App() {
     service: '',
     datetime: ''
   });
-  const [clientFormSubmitted, setClientFormSubmitted] = useState(false);
+  const [clientFormSubmitted, setClientFormSubmitted] = useState(null);
   const [clientFormLoading, setClientFormLoading] = useState(false);
 
   // Load settings on mount
@@ -64,13 +64,24 @@ function App() {
         throw new Error('Failed to create appointment');
       }
 
-      const formattedPhone = settings.whatsapp_number ? settings.whatsapp_number.replace(/\D/g, '') : '';
-      const messageText = `Hola ${settings.shop_name || 'Auto Talleres Romo'}, me gustaría solicitar una cita:\n👤 *Nombre*: ${clientForm.name}\n📞 *Teléfono*: ${clientForm.phone}\n🚗 *Coche*: ${clientForm.car_model}\n🔢 *Matrícula*: ${clientForm.license_plate}\n🛠️ *Servicio*: ${clientForm.service}\n📅 *Fecha/Hora propuesta*: ${clientForm.datetime.replace('T', ' ')}`;
-      const encodedMessage = encodeURIComponent(messageText);
-      const whatsappUrl = `https://wa.me/${formattedPhone || '34600000000'}?text=${encodedMessage}`;
+      const data = await res.json();
+      const appt = data.appointment;
+      const isAutoApproved = appt && appt.status === 'confirmed';
 
-      setClientFormSubmitted(true);
-      // Automatic opening of WhatsApp has been disabled.
+      const formattedPhone = settings.whatsapp_number ? settings.whatsapp_number.replace(/\D/g, '') : '';
+      const cleanPhone = formattedPhone.startsWith('34') || formattedPhone.length > 9 ? formattedPhone : '34' + formattedPhone;
+
+      let messageText = "";
+      if (isAutoApproved) {
+        messageText = `¡Hola! Acabo de registrar una cita y ha sido CONFIRMADA AUTOMÁTICAMENTE:\n👤 *Nombre*: ${clientForm.name}\n📞 *Teléfono*: ${clientForm.phone}\n🚗 *Coche*: ${clientForm.car_model}\n🔢 *Matrícula*: ${clientForm.license_plate}\n🛠️ *Servicio*: ${clientForm.service}\n📅 *Fecha/Hora*: ${clientForm.datetime.replace('T', ' ')}`;
+      } else {
+        messageText = `Hola, me gustaría solicitar una cita:\n👤 *Nombre*: ${clientForm.name}\n📞 *Teléfono*: ${clientForm.phone}\n🚗 *Coche*: ${clientForm.car_model}\n🔢 *Matrícula*: ${clientForm.license_plate}\n🛠️ *Servicio*: ${clientForm.service}\n📅 *Fecha/Hora propuesta*: ${clientForm.datetime.replace('T', ' ')}`;
+      }
+
+      const encodedMessage = encodeURIComponent(messageText);
+      const whatsappUrl = `https://wa.me/${cleanPhone || '34600000000'}?text=${encodedMessage}`;
+
+      setClientFormSubmitted({ isAutoApproved, whatsappUrl });
     } catch (err) {
       console.error('Error submitting appointment:', err);
       alert('Error al registrar la cita en el sistema. Inténtelo de nuevo.');
@@ -89,26 +100,21 @@ function App() {
           <h2 className="text-3xl font-extrabold text-white tracking-tight">
             {settings.shop_name || 'Auto Talleres Romo'}
           </h2>
-          <p className="mt-2 text-sm text-slate-400">
-            Solicitud de Cita previa por WhatsApp
-          </p>
+          <p className="mt-2 text-sm text-slate-400">Solicitud de Cita previa</p>
         </div>
         {clientFormSubmitted ? (
           <div className="text-center py-8 space-y-4 animate-fade-in">
             <div className="inline-flex p-3 bg-emerald-500/10 rounded-full border border-emerald-500/30 text-emerald-400">
               <CheckCircle2 className="w-12 h-12" />
             </div>
-            <h3 className="text-xl font-bold text-white">¡Solicitud Registrada!</h3>
-            <p className="text-sm text-slate-350 max-w-xs mx-auto">
-              Su solicitud ha sido enviada al taller. Estamos abriendo WhatsApp para que envíe el mensaje de confirmación...
+            <h3 className="text-xl font-bold text-white">
+              {clientFormSubmitted.isAutoApproved ? '¡Cita Confirmada!' : '¡Solicitud Recibida!'}
+            </h3>
+            <p className="text-sm text-slate-300 max-w-xs mx-auto leading-relaxed">
+              {clientFormSubmitted.isAutoApproved
+                ? 'Su cita ha sido aprobada al instante.'
+                : 'Usted recibirá un mensaje de WhatsApp o SMS con la confirmación de la hora y el día de su cita.'}
             </p>
-            <div className="pt-4">
-              <div className="w-10 h-10 border-4 border-cyan-500/20 border-t-cyan-400 rounded-full animate-spin mx-auto" />
-            </div>
-            <p className="text-xs text-slate-500">
-              Si no se abre automáticamente, pulse el botón de abajo.
-            </p>
-            {/* WhatsApp button disabled */}
           </div>
         ) : (
           <form className="mt-8 space-y-5 text-left" onSubmit={handleClientSubmit}>
@@ -197,7 +203,7 @@ function App() {
               className="w-full py-3.5 bg-gradient-to-r from-cyan-500 to-indigo-600 hover:from-cyan-400 hover:to-indigo-500 text-white font-bold rounded-xl shadow-lg hover:shadow-cyan-500/10 flex items-center justify-center gap-2 cursor-pointer transition-all border-none disabled:opacity-50 disabled:cursor-not-allowed mt-4"
             >
               <Send className="w-4 h-4" />
-              <span>{clientFormLoading ? 'Procesando...' : 'Solicitar Cita por WhatsApp'}</span>
+              <span>{clientFormLoading ? 'Procesando...' : 'Solicitar Cita'}</span>
             </button>
           </form>
         )}

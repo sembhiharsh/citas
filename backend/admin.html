@@ -1,0 +1,747 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin — Auto Talleres Romo</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #0a0e1a;
+      --surface: #111827;
+      --surface2: #1e293b;
+      --border: #1e293b;
+      --text: #e2e8f0;
+      --text-dim: #94a3b8;
+      --cyan: #22d3ee;
+      --cyan-dim: rgba(34,211,238,.12);
+      --green: #34d399;
+      --green-dim: rgba(52,211,153,.12);
+      --red: #f87171;
+      --red-dim: rgba(248,113,113,.12);
+      --amber: #fbbf24;
+      --amber-dim: rgba(251,191,36,.12);
+      --radius: 14px;
+    }
+
+    body {
+      font-family: 'Inter', system-ui, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+    }
+
+    /* ---- Top Bar ---- */
+    .topbar {
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      padding: 16px 28px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: sticky;
+      top: 0;
+      z-index: 50;
+      backdrop-filter: blur(12px);
+    }
+    .topbar h1 {
+      font-size: 1.15rem;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .topbar h1 span.icon { font-size: 1.4rem; }
+    .topbar .badge {
+      background: var(--cyan-dim);
+      color: var(--cyan);
+      font-size: .7rem;
+      font-weight: 700;
+      padding: 3px 10px;
+      border-radius: 20px;
+      text-transform: uppercase;
+      letter-spacing: .05em;
+    }
+    .topbar-right {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .btn-refresh {
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      color: var(--text-dim);
+      padding: 8px 16px;
+      border-radius: 10px;
+      font-size: .8rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all .2s;
+    }
+    .btn-refresh:hover { border-color: var(--cyan); color: var(--cyan); }
+
+    /* ---- Layout ---- */
+    .container { max-width: 1100px; margin: 0 auto; padding: 28px 20px; }
+
+    /* ---- Tabs ---- */
+    .tabs {
+      display: flex;
+      gap: 4px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 4px;
+      margin-bottom: 24px;
+      width: fit-content;
+    }
+    .tab-btn {
+      background: none;
+      border: none;
+      color: var(--text-dim);
+      padding: 10px 22px;
+      font-size: .82rem;
+      font-weight: 600;
+      cursor: pointer;
+      border-radius: 9px;
+      transition: all .2s;
+    }
+    .tab-btn.active { background: var(--cyan-dim); color: var(--cyan); }
+    .tab-btn:hover:not(.active) { color: var(--text); }
+
+    /* ---- Sections ---- */
+    .section { display: none; }
+    .section.active { display: block; animation: fadeIn .3s ease; }
+
+    @keyframes fadeIn { from { opacity:0; transform:translateY(8px); } to { opacity:1; transform:translateY(0); } }
+
+    /* ---- Cards ---- */
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 20px 24px;
+      margin-bottom: 14px;
+      transition: border-color .2s;
+    }
+    .card:hover { border-color: #334155; }
+    .card-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 12px;
+    }
+    .card-header h3 {
+      font-size: .95rem;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .card-meta {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 10px;
+      font-size: .82rem;
+    }
+    .meta-item { color: var(--text-dim); }
+    .meta-item strong { color: var(--text); font-weight: 600; }
+
+    .card-actions {
+      display: flex;
+      gap: 8px;
+      margin-top: 16px;
+      padding-top: 14px;
+      border-top: 1px solid var(--border);
+    }
+
+    /* ---- Buttons ---- */
+    .btn {
+      border: none;
+      padding: 9px 20px;
+      border-radius: 10px;
+      font-size: .8rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all .2s;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .btn-confirm { background: var(--green-dim); color: var(--green); }
+    .btn-confirm:hover { background: var(--green); color: #000; }
+    .btn-cancel { background: var(--red-dim); color: var(--red); }
+    .btn-cancel:hover { background: var(--red); color: #fff; }
+    .btn-delete { background: var(--surface2); color: var(--text-dim); }
+    .btn-delete:hover { background: var(--red-dim); color: var(--red); }
+
+    /* ---- Status Badges ---- */
+    .status {
+      font-size: .7rem;
+      font-weight: 700;
+      padding: 3px 10px;
+      border-radius: 20px;
+      text-transform: uppercase;
+      letter-spacing: .04em;
+    }
+    .status-pending { background: var(--amber-dim); color: var(--amber); }
+    .status-confirmed { background: var(--green-dim); color: var(--green); }
+    .status-cancelled { background: var(--red-dim); color: var(--red); }
+
+    /* ---- Empty State ---- */
+    .empty {
+      text-align: center;
+      padding: 60px 20px;
+      color: var(--text-dim);
+    }
+    .empty .icon { font-size: 2.5rem; margin-bottom: 12px; opacity: .5; }
+    .empty p { font-size: .9rem; }
+
+    /* ---- Calendar Grid ---- */
+    .cal-controls {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      margin-bottom: 18px;
+    }
+    .cal-controls button {
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      color: var(--text-dim);
+      width: 36px;
+      height: 36px;
+      border-radius: 10px;
+      font-size: 1rem;
+      cursor: pointer;
+      transition: all .2s;
+    }
+    .cal-controls button:hover { border-color: var(--cyan); color: var(--cyan); }
+    .cal-controls .month-label {
+      font-size: 1rem;
+      font-weight: 700;
+      min-width: 180px;
+      text-align: center;
+    }
+    .cal-grid {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      gap: 6px;
+    }
+    .cal-day-header {
+      text-align: center;
+      font-size: .7rem;
+      font-weight: 700;
+      color: var(--text-dim);
+      text-transform: uppercase;
+      padding: 8px 0;
+    }
+    .cal-day {
+      aspect-ratio: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 10px;
+      font-size: .82rem;
+      font-weight: 600;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      color: var(--text-dim);
+      transition: all .2s;
+    }
+    .cal-day.empty-day { background: transparent; border-color: transparent; }
+    .cal-day.available { background: var(--green-dim); color: var(--green); border-color: rgba(52,211,153,.2); }
+    .cal-day.blocked { background: var(--red-dim); color: var(--red); border-color: rgba(248,113,113,.15); }
+    .cal-day.today { box-shadow: inset 0 0 0 2px var(--cyan); color: var(--cyan); }
+
+    .legend {
+      display: flex;
+      gap: 20px;
+      margin-top: 18px;
+      font-size: .78rem;
+      color: var(--text-dim);
+    }
+    .legend span {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .legend .dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 4px;
+    }
+    .dot-avail { background: var(--green); }
+    .dot-blocked { background: var(--red); }
+    .dot-today { background: var(--cyan); }
+
+    /* ---- Notification Log ---- */
+    .log-entry {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 12px 16px;
+      margin-bottom: 8px;
+      font-size: .82rem;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .log-entry .log-icon { font-size: 1.1rem; }
+    .log-entry .log-time { color: var(--text-dim); font-size: .72rem; margin-left: auto; }
+
+    /* ---- Loading ---- */
+    .spinner {
+      width: 28px;
+      height: 28px;
+      border: 3px solid var(--border);
+      border-top-color: var(--cyan);
+      border-radius: 50%;
+      animation: spin .7s linear infinite;
+      margin: 40px auto;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    .btn-whatsapp { background: rgba(37, 211, 102, 0.15); color: #25d366; }
+    .btn-whatsapp:hover { background: #25d366; color: #000; }
+    .btn-edit { background: var(--cyan-dim); color: var(--cyan); }
+    .btn-edit:hover { background: var(--cyan); color: #000; }
+
+    /* ---- Modal Styling ---- */
+    .modal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0,0,0,0.6);
+      backdrop-filter: blur(4px);
+      z-index: 100;
+      align-items: center;
+      justify-content: center;
+    }
+    .modal.active { display: flex; }
+    .modal-content {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 28px;
+      width: 100%;
+      max-width: 440px;
+      box-shadow: 0 20px 25px -5px rgba(0,0,0,0.3);
+      position: relative;
+    }
+    .modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+    }
+    .modal-header h2 { font-size: 1.1rem; font-weight: 700; }
+    .modal-close {
+      background: none;
+      border: none;
+      color: var(--text-dim);
+      font-size: 1.5rem;
+      cursor: pointer;
+    }
+    .form-group {
+      margin-bottom: 16px;
+    }
+    .form-group label {
+      display: block;
+      font-size: 0.75rem;
+      font-weight: 700;
+      color: var(--text-dim);
+      text-transform: uppercase;
+      margin-bottom: 6px;
+      letter-spacing: 0.05em;
+    }
+    .form-control {
+      width: 100%;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 10px 14px;
+      color: var(--text);
+      font-size: 0.85rem;
+      outline: none;
+    }
+    .form-control:focus { border-color: var(--cyan); }
+    .modal-actions {
+      display: flex;
+      justify-content: flex-end;
+      gap: 10px;
+      margin-top: 24px;
+    }
+  </style>
+</head>
+<body>
+
+<!-- Top Bar -->
+<div class="topbar">
+  <h1><span class="icon">🔧</span> Panel de Administración <span class="badge">Admin</span></h1>
+  <div class="topbar-right">
+    <button class="btn-refresh" onclick="loadAll()">↻ Actualizar</button>
+  </div>
+</div>
+
+<div class="container">
+  <!-- Tabs -->
+  <div class="tabs">
+    <button class="tab-btn active" onclick="switchTab('pending')">📋 Pendientes</button>
+    <button class="tab-btn" onclick="switchTab('all')">📁 Todas las Citas</button>
+    <button class="tab-btn" onclick="switchTab('calendar')">📅 Calendario</button>
+  </div>
+
+  <!-- Section: Pending -->
+  <div id="sec-pending" class="section active">
+    <div id="pending-list"></div>
+  </div>
+
+  <!-- Section: All -->
+  <div id="sec-all" class="section">
+    <div id="all-list"></div>
+  </div>
+
+  <!-- Section: Calendar -->
+  <div id="sec-calendar" class="section">
+    <div class="cal-controls">
+      <button onclick="changeMonth(-1)">‹</button>
+      <div class="month-label" id="month-label"></div>
+      <button onclick="changeMonth(1)">›</button>
+    </div>
+    <div class="cal-grid" id="cal-grid"></div>
+    <div class="legend">
+      <span><div class="dot dot-avail"></div> Disponible</span>
+      <span><div class="dot dot-blocked"></div> No disponible</span>
+      <span><div class="dot dot-today"></div> Hoy</span>
+    </div>
+</div>
+
+<!-- Edit Modal -->
+<div id="edit-modal" class="modal">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h2>✏️ Editar Detalles de Cita</h2>
+      <button class="modal-close" onclick="closeEditModal()">×</button>
+    </div>
+    <div class="form-group">
+      <label for="edit-name">Nombre del Cliente</label>
+      <input type="text" id="edit-name" class="form-control" />
+    </div>
+    <div class="form-group">
+      <label for="edit-phone">Teléfono</label>
+      <input type="text" id="edit-phone" class="form-control" />
+    </div>
+    <div class="form-group">
+      <label for="edit-datetime">Fecha y Hora</label>
+      <input type="datetime-local" id="edit-datetime" class="form-control" />
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-cancel" onclick="closeEditModal()">Cancelar</button>
+      <button class="btn btn-confirm" onclick="saveEdit()">✓ Guardar Cambios</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  // Initialize WebSocket for real-time admin updates
+  const ws = new WebSocket(`ws://${location.host}/ws/appointments`);
+  ws.addEventListener('message', e => {
+    if (e.data === 'update') {
+      loadAll();
+    }
+  });
+
+const API = window.location.origin;
+let allAppointments = [];
+let calYear, calMonth;
+const notifLog = [];
+
+// ---- Tab switching ----
+function switchTab(tab) {
+  document.querySelectorAll('.tab-btn').forEach((b, i) => {
+    b.classList.toggle('active', ['pending','all','calendar'][i] === tab);
+  });
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  document.getElementById('sec-' + tab).classList.add('active');
+  if (tab === 'calendar') renderCalendar();
+}
+
+// ---- Load all data ----
+async function loadAll() {
+  await loadAppointments();
+  renderPending();
+  renderAll();
+  if (document.getElementById('sec-calendar').classList.contains('active')) renderCalendar();
+}
+
+async function loadAppointments() {
+  try {
+    const res = await fetch(API + '/api/appointments');
+    allAppointments = await res.json();
+  } catch (e) {
+    allAppointments = [];
+    console.error('Failed to load appointments:', e);
+  }
+}
+
+// ---- Render helpers ----
+function statusBadge(s) {
+  const map = { pending: 'status-pending', confirmed: 'status-confirmed', cancelled: 'status-cancelled' };
+  const label = { pending: 'Pendiente', confirmed: 'Confirmada', cancelled: 'Cancelada' };
+  return `<span class="status ${map[s] || ''}">${label[s] || s}</span>`;
+}
+
+function formatDT(dt) {
+  if (!dt) return '—';
+  try {
+    const d = new Date(dt);
+    return d.toLocaleDateString('es-ES', { day:'2-digit', month:'short', year:'numeric' }) +
+      ' ' + d.toLocaleTimeString('es-ES', { hour:'2-digit', minute:'2-digit' });
+  } catch { return dt; }
+}
+
+function cardHTML(a, showActions) {
+  const actions = showActions && a.status === 'pending' ? `
+    <div class="card-actions">
+      <button class="btn btn-confirm" onclick="updateStatus('${a.id}','confirmed')">✓ Confirmar</button>
+      <button class="btn btn-cancel" onclick="updateStatus('${a.id}','cancelled')">✕ Rechazar</button>
+      <button class="btn btn-edit" onclick="openEditModal('${a.id}')">✏️ Editar</button>
+      <button class="btn btn-whatsapp" onclick="sendWhatsApp('${a.id}')">💬 WhatsApp</button>
+    </div>` : `
+    <div class="card-actions">
+      <button class="btn btn-edit" onclick="openEditModal('${a.id}')">✏️ Editar</button>
+      <button class="btn btn-whatsapp" onclick="sendWhatsApp('${a.id}')">💬 WhatsApp</button>
+    </div>`;
+
+  const deleteBtn = `<button class="btn btn-delete" onclick="deleteAppt('${a.id}')">🗑</button>`;
+
+  return `
+    <div class="card">
+      <div class="card-header">
+        <h3>👤 ${a.name || '—'} ${statusBadge(a.status)}</h3>
+        ${a.status !== 'pending' ? deleteBtn : ''}
+      </div>
+      <div class="card-meta">
+        <div class="meta-item">📞 <strong>${a.phone || '—'}</strong></div>
+        <div class="meta-item">🚗 <strong>${a.car_model || '—'}</strong></div>
+        <div class="meta-item">🔢 <strong>${a.license_plate || '—'}</strong></div>
+        <div class="meta-item">📅 <strong>${formatDT(a.datetime)}</strong></div>
+        <div class="meta-item">🛠️ <strong>${a.service || '—'}</strong></div>
+        <div class="meta-item">🕐 Creada: <strong>${formatDT(a.created_at)}</strong></div>
+      </div>
+      ${actions}
+    </div>`;
+}
+
+function renderPending() {
+  const pending = allAppointments.filter(a => a.status === 'pending');
+  const el = document.getElementById('pending-list');
+  if (!pending.length) {
+    el.innerHTML = `<div class="empty"><div class="icon">✅</div><p>No hay solicitudes pendientes</p></div>`;
+    return;
+  }
+  el.innerHTML = pending.map(a => cardHTML(a, true)).join('');
+}
+
+function renderAll() {
+  const el = document.getElementById('all-list');
+  if (!allAppointments.length) {
+    el.innerHTML = `<div class="empty"><div class="icon">📭</div><p>No hay citas registradas</p></div>`;
+    return;
+  }
+  // Sort newest first
+  const sorted = [...allAppointments].sort((a,b) => (b.created_at || '').localeCompare(a.created_at || ''));
+  el.innerHTML = sorted.map(a => cardHTML(a, true)).join('');
+}
+
+// ---- Actions ----
+async function updateStatus(id, status) {
+  if (!confirm(`¿Seguro que quieres ${status === 'confirmed' ? 'CONFIRMAR' : 'CANCELAR'} esta cita?`)) return;
+  try {
+    const res = await fetch(API + '/api/appointments/' + id, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ status })
+    });
+    const data = await res.json();
+    if (res.ok) {
+      addLog(status === 'confirmed' ? '✅' : '❌', `Cita ${status === 'confirmed' ? 'confirmada' : 'cancelada'} — notificación enviada`);
+      await loadAll();
+    } else {
+      alert('Error: ' + (data.detail || 'Unknown'));
+    }
+  } catch (e) {
+    alert('Error de red: ' + e.message);
+  }
+}
+
+async function deleteAppt(id) {
+  if (!confirm('¿Eliminar esta cita permanentemente?')) return;
+  try {
+    await fetch(API + '/api/appointments/' + id, { method: 'DELETE' });
+    await loadAll();
+  } catch (e) {
+    alert('Error: ' + e.message);
+  }
+}
+
+function addLog(icon, msg) {
+  notifLog.unshift({ icon, msg, time: new Date().toLocaleTimeString('es-ES') });
+}
+
+// ---- Calendar ----
+function initCal() {
+  const now = new Date();
+  calYear = now.getFullYear();
+  calMonth = now.getMonth();
+}
+
+function changeMonth(delta) {
+  calMonth += delta;
+  if (calMonth < 0) { calMonth = 11; calYear--; }
+  if (calMonth > 11) { calMonth = 0; calYear++; }
+  renderCalendar();
+}
+
+async function renderCalendar() {
+  const label = document.getElementById('month-label');
+  const grid = document.getElementById('cal-grid');
+  const monthNames = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
+  label.textContent = `${monthNames[calMonth]} ${calYear}`;
+
+  // Fetch available dates for this month
+  const start = `${calYear}-${String(calMonth+1).padStart(2,'0')}-01`;
+  const lastDay = new Date(calYear, calMonth+1, 0).getDate();
+  const end = `${calYear}-${String(calMonth+1).padStart(2,'0')}-${String(lastDay).padStart(2,'0')}`;
+
+  let availDates = [];
+  try {
+    const res = await fetch(API + `/api/available-dates?start=${start}&end=${end}`);
+    availDates = await res.json();
+  } catch (e) {
+    console.error(e);
+  }
+  const availSet = new Set(availDates);
+
+  const today = new Date();
+  const todayStr = `${today.getFullYear()}-${String(today.getMonth()+1).padStart(2,'0')}-${String(today.getDate()).padStart(2,'0')}`;
+
+  // Day headers
+  const dayNames = ['Lun','Mar','Mié','Jue','Vie','Sáb','Dom'];
+  let html = dayNames.map(d => `<div class="cal-day-header">${d}</div>`).join('');
+
+  // First day of month (0=Sun → adjust to Mon-based)
+  const firstDow = new Date(calYear, calMonth, 1).getDay();
+  const offset = (firstDow === 0 ? 6 : firstDow - 1);
+
+  for (let i = 0; i < offset; i++) html += '<div class="cal-day empty-day"></div>';
+
+  for (let d = 1; d <= lastDay; d++) {
+    const dateStr = `${calYear}-${String(calMonth+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+    const isAvail = availSet.has(dateStr);
+    const isToday = dateStr === todayStr;
+    let cls = 'cal-day';
+    if (isToday) cls += ' today';
+    else if (isAvail) cls += ' available';
+    else cls += ' blocked';
+    html += `<div class="${cls}">${d}</div>`;
+  }
+
+  grid.innerHTML = html;
+}
+
+// ---- Init ----
+initCal();
+loadAll();
+// Auto-refresh every 30 seconds
+setInterval(loadAll, 30000);
+
+// ---- Edit & WhatsApp Helpers ----
+let currentEditId = null;
+
+function openEditModal(id) {
+  console.log("openEditModal called with ID:", id);
+  const a = allAppointments.find(item => item.id === id);
+  if (!a) {
+    console.error("No appointment found for ID:", id);
+    alert("Error: No se encontró la cita con ID " + id);
+    return;
+  }
+  currentEditId = id;
+  document.getElementById('edit-name').value = a.name || '';
+  document.getElementById('edit-phone').value = a.phone || '';
+  
+  // Format to YYYY-MM-DDThh:mm for datetime-local input safely
+  let formattedDt = '';
+  if (a.datetime) {
+    try {
+      const d = new Date(a.datetime);
+      if (!isNaN(d.getTime())) {
+        const pad = (n) => String(n).padStart(2, '0');
+        formattedDt = `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
+      } else {
+        formattedDt = a.datetime;
+      }
+    } catch (e) {
+      formattedDt = a.datetime;
+    }
+  }
+  document.getElementById('edit-datetime').value = formattedDt;
+  document.getElementById('edit-modal').classList.add('active');
+}
+
+function closeEditModal() {
+  document.getElementById('edit-modal').classList.remove('active');
+  currentEditId = null;
+}
+
+async function saveEdit() {
+  if (!currentEditId) return;
+  const name = document.getElementById('edit-name').value;
+  const phone = document.getElementById('edit-phone').value;
+  const datetime = document.getElementById('edit-datetime').value;
+  
+  try {
+    const res = await fetch(API + '/api/appointments/' + currentEditId, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ name, phone, datetime })
+    });
+    if (res.ok) {
+      closeEditModal();
+      await loadAll();
+    } else {
+      const data = await res.json();
+      alert('Error: ' + (data.detail || 'Fallo al guardar'));
+    }
+  } catch (e) {
+    alert('Error: ' + e.message);
+  }
+}
+
+function sendWhatsApp(id) {
+  const a = allAppointments.find(item => item.id === id);
+  if (!a) return;
+  const cleanPhone = a.phone.replace(/\D/g, '');
+  
+  let text = "";
+  if (a.status === 'confirmed') {
+    text = `Hola ${a.name}, su cita para el coche ${a.car_model} con matrícula ${a.license_plate} ha sido CONFIRMADA para el día ${formatDT(a.datetime)}. ¡Le esperamos en Auto Talleres Romo!`;
+  } else if (a.status === 'pending') {
+    text = `Hola ${a.name}, nos ponemos en contacto de Auto Talleres Romo sobre su solicitud de cita para el coche ${a.car_model}. ¿Le iría bien el día ${formatDT(a.datetime)}?`;
+  } else {
+    text = `Hola ${a.name}, nos ponemos en contacto de Auto Talleres Romo sobre su solicitud de cita para el coche ${a.car_model}.`;
+  }
+  
+  const encoded = encodeURIComponent(text);
+  window.open(`https://wa.me/${cleanPhone.startsWith('34') || cleanPhone.length > 9 ? cleanPhone : '34' + cleanPhone}?text=${encoded}`, '_blank');
+}
+</script>
+
+</body>
+</html>
