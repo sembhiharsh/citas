@@ -40,10 +40,10 @@ from fastapi.responses import HTMLResponse, FileResponse
 from pydantic import BaseModel
 from typing import Optional, List
 
-from backend.utils.notify import notify_appointment
-from backend.utils.scheduling import is_slot_available, get_available_dates, get_confirmed_count_for_date, DAILY_QUOTA, get_confirmed_count
-from backend.utils.ai import check_system_health, load_settings, save_settings
-from backend.utils.whatsapp import build_whatsapp_url
+from utils.notify import notify_appointment
+from utils.scheduling import is_slot_available, get_available_dates, get_confirmed_count_for_date, DAILY_QUOTA, get_confirmed_count
+from utils.ai import check_system_health, load_settings, save_settings
+from utils.whatsapp import build_whatsapp_url
 
 logging.basicConfig(
     level=logging.INFO,
@@ -146,7 +146,7 @@ def get_pending_appointments():
 @app.post("/api/appointments")
 async def create_appointment(appointment: AppointmentModel):
     """Saves a new appointment request."""
-    from backend.utils.google_sheet import append_appointment_to_sheet
+    from utils.google_sheet import append_appointment_to_sheet
 
     appointments = load_appointments()
 
