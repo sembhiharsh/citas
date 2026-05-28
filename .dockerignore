@@ -1,2 +1,7 @@
-frontend/node_modules
-frontend/dist
+node_modules
+dist
+.git
+.gitignore
+Dockerfile
+README.md
+*.log

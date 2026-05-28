@@ -3,7 +3,7 @@ WORKDIR /frontend
 COPY frontend/package*.json ./
 RUN npm ci
 COPY frontend/ ./
-RUN npx vite build
+RUN ./node_modules/.bin/vite build
 
 FROM python:3.10-slim AS runtime
 WORKDIR /app
