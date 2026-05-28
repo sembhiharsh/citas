@@ -43,6 +43,7 @@ from typing import Optional, List
 from backend.utils.notify import notify_appointment
 from backend.utils.scheduling import is_slot_available, get_available_dates, get_confirmed_count_for_date, DAILY_QUOTA, get_confirmed_count
 from backend.utils.ai import check_system_health, load_settings, save_settings
+from backend.utils.whatsapp import build_whatsapp_url
 
 logging.basicConfig(
     level=logging.INFO,
@@ -214,6 +215,19 @@ async def update_appointment_status(appointment_id: str, payload: dict):
 
             save_appointments(appointments)
 
+            # Generate WhatsApp URL for confirmed or cancelled status
+            whatsapp_url = ""
+            if new_status in {"confirmed", "cancelled"}:
+                # Load settings to get default WhatsApp number if needed
+                settings = load_settings()
+                phone = a.get("phone") or settings.get("whatsapp_number", "")
+                whatsapp_url = build_whatsapp_url(
+                    phone=phone,
+                    name=a.get("name", ""),
+                    datetime_iso=a.get("datetime", ""),
+                    status=new_status,
+                )
+
             # After updating status, attempt auto-approve for the appointment's date
             if "status" in payload and payload["status"] == "confirmed":
                 from backend.utils.scheduling import auto_approve_pending
@@ -222,7 +236,10 @@ async def update_appointment_status(appointment_id: str, payload: dict):
 
             # Broadcast update to admin UI
             await broadcast_appointment_update()
-            return {"status": "success", "message": "Appointment updated successfully.", "appointment": a}
+            response = {"status": "success", "message": "Appointment updated successfully.", "appointment": a}
+            if whatsapp_url:
+                response["whatsapp_url"] = whatsapp_url
+            return response
     raise HTTPException(status_code=404, detail="Appointment not found")
 
 
