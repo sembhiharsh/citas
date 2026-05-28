@@ -1,20 +1,22 @@
-FROM node:20-slim AS frontend-builder
-WORKDIR /frontend
-COPY frontend/package*.json ./
-RUN npm ci
-COPY frontend/ ./
-RUN ./node_modules/.bin/vite build
+﻿# ---- Dockerfile for CitaRomo (FastAPI) ----
+FROM python:3.11-slim
 
-FROM python:3.10-slim AS runtime
+# Install OS‑level build tools (needed for some py packages)
+RUN apt-get update && apt-get install -y --no-install-recommends gcc libpq-dev && rm -rf /var/lib/apt/lists/*
+
+# Set a non‑root user (optional but good practice)
+RUN useradd -m appuser
 WORKDIR /app
-RUN apt-get update && apt-get install -y \
-    libgl1 \
-    libglib2.0-0 \
-    ffmpeg && rm -rf /var/lib/apt/lists/*
-COPY backend/requirements.txt .
-# Added comment to trigger rebuild after adding requests dependency
+
+# Copy only the dependency file first (caching)
+COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
-COPY backend/ /app/
-COPY --from=frontend-builder /frontend/dist/ /frontend/dist/
+
+# Copy the rest of the source code
+COPY . .
+
+# Expose the port Render will provide (ENV $PORT)
 EXPOSE 8000
-CMD ["sh", "-c", "uvicorn main:app --host 0.0.0.0 --port ${PORT:-8000}"]
+
+# Run the FastAPI app; Render injects $PORT, fallback to 8000
+CMD ["sh","-c","uvicorn main:app --host 0.0.0.0 --port ${PORT:-8000}"]
