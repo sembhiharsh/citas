@@ -27,6 +27,8 @@ function App() {
   });
   const [clientFormSubmitted, setClientFormSubmitted] = useState(null);
   const [clientFormLoading, setClientFormLoading] = useState(false);
+  const [errorMessage, setErrorMessage] = useState(null);
+  const [suggestedDate, setSuggestedDate] = useState(null);
 
   // Load settings on mount
   useEffect(() => {
@@ -44,9 +46,22 @@ function App() {
     fetchSettings();
   }, []);
 
+  const handleApplySuggestedDate = () => {
+    if (!suggestedDate || !clientForm.datetime) return;
+    const timePart = clientForm.datetime.split('T')[1] || '10:00';
+    setClientForm(prev => ({
+      ...prev,
+      datetime: `${suggestedDate}T${timePart}`
+    }));
+    setErrorMessage(null);
+    setSuggestedDate(null);
+  };
+
   const handleClientSubmit = async (e) => {
     e.preventDefault();
     setClientFormLoading(true);
+    setErrorMessage(null);
+    setSuggestedDate(null);
     try {
       if (!clientForm.name || !clientForm.phone || !clientForm.car_model || !clientForm.license_plate || !clientForm.service || !clientForm.datetime) {
         alert('Por favor, rellene todos los campos.');
@@ -61,7 +76,19 @@ function App() {
       });
 
       if (!res.ok) {
-        throw new Error('Failed to create appointment');
+        if (res.status === 409) {
+          const data = await res.json();
+          const detail = data.detail || 'Este día ya está completo.';
+          setErrorMessage(detail);
+          const dateMatch = detail.match(/(\d{4}-\d{2}-\d{2})/);
+          if (dateMatch) {
+            setSuggestedDate(dateMatch[1]);
+          }
+          return;
+        } else {
+          const data = await res.json().catch(() => ({}));
+          throw new Error(data.detail || 'Error al registrar la cita.');
+        }
       }
 
       const data = await res.json();
@@ -84,7 +111,7 @@ function App() {
       setClientFormSubmitted({ isAutoApproved, whatsappUrl });
     } catch (err) {
       console.error('Error submitting appointment:', err);
-      alert('Error al registrar la cita en el sistema. Inténtelo de nuevo.');
+      setErrorMessage(err.message || 'Error al registrar la cita en el sistema. Inténtelo de nuevo.');
     } finally {
       setClientFormLoading(false);
     }
@@ -118,6 +145,23 @@ function App() {
           </div>
         ) : (
           <form className="mt-8 space-y-5 text-left" onSubmit={handleClientSubmit}>
+            {errorMessage && (
+              <div className="p-4 bg-amber-500/10 border border-amber-500/30 rounded-2xl text-amber-300 text-sm space-y-3 animate-fade-in">
+                <div className="flex gap-2 items-start">
+                  <AlertTriangle className="w-5 h-5 shrink-0 text-amber-400" />
+                  <p>{errorMessage}</p>
+                </div>
+                {suggestedDate && (
+                  <button
+                    type="button"
+                    onClick={handleApplySuggestedDate}
+                    className="w-full py-2 bg-amber-500/20 hover:bg-amber-500/30 text-amber-200 font-semibold rounded-xl text-xs transition-colors border border-amber-500/40"
+                  >
+                    Actualizar a la fecha sugerida ({suggestedDate})
+                  </button>
+                )}
+              </div>
+            )}
             <div className="space-y-1.5">
               <label className="text-xs font-bold text-slate-400 uppercase tracking-wider flex items-center gap-1.5">
                 <User className="w-3.5 h-3.5 text-cyan-400" /> Nombre Completo

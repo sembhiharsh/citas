@@ -1,0 +1,7 @@
+:80 {
+    @admin path /admin*
+    basicauth @admin {
+        ${ADMIN_USERNAME} ${ADMIN_PASSWORD}
+    }
+    reverse_proxy localhost:8000
+}

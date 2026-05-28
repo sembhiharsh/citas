@@ -10,13 +10,17 @@ from pydantic import BaseModel, Field
 from PIL import Image
 
 # Config file path
-CONFIG_PATH = os.path.join(os.path.dirname(os.path.dirname(__file__)), "config.json")
+def _config_path() -> str:
+    if os.path.exists("/data") and os.access("/data", os.W_OK):
+        return "/data/config.json"
+    return os.path.join(os.path.dirname(os.path.dirname(__file__)), "config.json")
 
 def load_settings() -> dict:
     """Loads configuration settings from config.json."""
-    if os.path.exists(CONFIG_PATH):
+    path = _config_path()
+    if os.path.exists(path):
         try:
-            with open(CONFIG_PATH, "r") as f:
+            with open(path, "r") as f:
                 return json.load(f)
         except Exception:
             pass
@@ -33,7 +37,7 @@ def load_settings() -> dict:
 
 def save_settings(settings: dict) -> None:
     """Saves configuration settings to config.json."""
-    with open(CONFIG_PATH, "w") as f:
+    with open(_config_path(), "w") as f:
         json.dump(settings, f, indent=2)
 
 def get_ollama_client():

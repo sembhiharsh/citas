@@ -391,18 +391,18 @@
 <div class="container">
   <!-- Tabs -->
   <div class="tabs">
-    <button class="tab-btn active" onclick="switchTab('pending')">📋 Pendientes</button>
-    <button class="tab-btn" onclick="switchTab('all')">📁 Todas las Citas</button>
+    <button class="tab-btn" onclick="switchTab('pending')">📋 Pendientes</button>
+    <button class="tab-btn active" onclick="switchTab('all')">📁 Todas las Citas</button>
     <button class="tab-btn" onclick="switchTab('calendar')">📅 Calendario</button>
   </div>
 
   <!-- Section: Pending -->
-  <div id="sec-pending" class="section active">
+  <div id="sec-pending" class="section">
     <div id="pending-list"></div>
   </div>
 
   <!-- Section: All -->
-  <div id="sec-all" class="section">
+  <div id="sec-all" class="section active">
     <div id="all-list"></div>
   </div>
 
@@ -449,7 +449,8 @@
 
 <script>
   // Initialize WebSocket for real-time admin updates
-  const ws = new WebSocket(`ws://${location.host}/ws/appointments`);
+  const wsProtocol = location.protocol === 'https:' ? 'wss' : 'ws';
+  const ws = new WebSocket(`${wsProtocol}://${location.host}/ws/appointments`);
   ws.addEventListener('message', e => {
     if (e.data === 'update') {
       loadAll();
@@ -480,13 +481,19 @@ async function loadAll() {
 }
 
 async function loadAppointments() {
-  try {
-    const res = await fetch(API + '/api/appointments');
-    allAppointments = await res.json();
-  } catch (e) {
-    allAppointments = [];
-    console.error('Failed to load appointments:', e);
-  }
+    try {
+      const res = await fetch(API + '/api/appointments');
+      if (!res.ok) {
+        console.error('Failed to fetch appointments:', res.status, res.statusText);
+        allAppointments = [];
+        return;
+      }
+      allAppointments = await res.json();
+      console.log('Loaded appointments:', allAppointments);
+    } catch (e) {
+      allAppointments = [];
+      console.error('Error fetching appointments:', e);
+    }
 }
 
 // ---- Render helpers ----
@@ -657,6 +664,7 @@ async function renderCalendar() {
 
 // ---- Init ----
 initCal();
+console.log('Calling loadAll()');
 loadAll();
 // Auto-refresh every 30 seconds
 setInterval(loadAll, 30000);

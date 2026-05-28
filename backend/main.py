@@ -5,12 +5,38 @@ import asyncio
 import datetime
 import logging
 
-from fastapi import FastAPI, WebSocket, WebSocketDisconnect, HTTPException
+from fastapi import FastAPI, WebSocket, WebSocketDisconnect, HTTPException, Depends, Request, status
 # Removed sys.path manipulation; using proper package imports
 from fastapi.middleware.cors import CORSMiddleware
+import base64
 from typing import List
 
 app = FastAPI(title="Auto Talleres Romo - Appointment API")
+
+def get_current_user(request: Request):
+    auth = request.headers.get("Authorization")
+    if not auth or not auth.startswith("Basic "):
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Missing basic authentication",
+            headers={"WWW-Authenticate": "Basic"},
+        )
+    try:
+        decoded = base64.b64decode(auth.split(" ")[1]).decode()
+        username, _, password = decoded.partition(":")
+    except Exception:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Invalid authentication header",
+            headers={"WWW-Authenticate": "Basic"},
+        )
+    if username != os.getenv("ADMIN_USERNAME", "admin") or password != os.getenv("ADMIN_PASSWORD", "admin"):
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Invalid credentials",
+            headers={"WWW-Authenticate": "Basic"},
+        )
+    return username
 # Global list of active WebSocket connections for admin updates
 websocket_connections: List[WebSocket] = []
 
@@ -41,7 +67,7 @@ from pydantic import BaseModel
 from typing import Optional, List
 
 from utils.notify import notify_appointment
-from utils.scheduling import is_slot_available, get_available_dates, get_confirmed_count_for_date, DAILY_QUOTA, get_confirmed_count
+from utils.scheduling import is_slot_available, get_available_dates, get_confirmed_count_for_date, DAILY_QUOTA, get_next_available_date, is_date_full
 from utils.ai import check_system_health, load_settings, save_settings
 from utils.whatsapp import build_whatsapp_url
 
@@ -88,21 +114,24 @@ class AppointmentModel(BaseModel):
     status: Optional[str] = "pending"  # pending | confirmed | completed | cancelled
     created_at: Optional[str] = None
 
-APPOINTMENTS_FILE = os.path.join(BASE_DIR, "appointments.json")
-
+from utils.scheduling import _appointments_path
 
 def load_appointments() -> List[dict]:
-    if os.path.exists(APPOINTMENTS_FILE):
-        try:
-            with open(APPOINTMENTS_FILE, "r", encoding="utf-8") as f:
-                return json.load(f)
-        except Exception:
-            pass
-    return []
+    path = _appointments_path()
+    if not os.path.exists(path):
+        with open(path, "w", encoding="utf-8") as f:
+            json.dump([], f)
+        return []
+    try:
+        with open(path, "r", encoding="utf-8") as f:
+            return json.load(f)
+    except Exception:
+        return []
 
 
 def save_appointments(appointments: List[dict]) -> None:
-    with open(APPOINTMENTS_FILE, "w", encoding="utf-8") as f:
+    path = _appointments_path()
+    with open(path, "w", encoding="utf-8") as f:
         json.dump(appointments, f, indent=2)
 
 
@@ -114,6 +143,11 @@ def save_appointments(appointments: List[dict]) -> None:
 def get_health():
     """Returns application connection status."""
     return check_system_health()
+
+@app.get("/ping")
+def ping():
+    return {"message": "pong"}
+
 
 
 @app.get("/api/settings")
@@ -160,17 +194,22 @@ async def create_appointment(appointment: AppointmentModel):
     except Exception:
         raise HTTPException(status_code=400, detail="Invalid datetime format. Use ISO8601.")
 
-    # After validating slot and before saving, check auto-approve quota
-    appt_date = appt_dt.date()
-    confirmed_today = get_confirmed_count_for_date(appt_date)
-    if confirmed_today < DAILY_QUOTA:
-        app_data["status"] = "confirmed"
-    else:
-        app_data["status"] = "pending"
-
-    # Enforce business rules
+    # Enforce business rules — slot must be valid (work hours, not weekend, not past)
     if not is_slot_available(appt_dt):
         raise HTTPException(status_code=400, detail="Selected slot is unavailable.")
+
+    # Check if the day is already full (5 confirmed appointments)
+    appt_date = appt_dt.date()
+    if is_date_full(appt_date):
+        # Find the next available date and tell the user
+        next_date = get_next_available_date(appt_date + datetime.timedelta(days=1))
+        raise HTTPException(
+            status_code=409,
+            detail=f"Este día ya está completo (máximo {DAILY_QUOTA} citas). El próximo día disponible es: {next_date}"
+        )
+
+    # Auto-confirm since we know quota is not exceeded
+    app_data["status"] = "confirmed"
 
     # Save to local JSON DB
     appointments.append(app_data)
@@ -184,7 +223,7 @@ async def create_appointment(appointment: AppointmentModel):
     except Exception as e:
         logging.error(f"Google Sheet write failed: {e}")
 
-    return {"status": "success", "message": "Appointment request registered.", "appointment": app_data}
+    return {"status": "success", "message": "Cita confirmada.", "appointment": app_data}
 
 
 @app.patch("/api/appointments/{appointment_id}")
@@ -230,7 +269,7 @@ async def update_appointment_status(appointment_id: str, payload: dict):
 
             # After updating status, attempt auto-approve for the appointment's date
             if "status" in payload and payload["status"] == "confirmed":
-                from backend.utils.scheduling import auto_approve_pending
+                from utils.scheduling import auto_approve_pending
                 appt_date = datetime.datetime.fromisoformat(a["datetime"]).date()
                 auto_approve_pending(appt_date)
 
@@ -270,9 +309,23 @@ def api_available_dates(start: str, end: str):
     return get_available_dates(start_date, end_date)
 
 
+@app.get("/api/next-available-date")
+def api_next_available_date(from_date: Optional[str] = None):
+    """Return the next available date starting from from_date (YYYY-MM-DD) or today."""
+    try:
+        if from_date:
+            start_date = datetime.datetime.strptime(from_date, "%Y-%m-%d").date()
+        else:
+            start_date = datetime.datetime.now().date()
+    except Exception:
+        raise HTTPException(status_code=400, detail="Invalid date format. Use YYYY-MM-DD.")
+    next_date = get_next_available_date(start_date)
+    return {"next_available_date": next_date}
+
+
 # ---------- Admin Dashboard ----------
 
-@app.get("/admin", response_class=HTMLResponse)
+@app.get("/admin", response_class=HTMLResponse, dependencies=[Depends(get_current_user)])
 def admin_page():
     """Serve the admin dashboard page."""
     admin_path = os.path.join(BASE_DIR, "admin.html")

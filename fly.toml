@@ -16,6 +16,10 @@ primary_region = 'cdg'
   min_machines_running = 0
   processes = ['app']
 
+[mounts]
+  source = "citaromo_data"
+  destination = "/data"
+
 [[vm]]
   memory = '1gb'
   cpu_kind = 'shared'
