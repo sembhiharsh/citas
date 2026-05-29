@@ -336,7 +336,7 @@ def admin_page():
 
 # ---------- Frontend static files ----------
 
-FRONTEND_DIR = os.path.join(os.path.dirname(BASE_DIR), "frontend", "dist")
+FRONTEND_DIR = os.path.join(BASE_DIR, "frontend", "dist")
 if os.path.exists(FRONTEND_DIR):
     app.mount("/", StaticFiles(directory=FRONTEND_DIR, html=True), name="frontend")
 
