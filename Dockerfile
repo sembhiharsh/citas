@@ -1,23 +1,16 @@
-# ----  for CitaRomo (FastAPI) ----
+FROM node:20-slim AS frontend-builder
+WORKDIR /frontend
+COPY frontend/package*.json ./
+RUN npm install
+COPY frontend/ .
+RUN npm run build
+
 FROM python:3.11-slim
-
-# Install OS‑level build tools (needed for some py packages)
 RUN apt-get update && apt-get install -y --no-install-recommends gcc libpq-dev && rm -rf /var/lib/apt/lists/*
-
-# Set a non‑root user (optional but good practice)
-ARG CACHEBUST=20260529
-RUN echo "cache bust $CACHEBUST"
 WORKDIR /app
-
-# Copy only the dependency file first (caching)
-COPY requirements.txt .
+COPY backend/requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
-
-# Copy the rest of the source code
 COPY backend/ .
-
-# Expose the port Render will provide (ENV $PORT)
+COPY --from=frontend-builder /frontend/dist ./frontend/dist
 EXPOSE 8000
-
-# Run the FastAPI app; Render injects $PORT, fallback to 8000
 CMD ["sh","-c","uvicorn main:app --host 0.0.0.0 --port ${PORT:-8000}"]
