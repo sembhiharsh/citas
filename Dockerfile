@@ -1,11 +1,12 @@
-﻿# ---- Dockerfile for CitaRomo (FastAPI) ----
+# ----  for CitaRomo (FastAPI) ----
 FROM python:3.11-slim
 
 # Install OS‑level build tools (needed for some py packages)
 RUN apt-get update && apt-get install -y --no-install-recommends gcc libpq-dev && rm -rf /var/lib/apt/lists/*
 
 # Set a non‑root user (optional but good practice)
-RUN useradd -m appuser
+ARG CACHEBUST=20260529
+RUN echo "cache bust $CACHEBUST"
 WORKDIR /app
 
 # Copy only the dependency file first (caching)
