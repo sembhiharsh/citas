@@ -422,7 +422,9 @@ def admin_panel(user: str = Depends(authenticate_admin)):
 
 # ---------- Static Frontend Fallback ----------
 
-FRONTEND_DIST = os.path.abspath(os.path.join(BASE_DIR, "..", "frontend", "dist"))
+FRONTEND_DIST = os.path.abspath(os.path.join(BASE_DIR, "frontend", "dist"))
+if not os.path.exists(FRONTEND_DIST):
+    FRONTEND_DIST = os.path.abspath(os.path.join(BASE_DIR, "..", "frontend", "dist"))
 
 if os.path.exists(FRONTEND_DIST):
     app.mount("/", StaticFiles(directory=FRONTEND_DIST, html=True), name="frontend")
