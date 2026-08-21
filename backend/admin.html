@@ -235,6 +235,7 @@
     }
     .status-confirmed { background: var(--emerald-dim); color: var(--emerald); border: 1px solid rgba(16,185,129,0.3); }
     .status-pending { background: var(--amber-dim); color: var(--amber); border: 1px solid rgba(245,158,11,0.3); }
+    .status-waiting_list { background: rgba(245,158,11,0.18); color: #FBBF24; border: 1px solid rgba(245,158,11,0.4); }
     .status-cancelled { background: var(--red-dim); color: var(--red); border: 1px solid rgba(239,68,68,0.3); }
     .status-completed { background: rgba(59,130,246,0.15); color: #60A5FA; border: 1px solid rgba(59,130,246,0.3); }
 
@@ -473,11 +474,6 @@
       color: #FFF;
       border-color: var(--accent);
     }
-    .quota-preset-btn.active {
-      background: var(--accent);
-      color: #FFF;
-      border-color: #60A5FA;
-    }
 
     /* Empty state */
     .empty-state {
@@ -510,13 +506,17 @@
       <button class="tab-btn active" onclick="switchTab('calendar')">
         📅 Control de Calendario & Bloqueos
       </button>
-      <button class="tab-btn" onclick="switchTab('all')">
-        📁 Todas las Citas
-        <span id="all-count" class="tab-counter" style="display:none">0</span>
+      <button class="tab-btn" onclick="switchTab('waiting')">
+        ⏳ Lista de Espera / Avisos
+        <span id="waiting-count" class="tab-counter" style="display:none; background:rgba(245,158,11,0.25); color:#FBBF24;">0</span>
       </button>
       <button class="tab-btn" onclick="switchTab('pending')">
         📋 Citas Pendientes
         <span id="pending-count" class="tab-counter" style="display:none">0</span>
+      </button>
+      <button class="tab-btn" onclick="switchTab('all')">
+        📁 Todas las Citas
+        <span id="all-count" class="tab-counter" style="display:none">0</span>
       </button>
       <button class="tab-btn" onclick="switchTab('settings')">
         ⚙️ Ajustes de Cupos y Taller
@@ -533,7 +533,7 @@
           <span>Bloquear o Configurar Días Específicos</span>
         </div>
         <p style="font-size:0.85rem; color:var(--text-dim); margin-bottom:14px;">
-          Haz clic directo sobre cualquier día del calendario abajo para <strong>elegir cuántas citas admitir (cupo)</strong> o <strong>bloquearlo por completo</strong>.
+          Haz clic directo sobre cualquier día del calendario abajo para <strong>elegir cuántas citas admitir (cupo)</strong> o <strong>bloquearlo por completo</strong>. Si un día está bloqueado o completo, los clientes podrán anotarse en la <strong>Lista de Espera</strong>.
         </p>
         <div style="display:flex; flex-wrap:wrap; gap:10px; align-items:center;">
           <input type="date" id="input-block-date" class="form-input" style="width:180px;" />
@@ -561,21 +561,23 @@
 
         <div style="display:flex; gap:16px; flex-wrap:wrap; font-size:0.75rem; color:var(--text-dim); border-top:1px solid var(--border); padding-top:12px;">
           <span>🟢 <strong>Disponible:</strong> Haz clic para cambiar cupo o bloquear</span>
-          <span>🔴 <strong>Bloqueado:</strong> Cerrado por taller</span>
-          <span>🟡 <strong>Completo:</strong> Cupo máximo alcanzado</span>
+          <span>🔴 <strong>Bloqueado:</strong> Cerrado por taller (permite lista de espera)</span>
+          <span>🟡 <strong>Completo:</strong> Cupo máximo alcanzado (permite lista de espera)</span>
           <span>⚪ <strong>Fin de semana:</strong> Sábados y Domingos</span>
         </div>
       </div>
 
     </div>
 
-    <!-- TAB 2: ALL APPOINTMENTS -->
-    <div id="tab-all" class="section">
+    <!-- TAB 2: WAITING LIST -->
+    <div id="tab-waiting" class="section">
       <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
-        <h2 style="font-size:1.15rem; font-weight:700; color:#FFF;">Registro Histórico de Citas</h2>
-        <span id="total-appointments-label" style="font-size:0.85rem; color:var(--text-dim);">Cargando...</span>
+        <div>
+          <h2 style="font-size:1.15rem; font-weight:700; color:#FFF;">⏳ Solicitudes en Lista de Espera / Avisos de Hueco</h2>
+          <p style="font-size:0.8rem; color:var(--text-dim);">Clientes que han pedido cita para días que estaban bloqueados o completos. Puedes avisarles por WhatsApp o confirmar su cita si tienes un hueco.</p>
+        </div>
       </div>
-      <div id="all-appointments-list" class="card-list"></div>
+      <div id="waiting-appointments-list" class="card-list"></div>
     </div>
 
     <!-- TAB 3: PENDING APPOINTMENTS -->
@@ -584,7 +586,16 @@
       <div id="pending-appointments-list" class="card-list"></div>
     </div>
 
-    <!-- TAB 4: SETTINGS -->
+    <!-- TAB 4: ALL APPOINTMENTS -->
+    <div id="tab-all" class="section">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
+        <h2 style="font-size:1.15rem; font-weight:700; color:#FFF;">Registro Histórico de Citas</h2>
+        <span id="total-appointments-label" style="font-size:0.85rem; color:var(--text-dim);">Cargando...</span>
+      </div>
+      <div id="all-appointments-list" class="card-list"></div>
+    </div>
+
+    <!-- TAB 5: SETTINGS -->
     <div id="tab-settings" class="section">
       <div class="manager-card" style="max-width:650px;">
         <div class="manager-title">
@@ -712,6 +723,7 @@
             <select id="edit-status" class="form-input">
               <option value="confirmed">Confirmada</option>
               <option value="pending">Pendiente</option>
+              <option value="waiting_list">⏳ Lista de Espera / Aviso de Hueco</option>
               <option value="completed">Completada (Entregado)</option>
               <option value="cancelled">Cancelada</option>
             </select>
@@ -795,6 +807,7 @@
 
         renderAllAppointments();
         renderPendingAppointments();
+        renderWaitingAppointments();
         renderBlockedTags();
         renderCalendar();
       } catch(err) {
@@ -950,9 +963,14 @@
         const isBlocked = blockedSet.has(dateStr) || quota <= 0;
         const isToday = dateStr === todayStr;
 
-        // Count confirmed appointments on this date
+        // Count confirmed appointments and waiting list on this date
         const confirmedCount = allAppointments.filter(a => {
           if (a.status !== 'confirmed') return false;
+          return a.datetime && a.datetime.startsWith(dateStr);
+        }).length;
+
+        const waitingCount = allAppointments.filter(a => {
+          if (a.status !== 'waiting_list') return false;
           return a.datetime && a.datetime.startsWith(dateStr);
         }).length;
 
@@ -973,6 +991,10 @@
           badgeHtml = `<span class="day-status-pill pill-full">🟡 Lleno (${confirmedCount}/${quota})</span>`;
         } else {
           badgeHtml = `<span class="day-status-pill pill-avail">🟢 Libre (${confirmedCount}/${quota})</span>`;
+        }
+
+        if (waitingCount > 0) {
+          badgeHtml += `<span class="day-status-pill" style="background:rgba(245,158,11,0.25); color:#FBBF24; margin-left:2px;">⏳ ${waitingCount} espera</span>`;
         }
 
         const cell = document.createElement('div');
@@ -1012,7 +1034,7 @@
       if (isBlocked) {
         banner.style.background = 'rgba(239,68,68,0.15)';
         banner.style.border = '1px solid rgba(239,68,68,0.4)';
-        statusText.innerHTML = `<span style="color:#F87171;">🔴 Día Bloqueado (Cerrado para reservas)</span>`;
+        statusText.innerHTML = `<span style="color:#F87171;">🔴 Día Bloqueado (Cerrado - Admite Lista de Espera)</span>`;
         toggleBtn.className = 'btn btn-success';
         toggleBtn.innerText = '🔓 Abrir / Desbloquear Día';
       } else {
@@ -1025,7 +1047,7 @@
 
       // Find appointments for this date
       const apptsOnDate = allAppointments.filter(a => a.datetime && a.datetime.startsWith(dateStr));
-      document.getElementById('day-modal-booked-count').innerText = `${apptsOnDate.length} citas registradas`;
+      document.getElementById('day-modal-booked-count').innerText = `${apptsOnDate.length} solicitudes registradas`;
 
       const listContainer = document.getElementById('day-modal-appts-list');
       if (apptsOnDate.length === 0) {
@@ -1033,14 +1055,15 @@
       } else {
         listContainer.innerHTML = apptsOnDate.map(a => {
           const time = (a.datetime || '').substring(11, 16) || '--:--';
+          const isWait = a.status === 'waiting_list';
           return `
             <div style="background:var(--surface); padding:10px 12px; border-radius:8px; border:1px solid var(--border); display:flex; justify-content:space-between; align-items:center; font-size:0.8rem;">
               <div>
-                <span style="color:#60A5FA; font-weight:800;">${time} h</span>
+                <span style="color:${isWait ? '#FBBF24' : '#60A5FA'}; font-weight:800;">${isWait ? '⏳ Espera' : `${time} h`}</span>
                 <strong style="color:#FFF; margin-left:6px;">${a.name}</strong>
                 <span style="color:var(--text-dim); margin-left:6px;">(${a.car_model || ''} - ${a.license_plate || ''})</span>
               </div>
-              <button class="btn btn-outline" style="padding:4px 8px; font-size:0.7rem;" onclick="closeDayModal(); openEditModal('${a.id}')">✏️ Editar</button>
+              <button class="btn btn-outline" style="padding:4px 8px; font-size:0.7rem;" onclick="closeDayModal(); openEditModal('${a.id}')">✏️ Gestionar</button>
             </div>
           `;
         }).join('');
@@ -1135,18 +1158,45 @@
       container.innerHTML = pending.map(a => renderAppointmentCard(a)).join('');
     }
 
+    function renderWaitingAppointments() {
+      const container = document.getElementById('waiting-appointments-list');
+      const counterBadge = document.getElementById('waiting-count');
+      const waiting = allAppointments.filter(a => a.status === 'waiting_list');
+
+      counterBadge.innerText = waiting.length;
+      counterBadge.style.display = waiting.length > 0 ? 'inline-block' : 'none';
+
+      if (waiting.length === 0) {
+        container.innerHTML = `<div class="empty-state"><span>☕</span><p>No hay solicitudes en lista de espera actualmente.</p></div>`;
+        return;
+      }
+
+      container.innerHTML = waiting.map(a => renderAppointmentCard(a)).join('');
+    }
+
     function renderAppointmentCard(a) {
       const dt = a.datetime ? a.datetime.replace('T', ' ') : 'Sin fecha';
       const statusClass = `status-${a.status || 'pending'}`;
-      const statusLabels = { confirmed: 'Confirmada', pending: 'Pendiente', completed: 'Completada', cancelled: 'Cancelada' };
+      const statusLabels = { 
+        confirmed: 'Confirmada', 
+        pending: 'Pendiente', 
+        waiting_list: '⏳ Lista de Espera',
+        completed: 'Completada', 
+        cancelled: 'Cancelada' 
+      };
 
       const cleanPhone = (a.phone || '').replace(/\D/g, '');
       const waPhone = cleanPhone.startsWith('34') || cleanPhone.length > 9 ? cleanPhone : '34' + cleanPhone;
-      const waMsg = encodeURIComponent(`Hola ${a.name}, te contactamos desde Auto Talleres Romo sobre tu cita del ${dt}.`);
+      
+      const isWait = a.status === 'waiting_list';
+      const waMsg = isWait
+        ? encodeURIComponent(`Hola ${a.name}, te contactamos desde Auto Talleres Romo sobre tu solicitud en lista de espera para el ${dt}. ¡Tenemos un hueco disponible para ti!`)
+        : encodeURIComponent(`Hola ${a.name}, te contactamos desde Auto Talleres Romo sobre tu cita del ${dt}.`);
+      
       const waUrl = `https://wa.me/${waPhone}?text=${waMsg}`;
 
       return `
-        <div class="appt-card">
+        <div class="appt-card" style="${isWait ? 'border-color:rgba(245,158,11,0.4);' : ''}">
           <div class="appt-header">
             <div>
               <div class="client-title">
@@ -1166,8 +1216,8 @@
 
           <div class="appt-body">
             <div class="info-item">
-              <label>Fecha y Hora</label>
-              <span style="color:#60A5FA;">📅 ${dt} h</span>
+              <label>Fecha Solicitada</label>
+              <span style="color:${isWait ? '#FBBF24' : '#60A5FA'};">📅 ${dt} h</span>
             </div>
             <div class="info-item">
               <label>Servicio</label>
@@ -1181,16 +1231,16 @@
 
           <div class="appt-actions">
             <a href="${waUrl}" target="_blank" class="btn btn-whatsapp">
-              <span>💬 Abrir WhatsApp</span>
+              <span>💬 Abrir WhatsApp (${isWait ? 'Avisar Hueco' : 'Contactar'})</span>
             </a>
 
             <button class="btn btn-outline" onclick="openEditModal('${a.id}')">
-              <span>✏️ Editar / Cambiar Fecha</span>
+              <span>✏️ Editar / Reasignar Fecha</span>
             </button>
 
             ${a.status !== 'confirmed' ? `
               <button class="btn btn-success" onclick="updateStatus('${a.id}', 'confirmed')">
-                <span>✓ Confirmar</span>
+                <span>✓ ${isWait ? 'Aceptar Cita' : 'Confirmar'}</span>
               </button>
             ` : ''}
 

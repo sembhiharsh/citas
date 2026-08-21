@@ -21,7 +21,8 @@ import {
   Disc,
   ClipboardCheck,
   Cpu,
-  Wind
+  Wind,
+  Hourglass
 } from 'lucide-react';
 import logoImg from './assets/logo.jpg';
 
@@ -106,7 +107,7 @@ function App() {
     opening_hours: 'Lunes a Viernes 08:30 - 13:00 / 15:00 - 18:30'
   });
 
-  const [availableDates, setAvailableDates] = useState([]);
+  const [calendarDays, setCalendarDays] = useState([]);
   const [loadingDates, setLoadingDates] = useState(true);
 
   // Form State
@@ -128,7 +129,7 @@ function App() {
   const [suggestedDate, setSuggestedDate] = useState(null);
   const [submittedAppointment, setSubmittedAppointment] = useState(null);
 
-  // Fetch Settings & Available Dates
+  // Fetch Settings & Calendar Availability
   useEffect(() => {
     const initData = async () => {
       try {
@@ -138,18 +139,24 @@ function App() {
           setSettings(prev => ({ ...prev, ...setData }));
         }
 
-        // Fetch available dates for the next 3 weeks
+        // Fetch calendar overview for the next 25 days
         const today = new Date();
         const startStr = today.toISOString().split('T')[0];
         const future = new Date(today.getTime() + 25 * 24 * 60 * 60 * 1000);
         const endStr = future.toISOString().split('T')[0];
 
-        const datesRes = await fetch(`${API_BASE}/api/available-dates?start=${startStr}&end=${endStr}`);
-        if (datesRes.ok) {
-          const datesData = await datesRes.json();
-          setAvailableDates(datesData);
-          if (datesData.length > 0) {
-            setSelectedDate(datesData[0]);
+        const overviewRes = await fetch(`${API_BASE}/api/calendar-overview?start=${startStr}&end=${endStr}`);
+        if (overviewRes.ok) {
+          const overviewData = await overviewRes.json();
+          // Keep only weekdays
+          const weekdays = overviewData.filter(d => d.status !== 'weekend');
+          setCalendarDays(weekdays);
+
+          const firstAvail = weekdays.find(d => d.status === 'available');
+          if (firstAvail) {
+            setSelectedDate(firstAvail.date);
+          } else if (weekdays.length > 0) {
+            setSelectedDate(weekdays[0].date);
           }
         }
       } catch (err) {
@@ -160,6 +167,14 @@ function App() {
     };
     initData();
   }, []);
+
+  const currentDayInfo = useMemo(() => {
+    return calendarDays.find(d => d.date === selectedDate);
+  }, [calendarDays, selectedDate]);
+
+  const isWaitingListMode = useMemo(() => {
+    return currentDayInfo && (currentDayInfo.status === 'blocked' || currentDayInfo.status === 'full');
+  }, [currentDayInfo]);
 
   const formatSelectedDateTime = useMemo(() => {
     if (!selectedDate || !selectedTime) return '';
@@ -187,9 +202,10 @@ function App() {
     const cleanPhone = rawWhatsApp.startsWith('34') || rawWhatsApp.length > 9 ? rawWhatsApp : '34' + rawWhatsApp;
     let msg = 'Hola Auto Talleres Romo, me gustaría consultar una cita o avería para mi vehículo';
     if (fullCarString) msg += ` (${fullCarString})`;
+    if (isWaitingListMode) msg += ` para el día ${selectedDate} (Lista de Espera / Aviso de Hueco)`;
     if (customServiceText.trim()) msg += `. Detalles del problema: ${customServiceText.trim()}`;
     return `https://wa.me/${cleanPhone}?text=${encodeURIComponent(msg)}`;
-  }, [settings.whatsapp_number, fullCarString, customServiceText]);
+  }, [settings.whatsapp_number, fullCarString, selectedDate, isWaitingListMode, customServiceText]);
 
   const handleApplySuggestedDate = () => {
     if (suggestedDate) {
@@ -234,7 +250,7 @@ function App() {
       license_plate: licensePlate.trim().toUpperCase(),
       service: clientNotes.trim() ? `${resolvedServiceName} (Nota: ${clientNotes.trim()})` : resolvedServiceName,
       datetime: formatSelectedDateTime,
-      status: 'pending'
+      status: isWaitingListMode ? 'waiting_list' : 'pending'
     };
 
     try {
@@ -245,43 +261,43 @@ function App() {
       });
 
       if (!res.ok) {
-        if (res.status === 409) {
-          const data = await res.json();
-          const detail = data.detail || 'Este día ya está completo.';
-          setErrorMessage(detail);
-          const dateMatch = detail.match(/(\d{4}-\d{2}-\d{2})/);
-          if (dateMatch) {
-            setSuggestedDate(dateMatch[1]);
-          }
-          return;
-        } else {
-          const data = await res.json().catch(() => ({}));
-          throw new Error(data.detail || 'No se pudo procesar la solicitud de cita.');
-        }
+        const data = await res.json().catch(() => ({}));
+        throw new Error(data.detail || 'No se pudo procesar la solicitud de cita.');
       }
 
       const data = await res.json();
       const confirmedAppt = data.appointment || payload;
       const isAutoApproved = confirmedAppt.status === 'confirmed';
+      const isWaitingList = confirmedAppt.status === 'waiting_list';
 
       // Generate WhatsApp Link
       const rawWhatsApp = (settings.whatsapp_number || '34600000000').replace(/\D/g, '');
       const cleanTargetPhone = rawWhatsApp.startsWith('34') || rawWhatsApp.length > 9 ? rawWhatsApp : '34' + rawWhatsApp;
       
-      const whatsappMsg = `¡Hola Auto Talleres Romo! Acabo de registrar una cita desde la web:\n\n` +
-        `👤 *Cliente:* ${payload.name}\n` +
-        `📞 *Teléfono:* ${payload.phone}\n` +
-        `🚗 *Vehículo:* ${payload.car_model}\n` +
-        `🔢 *Matrícula:* ${payload.license_plate}\n` +
-        `🛠️ *Servicio:* ${payload.service}\n` +
-        `📅 *Fecha y Hora:* ${selectedDate} a las ${selectedTime} h\n\n` +
-        `¡Quedo a la espera de su confirmación! Muchas gracias.`;
+      const whatsappMsg = isWaitingList 
+        ? `¡Hola Auto Talleres Romo! Acabo de registrar una solicitud en *Lista de Espera / Aviso de Hueco* para el ${selectedDate}:\n\n` +
+          `👤 *Cliente:* ${payload.name}\n` +
+          `📞 *Teléfono:* ${payload.phone}\n` +
+          `🚗 *Vehículo:* ${payload.car_model}\n` +
+          `🔢 *Matrícula:* ${payload.license_plate}\n` +
+          `🛠️ *Servicio:* ${payload.service}\n` +
+          `📅 *Día solicitado:* ${selectedDate} a las ${selectedTime} h\n\n` +
+          `¡Avisadme si tenéis disponibilidad o se cancela una cita! Gracias.`
+        : `¡Hola Auto Talleres Romo! Acabo de registrar una cita desde la web:\n\n` +
+          `👤 *Cliente:* ${payload.name}\n` +
+          `📞 *Teléfono:* ${payload.phone}\n` +
+          `🚗 *Vehículo:* ${payload.car_model}\n` +
+          `🔢 *Matrícula:* ${payload.license_plate}\n` +
+          `🛠️ *Servicio:* ${payload.service}\n` +
+          `📅 *Fecha y Hora:* ${selectedDate} a las ${selectedTime} h\n\n` +
+          `¡Quedo a la espera de su confirmación! Muchas gracias.`;
 
       const whatsappUrl = `https://wa.me/${cleanTargetPhone}?text=${encodeURIComponent(whatsappMsg)}`;
 
       setSubmittedAppointment({
         ...confirmedAppt,
         isAutoApproved,
+        isWaitingList,
         whatsappUrl,
         formattedDate: selectedDate,
         formattedTime: selectedTime
@@ -399,16 +415,20 @@ function App() {
               
               {/* Header Status */}
               <div className="text-center space-y-3">
-                <div className="inline-flex p-4 rounded-2xl bg-emerald-50 border border-emerald-200 text-emerald-600 mb-1">
-                  <CheckCircle2 className="w-12 h-12" />
+                <div className={`inline-flex p-4 rounded-2xl ${submittedAppointment.isWaitingList ? 'bg-amber-50 border border-amber-300 text-amber-600' : 'bg-emerald-50 border border-emerald-200 text-emerald-600'} mb-1`}>
+                  {submittedAppointment.isWaitingList ? <Hourglass className="w-12 h-12" /> : <CheckCircle2 className="w-12 h-12" />}
                 </div>
                 <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-900">
-                  {submittedAppointment.isAutoApproved ? '¡Cita Confirmada con Éxito!' : '¡Solicitud Recibida Correctamente!'}
+                  {submittedAppointment.isWaitingList 
+                    ? '¡Anotado en Lista de Espera con Éxito!'
+                    : (submittedAppointment.isAutoApproved ? '¡Cita Confirmada con Éxito!' : '¡Solicitud Recibida Correctamente!')}
                 </h1>
                 <p className="text-sm text-slate-600 max-w-md mx-auto leading-relaxed">
-                  {submittedAppointment.isAutoApproved
-                    ? 'Tu vehículo ha quedado agendado en el sistema del taller. Te esperamos el día y hora indicados.'
-                    : 'Hemos recibido tu solicitud. Nuestro equipo la revisará y te contactaremos de inmediato por teléfono o WhatsApp.'}
+                  {submittedAppointment.isWaitingList
+                    ? `Hemos guardado tu solicitud para el día ${submittedAppointment.formattedDate}. En cuanto se libere un hueco o tengamos disponibilidad, nos pondremos en contacto contigo por teléfono o WhatsApp para darte prioridad.`
+                    : (submittedAppointment.isAutoApproved
+                      ? 'Tu vehículo ha quedado agendado en el sistema del taller. Te esperamos el día y hora indicados.'
+                      : 'Hemos recibido tu solicitud. Nuestro equipo la revisará y te contactaremos de inmediato por teléfono o WhatsApp.')}
                 </p>
               </div>
 
@@ -416,8 +436,12 @@ function App() {
               <div className="bg-slate-50 rounded-xl p-5 sm:p-6 border border-slate-200 space-y-4">
                 <div className="flex items-center justify-between border-b border-slate-200 pb-3">
                   <span className="text-xs font-bold text-slate-500 uppercase tracking-wider">Detalles de la Reserva</span>
-                  <span className="px-2.5 py-1 text-xs font-bold bg-emerald-100 text-emerald-800 rounded-md border border-emerald-300">
-                    {submittedAppointment.isAutoApproved ? 'Confirmada' : 'Pendiente'}
+                  <span className={`px-2.5 py-1 text-xs font-bold rounded-md border ${
+                    submittedAppointment.isWaitingList 
+                      ? 'bg-amber-100 text-amber-900 border-amber-300' 
+                      : (submittedAppointment.isAutoApproved ? 'bg-emerald-100 text-emerald-800 border-emerald-300' : 'bg-blue-100 text-blue-800 border-blue-300')
+                  }`}>
+                    {submittedAppointment.isWaitingList ? '⏳ Lista de Espera' : (submittedAppointment.isAutoApproved ? 'Confirmada' : 'Pendiente')}
                   </span>
                 </div>
 
@@ -445,7 +469,7 @@ function App() {
                   </div>
 
                   <div>
-                    <span className="text-xs text-slate-500 block">Fecha y Hora de Entrega</span>
+                    <span className="text-xs text-slate-500 block">Fecha y Turno Preferido</span>
                     <span className="font-extrabold text-blue-700 text-base">
                       {submittedAppointment.formattedDate} — {submittedAppointment.formattedTime} h
                     </span>
@@ -464,24 +488,26 @@ function App() {
                       className="flex-1 py-3.5 px-4 bg-emerald-600 hover:bg-emerald-500 text-white font-bold rounded-xl flex items-center justify-center gap-2 shadow-md shadow-emerald-600/20 transition-all text-sm"
                     >
                       <MessageSquare className="w-4 h-4" />
-                      <span>Notificar por WhatsApp</span>
+                      <span>{submittedAppointment.isWaitingList ? 'Notificar al Taller por WhatsApp' : 'Notificar por WhatsApp'}</span>
                     </a>
                   )}
 
-                  <button
-                    type="button"
-                    onClick={downloadCalendarEvent}
-                    className="py-3.5 px-4 bg-white hover:bg-slate-50 text-slate-800 font-bold rounded-xl border border-slate-300 flex items-center justify-center gap-2 transition-all text-sm shadow-xs"
-                  >
-                    <CalendarPlus className="w-4 h-4 text-blue-600" />
-                    <span>Añadir a mi Calendario</span>
-                  </button>
+                  {!submittedAppointment.isWaitingList && (
+                    <button
+                      type="button"
+                      onClick={downloadCalendarEvent}
+                      className="py-3.5 px-4 bg-white hover:bg-slate-50 text-slate-800 font-bold rounded-xl border border-slate-300 flex items-center justify-center gap-2 transition-all text-sm shadow-xs"
+                    >
+                      <CalendarPlus className="w-4 h-4 text-blue-600" />
+                      <span>Añadir a mi Calendario</span>
+                    </button>
+                  )}
                 </div>
 
                 <div className="p-4 rounded-xl bg-blue-50 border border-blue-200 text-xs text-slate-700 flex gap-3 items-start">
                   <Info className="w-4 h-4 text-blue-600 shrink-0 mt-0.5" />
                   <p>
-                    <strong>Indicaciones de llegada:</strong> Por favor, acude con 5 minutos de antelación y la documentación del vehículo (ficha técnica y permiso de circulación). Si necesitas modificar o cancelar la cita, llámanos al 93 381 23 45.
+                    <strong>Indicaciones del taller:</strong> Si te surge cualquier consulta o necesitas adelantar la reparación por urgencia, llámanos directamente al <strong>93 381 23 45</strong> o escríbenos por WhatsApp.
                   </p>
                 </div>
 
@@ -494,7 +520,7 @@ function App() {
                     }}
                     className="text-xs text-slate-500 hover:text-slate-900 font-semibold underline transition-colors cursor-pointer"
                   >
-                    ← Solicitar otra cita diferente
+                    ← Solicitar otra cita o fecha diferente
                   </button>
                 </div>
               </div>
@@ -754,27 +780,29 @@ function App() {
                     <div>
                       <label className="text-xs font-bold text-slate-800 block mb-2.5">Selecciona el día de entrega:</label>
                       {loadingDates ? (
-                        <div className="text-xs text-slate-500 py-3">Cargando disponibilidad del taller...</div>
-                      ) : availableDates.length === 0 ? (
-                        <div className="text-xs text-amber-600 py-2 font-semibold">Consultando calendario...</div>
+                        <div className="text-xs text-slate-500 py-3">Cargando calendario del taller...</div>
+                      ) : calendarDays.length === 0 ? (
+                        <div className="text-xs text-amber-600 py-2 font-semibold">Consultando disponibilidad...</div>
                       ) : (
-                        <div className="grid grid-cols-3 sm:grid-cols-5 gap-2">
-                          {availableDates.slice(0, 10).map((dateStr) => {
+                        <div className="grid grid-cols-2 sm:grid-cols-5 gap-2.5">
+                          {calendarDays.slice(0, 10).map((day) => {
+                            const dateStr = day.date;
                             const d = new Date(dateStr + 'T00:00:00');
                             const dayName = d.toLocaleDateString('es-ES', { weekday: 'short' });
                             const dayNum = d.getDate();
                             const monthName = d.toLocaleDateString('es-ES', { month: 'short' });
                             const isSelected = selectedDate === dateStr;
+                            const isBlockedOrFull = day.status === 'blocked' || day.status === 'full';
 
                             return (
                               <button
                                 key={dateStr}
                                 type="button"
                                 onClick={() => setSelectedDate(dateStr)}
-                                className={`p-2.5 rounded-xl border text-center transition-all cursor-pointer ${
+                                className={`p-2.5 rounded-xl border text-center transition-all cursor-pointer flex flex-col justify-between ${
                                   isSelected
-                                    ? 'bg-blue-600 text-white border-blue-600 shadow-md shadow-blue-600/20'
-                                    : 'bg-slate-50 text-slate-700 border-slate-200 hover:border-slate-300 hover:bg-slate-100'
+                                    ? (isBlockedOrFull ? 'bg-amber-500 text-white border-amber-600 shadow-md shadow-amber-500/20' : 'bg-blue-600 text-white border-blue-600 shadow-md shadow-blue-600/20')
+                                    : (isBlockedOrFull ? 'bg-amber-50/70 text-amber-900 border-amber-200 hover:bg-amber-100' : 'bg-slate-50 text-slate-700 border-slate-200 hover:border-slate-300 hover:bg-slate-100')
                                 }`}
                               >
                                 <span className="text-[10px] uppercase font-bold tracking-wider block opacity-80">
@@ -786,12 +814,33 @@ function App() {
                                 <span className="text-[10px] capitalize block opacity-80 font-medium">
                                   {monthName}
                                 </span>
+                                
+                                <span className={`text-[9px] font-bold px-1.5 py-0.5 rounded mt-1 block truncate ${
+                                  isSelected 
+                                    ? 'bg-white/20 text-white' 
+                                    : (isBlockedOrFull ? 'bg-amber-200/80 text-amber-900' : 'bg-emerald-100 text-emerald-800')
+                                }`}>
+                                  {isBlockedOrFull ? '⏳ Lista Espera' : `${day.slots_left} libres`}
+                                </span>
                               </button>
                             );
                           })}
                         </div>
                       )}
                     </div>
+
+                    {/* Waiting List Notice Banner if selected date is blocked or full */}
+                    {isWaitingListMode && (
+                      <div className="p-4 rounded-xl bg-amber-50 border border-amber-300 text-amber-900 text-xs space-y-1.5 animate-fade-in shadow-xs">
+                        <div className="flex items-center gap-2 font-bold text-amber-900">
+                          <Hourglass className="w-4 h-4 text-amber-600 shrink-0" />
+                          <span>Día Completo o Cerrado: Solicitud en Lista de Espera</span>
+                        </div>
+                        <p className="text-amber-800 text-[11px] leading-relaxed">
+                          El taller no tiene citas libres directas para el <strong>{selectedDate}</strong>. Rellena tus datos y nuestro equipo te contactará por teléfono o WhatsApp en cuanto se cancele una cita, se abra un hueco o para ofrecerte la alternativa más cercana.
+                        </p>
+                      </div>
+                    )}
 
                     {/* Time Slot Picker */}
                     <div className="space-y-3 pt-2">
@@ -936,9 +985,10 @@ function App() {
                     </div>
 
                     <div className="flex items-start justify-between gap-2 border-b border-slate-100 pb-2.5">
-                      <span className="text-slate-500 font-medium">Fecha y Hora:</span>
-                      <span className="font-bold text-emerald-700 text-right">
+                      <span className="text-slate-500 font-medium">Fecha y Turno:</span>
+                      <span className={`font-bold text-right ${isWaitingListMode ? 'text-amber-700' : 'text-emerald-700'}`}>
                         {selectedDate ? `${selectedDate} — ${selectedTime} h` : 'Selecciona fecha'}
+                        {isWaitingListMode && <span className="block text-[10px] text-amber-600 font-semibold">(Lista de Espera)</span>}
                       </span>
                     </div>
 
@@ -953,23 +1003,29 @@ function App() {
                     type="submit"
                     form="appointment-form"
                     disabled={submitting}
-                    className="w-full py-3.5 px-4 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-bold rounded-xl shadow-md shadow-blue-600/20 flex items-center justify-center gap-2 cursor-pointer transition-all border-none disabled:opacity-50 disabled:cursor-not-allowed text-sm"
+                    className={`w-full py-3.5 px-4 text-white font-bold rounded-xl shadow-md flex items-center justify-center gap-2 cursor-pointer transition-all border-none disabled:opacity-50 disabled:cursor-not-allowed text-sm ${
+                      isWaitingListMode 
+                        ? 'bg-gradient-to-r from-amber-600 to-orange-600 hover:from-amber-700 hover:to-orange-700 shadow-amber-600/20'
+                        : 'bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 shadow-blue-600/20'
+                    }`}
                   >
                     {submitting ? (
                       <>
                         <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
-                        <span>Registrando Cita...</span>
+                        <span>Registrando Solicitud...</span>
                       </>
                     ) : (
                       <>
-                        <span>Confirmar Solicitud de Cita</span>
+                        <span>{isWaitingListMode ? '⏳ Solicitar en Lista de Espera' : 'Confirmar Solicitud de Cita'}</span>
                         <ArrowRight className="w-4 h-4" />
                       </>
                     )}
                   </button>
 
                   <p className="text-[11px] text-slate-400 text-center leading-normal">
-                    Al solicitar cita aceptas el tratamiento de datos para la gestión del servicio mecánico.
+                    {isWaitingListMode
+                      ? 'Al enviar la solicitud aceptas que el taller te contacte cuando se libere un hueco.'
+                      : 'Al solicitar cita aceptas el tratamiento de datos para la gestión del servicio mecánico.'}
                   </p>
                 </div>
 

@@ -287,19 +287,24 @@ async def create_appointment(appointment: AppointmentModel):
     except Exception:
         raise HTTPException(status_code=400, detail="Invalid datetime format. Use ISO8601.")
 
-    # Enforce business rules — slot must be valid (work hours, not weekend, not past, not blocked)
-    if not is_slot_available(appt_dt):
-        raise HTTPException(status_code=400, detail="El turno seleccionado no está disponible o el día está cerrado.")
-
-    # Check if the day is already full or blocked
     appt_date = appt_dt.date()
-    if is_date_full(appt_date):
-        next_date = get_next_available_date(appt_date + datetime.timedelta(days=1))
-        quota = get_daily_quota()
-        raise HTTPException(
-            status_code=409,
-            detail=f"Este día ya está completo o cerrado por el taller (máximo {quota} citas). El próximo día disponible es: {next_date}"
-        )
+    is_blocked_or_full = is_date_full(appt_date) or not is_slot_available(appt_dt)
+    
+    # If the slot is blocked, full, or client explicitly chose waiting_list
+    if is_blocked_or_full or app_data.get("status") == "waiting_list":
+        app_data["status"] = "waiting_list"
+        appointments.append(app_data)
+        save_appointments(appointments)
+        await broadcast_appointment_update()
+        try:
+            append_appointment_to_sheet(app_data)
+        except Exception:
+            pass
+        return {
+            "status": "waiting_list",
+            "message": "Anotado en lista de espera con éxito. Nos pondremos en contacto contigo en cuanto tengamos un hueco disponible.",
+            "appointment": app_data
+        }
 
     # Auto-confirm since quota is not exceeded
     app_data["status"] = "confirmed"
@@ -330,7 +335,7 @@ async def update_appointment_status(appointment_id: str, payload: dict):
             
             # Update status if provided
             if "status" in payload:
-                if new_status not in {"confirmed", "cancelled", "pending", "completed"}:
+                if new_status not in {"confirmed", "cancelled", "pending", "completed", "waiting_list"}:
                     raise HTTPException(status_code=400, detail="Invalid status value")
                 a["status"] = new_status
                 if new_status in {"confirmed", "cancelled"}:
@@ -397,7 +402,45 @@ async def delete_appointment(appointment_id: str):
     return {"status": "success", "message": "Appointment deleted successfully."}
 
 
-# ---------- Available Dates ----------
+# ---------- Available Dates & Calendar Overview ----------
+
+@app.get("/api/calendar-overview")
+def api_calendar_overview(start: str, end: str):
+    """Return each date with status (available, blocked, full, weekend) for client calendar."""
+    try:
+        start_date = datetime.datetime.strptime(start, "%Y-%m-%d").date()
+        end_date = datetime.datetime.strptime(end, "%Y-%m-%d").date()
+    except Exception:
+        raise HTTPException(status_code=400, detail="Invalid date format. Use YYYY-MM-DD.")
+        
+    overview = []
+    delta = datetime.timedelta(days=1)
+    current = start_date
+    while current <= end_date:
+        is_blocked = is_date_blocked_by_admin(current)
+        is_weekend = current.weekday() in (5, 6)
+        quota = get_daily_quota(current)
+        from utils.scheduling import get_confirmed_count_for_date
+        confirmed_count = get_confirmed_count_for_date(current)
+        
+        status_val = "available"
+        if is_blocked or quota <= 0:
+            status_val = "blocked"
+        elif is_weekend:
+            status_val = "weekend"
+        elif confirmed_count >= quota:
+            status_val = "full"
+            
+        overview.append({
+            "date": current.isoformat(),
+            "status": status_val,
+            "quota": quota,
+            "confirmed_count": confirmed_count,
+            "slots_left": max(quota - confirmed_count, 0)
+        })
+        current += delta
+    return overview
+
 
 @app.get("/api/available-dates")
 def api_available_dates(start: str, end: str):
