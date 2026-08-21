@@ -805,23 +805,23 @@ function App() {
                                     : (isBlockedOrFull ? 'bg-amber-50/70 text-amber-900 border-amber-200 hover:bg-amber-100' : 'bg-slate-50 text-slate-700 border-slate-200 hover:border-slate-300 hover:bg-slate-100')
                                 }`}
                               >
-                                <span className="text-[10px] uppercase font-bold tracking-wider block opacity-80">
+                                <span className="text-[11px] uppercase font-bold tracking-wider block opacity-75">
                                   {dayName}
                                 </span>
-                                <span className="text-base font-extrabold block my-0.5">
+                                <span className="text-xl font-extrabold block my-0.5">
                                   {dayNum}
                                 </span>
-                                <span className="text-[10px] capitalize block opacity-80 font-medium">
+                                <span className="text-xs capitalize block opacity-75 font-semibold">
                                   {monthName}
                                 </span>
                                 
-                                <span className={`text-[9px] font-bold px-1.5 py-0.5 rounded mt-1 block truncate ${
-                                  isSelected 
-                                    ? 'bg-white/20 text-white' 
-                                    : (isBlockedOrFull ? 'bg-amber-200/80 text-amber-900' : 'bg-emerald-100 text-emerald-800')
-                                }`}>
-                                  {isBlockedOrFull ? '⏳ Lista Espera' : `${day.slots_left} libres`}
-                                </span>
+                                {isBlockedOrFull && (
+                                  <span className={`text-[9px] font-bold px-1.5 py-0.5 rounded mt-1.5 block truncate ${
+                                    isSelected ? 'bg-white/25 text-white' : 'bg-amber-200/90 text-amber-950'
+                                  }`}>
+                                    ⏳ Lista Espera
+                                  </span>
+                                )}
                               </button>
                             );
                           })}
