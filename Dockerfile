@@ -1,6 +1,6 @@
-FROM node:20-slim AS frontend-builder
+FROM node:22-bookworm-slim AS frontend-builder
 WORKDIR /frontend
-COPY frontend/package*.json ./
+COPY frontend/package.json ./
 RUN npm install
 COPY frontend/ .
 RUN npm run build
