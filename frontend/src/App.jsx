@@ -35,7 +35,7 @@ const getBackendUrl = () => {
 const API_BASE = getBackendUrl();
 
 const POPULAR_BRANDS = [
-  'SEAT', 'Volkswagen', 'Renault', 'Peugeot', 'Toyota', 'Ford', 'Audi', 'BMW', 'Mercedes-Benz', 'Citroën', 'Hyundai', 'Kia', 'Nissan', 'Dacia'
+  'SEAT', 'Volkswagen', 'Mercedes-Benz', 'Audi', 'BMW', 'Renault', 'Peugeot', 'Toyota', 'Ford', 'Citroën', 'Hyundai', 'Kia', 'Nissan', 'Dacia'
 ];
 
 const SERVICES_CATALOG = [
@@ -506,16 +506,8 @@ function App() {
               </p>
             </div>
 
-            {/* 4 Guarantees Pills */}
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-3 max-w-5xl mx-auto">
-              <div className="bg-[#131B2A]/80 border border-slate-800 rounded-xl p-3.5 flex items-center gap-3">
-                <ShieldCheck className="w-5 h-5 text-emerald-400 shrink-0" />
-                <div>
-                  <span className="text-xs font-bold text-white block">Garantía 12 Meses</span>
-                  <span className="text-[11px] text-slate-400 block">En piezas y mano de obra</span>
-                </div>
-              </div>
-
+            {/* 3 Trust Pillars */}
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 max-w-5xl mx-auto">
               <div className="bg-[#131B2A]/80 border border-slate-800 rounded-xl p-3.5 flex items-center gap-3">
                 <Clock className="w-5 h-5 text-blue-400 shrink-0" />
                 <div>
@@ -535,8 +527,8 @@ function App() {
               <div className="bg-[#131B2A]/80 border border-slate-800 rounded-xl p-3.5 flex items-center gap-3">
                 <Car className="w-5 h-5 text-indigo-400 shrink-0" />
                 <div>
-                  <span className="text-xs font-bold text-white block">Todas las Marcas</span>
-                  <span className="text-[11px] text-slate-400 block">Especialistas europeos</span>
+                  <span className="text-xs font-bold text-white block">Especialistas Multimarca</span>
+                  <span className="text-[11px] text-slate-400 block">Todas las marcas europeas</span>
                 </div>
               </div>
             </div>
@@ -644,7 +636,7 @@ function App() {
                     <div>
                       <span className="text-xs text-slate-400 block mb-2">Marcas frecuentes:</span>
                       <div className="flex flex-wrap gap-1.5">
-                        {POPULAR_BRANDS.slice(0, 8).map((brand) => (
+                        {POPULAR_BRANDS.map((brand) => (
                           <button
                             key={brand}
                             type="button"
