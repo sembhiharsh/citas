@@ -1,8 +1,8 @@
 FROM node:22-bookworm-slim AS frontend-builder
 WORKDIR /frontend
-COPY frontend/package.json ./
+COPY frontend/package*.json ./
 RUN npm install
-COPY frontend/ .
+COPY frontend/ ./
 RUN npm run build
 
 FROM python:3.11-slim
