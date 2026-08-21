@@ -420,28 +420,26 @@ function App() {
                 </div>
                 <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-900">
                   {submittedAppointment.isWaitingList 
-                    ? '¡Anotado en Lista de Espera con Éxito!'
-                    : (submittedAppointment.isAutoApproved ? '¡Cita Confirmada con Éxito!' : '¡Solicitud Recibida Correctamente!')}
+                    ? '¡Solicitud en Lista de Espera Registrada!' 
+                    : '¡Cita Aceptada y Confirmada!'}
                 </h1>
                 <p className="text-sm text-slate-600 max-w-md mx-auto leading-relaxed">
                   {submittedAppointment.isWaitingList
-                    ? `Hemos guardado tu solicitud para el día ${submittedAppointment.formattedDate}. En cuanto se libere un hueco o tengamos disponibilidad, nos pondremos en contacto contigo por teléfono o WhatsApp para darte prioridad.`
-                    : (submittedAppointment.isAutoApproved
-                      ? 'Tu vehículo ha quedado agendado en el sistema del taller. Te esperamos el día y hora indicados.'
-                      : 'Hemos recibido tu solicitud. Nuestro equipo la revisará y te contactaremos de inmediato por teléfono o WhatsApp.')}
+                    ? `Este día está actualmente completo o cerrado. Hemos guardado tus datos con máxima prioridad y te contactaremos por WhatsApp en breve en cuanto tengamos un hueco disponible.`
+                    : `Tu cita ha sido aceptada en el sistema del taller. Te esperamos el ${submittedAppointment.formattedDate} a las ${submittedAppointment.formattedTime} h en Auto Talleres Romo.`}
                 </p>
               </div>
 
               {/* Appointment Ticket Card */}
               <div className="bg-slate-50 rounded-xl p-5 sm:p-6 border border-slate-200 space-y-4">
                 <div className="flex items-center justify-between border-b border-slate-200 pb-3">
-                  <span className="text-xs font-bold text-slate-500 uppercase tracking-wider">Detalles de la Reserva</span>
+                  <span className="text-xs font-bold text-slate-500 uppercase tracking-wider">Estado de la Reserva</span>
                   <span className={`px-2.5 py-1 text-xs font-bold rounded-md border ${
                     submittedAppointment.isWaitingList 
                       ? 'bg-amber-100 text-amber-900 border-amber-300' 
-                      : (submittedAppointment.isAutoApproved ? 'bg-emerald-100 text-emerald-800 border-emerald-300' : 'bg-blue-100 text-blue-800 border-blue-300')
+                      : 'bg-emerald-100 text-emerald-800 border-emerald-300'
                   }`}>
-                    {submittedAppointment.isWaitingList ? '⏳ Lista de Espera' : (submittedAppointment.isAutoApproved ? 'Confirmada' : 'Pendiente')}
+                    {submittedAppointment.isWaitingList ? '⏳ Lista de Espera (Aviso en Breve)' : '✓ Aceptada y Confirmada'}
                   </span>
                 </div>
 

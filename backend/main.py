@@ -302,11 +302,11 @@ async def create_appointment(appointment: AppointmentModel):
             pass
         return {
             "status": "waiting_list",
-            "message": "Anotado en lista de espera con éxito. Nos pondremos en contacto contigo en cuanto tengamos un hueco disponible.",
+            "message": "Anotado en lista de espera con éxito. Nos pondremos en contacto contigo por WhatsApp en breve en cuanto tengamos un hueco disponible.",
             "appointment": app_data
         }
 
-    # Auto-confirm since quota is not exceeded
+    # Auto-confirm and accept appointment since quota is free
     app_data["status"] = "confirmed"
 
     # Save to local JSON DB
@@ -322,7 +322,7 @@ async def create_appointment(appointment: AppointmentModel):
     except Exception as e:
         logging.error(f"Google Sheet write failed: {e}")
 
-    return {"status": "success", "message": "Cita confirmada.", "appointment": app_data}
+    return {"status": "confirmed", "message": "¡Cita aceptada y confirmada con éxito!", "appointment": app_data}
 
 
 @app.patch("/api/appointments/{appointment_id}")
