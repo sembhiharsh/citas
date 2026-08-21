@@ -1,40 +1,46 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Admin — Auto Talleres Romo</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
-  <style>
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Panel de Administración — Auto Talleres Romo</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@600;700&display=swap" rel="stylesheet" />
 
+  <style>
     :root {
       --bg: #0B0F17;
-      --surface: #111827;
-      --surface2: #172033;
-      --border: #243046;
-      --text: #F3F4F6;
+      --surface: #131B2A;
+      --surface2: #1A2438;
+      --border: #23314B;
+      --border-focus: #3B82F6;
+      --text: #F1F5F9;
       --text-dim: #94A3B8;
-      --cyan: #3B82F6;
-      --cyan-dim: rgba(59,130,246,.15);
-      --green: #10B981;
-      --green-dim: rgba(16,185,129,.15);
-      --red: #EF4444;
-      --red-dim: rgba(239,68,68,.15);
+      --accent: #2563EB;
+      --accent-hover: #1D4ED8;
+      --emerald: #10B981;
+      --emerald-dim: rgba(16,185,129,0.12);
       --amber: #F59E0B;
-      --amber-dim: rgba(245,158,11,.15);
-      --radius: 12px;
+      --amber-dim: rgba(245,158,11,0.12);
+      --red: #EF4444;
+      --red-dim: rgba(239,68,68,0.12);
+      --radius: 14px;
+      --font: 'Plus Jakarta Sans', system-ui, sans-serif;
+      --font-display: 'Space Grotesk', system-ui, sans-serif;
     }
 
+    * { box-sizing: border-box; margin: 0; padding: 0; }
     body {
-      font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
       background: var(--bg);
       color: var(--text);
+      font-family: var(--font);
       min-height: 100vh;
+      display: flex;
+      flex-direction: column;
     }
 
-    /* ---- Top Bar ---- */
+    /* Topbar */
     .topbar {
       background: var(--surface);
       border-bottom: 1px solid var(--border);
@@ -45,711 +51,1018 @@
       position: sticky;
       top: 0;
       z-index: 50;
-      backdrop-filter: blur(12px);
     }
-    .topbar h1 {
+    .brand-title {
+      font-family: var(--font-display);
       font-size: 1.15rem;
       font-weight: 700;
+      color: #FFF;
       display: flex;
       align-items: center;
       gap: 10px;
     }
-    .topbar h1 span.icon { font-size: 1.4rem; }
-    .topbar .badge {
-      background: var(--cyan-dim);
-      color: var(--cyan);
-      font-size: .7rem;
+    .badge-admin {
+      background: rgba(37,99,235,0.2);
+      color: #60A5FA;
+      border: 1px solid rgba(37,99,235,0.4);
+      font-size: 0.7rem;
+      padding: 3px 8px;
+      border-radius: 6px;
       font-weight: 700;
-      padding: 3px 10px;
-      border-radius: 20px;
       text-transform: uppercase;
-      letter-spacing: .05em;
     }
-    .topbar-right {
+    .topbar-actions {
       display: flex;
       align-items: center;
       gap: 12px;
     }
-    .btn-refresh {
+    .btn-top {
       background: var(--surface2);
       border: 1px solid var(--border);
-      color: var(--text-dim);
-      padding: 8px 16px;
-      border-radius: 10px;
-      font-size: .8rem;
+      color: var(--text);
+      padding: 8px 14px;
+      border-radius: 8px;
+      font-size: 0.8rem;
       font-weight: 600;
       cursor: pointer;
-      transition: all .2s;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.2s;
     }
-    .btn-refresh:hover { border-color: var(--cyan); color: var(--cyan); }
+    .btn-top:hover {
+      background: var(--border);
+      border-color: var(--text-dim);
+    }
 
-    /* ---- Layout ---- */
-    .container { max-width: 1100px; margin: 0 auto; padding: 28px 20px; }
+    /* Layout Container */
+    .container {
+      max-width: 1300px;
+      width: 100%;
+      margin: 0 auto;
+      padding: 24px 20px 60px;
+      flex: 1;
+    }
 
-    /* ---- Tabs ---- */
+    /* Navigation Tabs */
     .tabs {
       display: flex;
-      gap: 4px;
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: 12px;
-      padding: 4px;
+      gap: 8px;
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 12px;
       margin-bottom: 24px;
-      width: fit-content;
+      overflow-x: auto;
     }
     .tab-btn {
-      background: none;
-      border: none;
+      background: transparent;
+      border: 1px solid transparent;
       color: var(--text-dim);
-      padding: 10px 22px;
-      font-size: .82rem;
-      font-weight: 600;
+      padding: 10px 18px;
+      border-radius: 10px;
+      font-size: 0.85rem;
+      font-weight: 700;
       cursor: pointer;
-      border-radius: 9px;
-      transition: all .2s;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      transition: all 0.15s;
+      white-space: nowrap;
     }
-    .tab-btn.active { background: var(--cyan-dim); color: var(--cyan); }
-    .tab-btn:hover:not(.active) { color: var(--text); }
+    .tab-btn:hover {
+      background: var(--surface);
+      color: var(--text);
+    }
+    .tab-btn.active {
+      background: var(--surface);
+      border-color: var(--border);
+      color: #FFF;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+    }
+    .tab-counter {
+      background: rgba(239,68,68,0.2);
+      color: #F87171;
+      font-size: 0.7rem;
+      padding: 1px 6px;
+      border-radius: 10px;
+      font-weight: 800;
+    }
 
-    /* ---- Sections ---- */
+    /* Sections */
     .section { display: none; }
-    .section.active { display: block; animation: fadeIn .3s ease; }
+    .section.active { display: block; animation: fadeIn 0.2s ease-out; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
 
-    @keyframes fadeIn { from { opacity:0; transform:translateY(8px); } to { opacity:1; transform:translateY(0); } }
-
-    /* ---- Cards ---- */
-    .card {
+    /* Appointment Cards */
+    .card-list { display: grid; grid-template-columns: 1fr; gap: 14px; }
+    .appt-card {
       background: var(--surface);
       border: 1px solid var(--border);
       border-radius: var(--radius);
-      padding: 20px 24px;
-      margin-bottom: 14px;
-      transition: border-color .2s;
-    }
-    .card:hover { border-color: #334155; }
-    .card-header {
+      padding: 20px;
       display: flex;
-      align-items: center;
+      flex-direction: column;
+      gap: 16px;
+      transition: border-color 0.2s;
+    }
+    .appt-card:hover { border-color: #334466; }
+    .appt-header {
+      display: flex;
       justify-content: space-between;
-      margin-bottom: 12px;
+      align-items: flex-start;
+      gap: 10px;
+      flex-wrap: wrap;
     }
-    .card-header h3 {
-      font-size: .95rem;
+    .client-title {
+      font-size: 1.05rem;
       font-weight: 700;
+      color: #FFF;
       display: flex;
       align-items: center;
       gap: 8px;
     }
-    .card-meta {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-      gap: 10px;
-      font-size: .82rem;
-    }
-    .meta-item { color: var(--text-dim); }
-    .meta-item strong { color: var(--text); font-weight: 600; }
-
-    .card-actions {
-      display: flex;
-      gap: 8px;
-      margin-top: 16px;
-      padding-top: 14px;
-      border-top: 1px solid var(--border);
-    }
-
-    /* ---- Buttons ---- */
-    .btn {
-      border: none;
-      padding: 9px 20px;
-      border-radius: 10px;
-      font-size: .8rem;
-      font-weight: 700;
-      cursor: pointer;
-      transition: all .2s;
+    .car-badge {
       display: inline-flex;
       align-items: center;
       gap: 6px;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      padding: 4px 10px;
+      border-radius: 8px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: #93C5FD;
     }
-    .btn-confirm { background: var(--green-dim); color: var(--green); }
-    .btn-confirm:hover { background: var(--green); color: #000; }
-    .btn-cancel { background: var(--red-dim); color: var(--red); }
-    .btn-cancel:hover { background: var(--red); color: #fff; }
-    .btn-delete { background: var(--surface2); color: var(--text-dim); }
-    .btn-delete:hover { background: var(--red-dim); color: var(--red); }
-
-    /* ---- Status Badges ---- */
-    .status {
-      font-size: .7rem;
+    .plate-badge {
+      font-family: var(--font-display), monospace;
       font-weight: 700;
-      padding: 3px 10px;
-      border-radius: 20px;
-      text-transform: uppercase;
-      letter-spacing: .04em;
+      background: #FFF;
+      color: #0B0F17;
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-size: 0.75rem;
+      letter-spacing: 0.05em;
     }
-    .status-pending { background: var(--amber-dim); color: var(--amber); }
-    .status-confirmed { background: var(--green-dim); color: var(--green); }
-    .status-cancelled { background: var(--red-dim); color: var(--red); }
-
-    /* ---- Empty State ---- */
-    .empty {
-      text-align: center;
-      padding: 60px 20px;
+    .appt-body {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 12px;
+      background: var(--surface2);
+      padding: 14px;
+      border-radius: 10px;
+      font-size: 0.82rem;
+    }
+    .info-item label {
+      display: block;
+      font-size: 0.7rem;
       color: var(--text-dim);
+      font-weight: 600;
+      text-transform: uppercase;
+      margin-bottom: 2px;
     }
-    .empty .icon { font-size: 2.5rem; margin-bottom: 12px; opacity: .5; }
-    .empty p { font-size: .9rem; }
+    .info-item span {
+      font-weight: 700;
+      color: var(--text);
+    }
+    .status-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      padding: 4px 10px;
+      border-radius: 20px;
+      font-size: 0.75rem;
+      font-weight: 700;
+      text-transform: uppercase;
+    }
+    .status-confirmed { background: var(--emerald-dim); color: var(--emerald); border: 1px solid rgba(16,185,129,0.3); }
+    .status-pending { background: var(--amber-dim); color: var(--amber); border: 1px solid rgba(245,158,11,0.3); }
+    .status-cancelled { background: var(--red-dim); color: var(--red); border: 1px solid rgba(239,68,68,0.3); }
+    .status-completed { background: rgba(59,130,246,0.15); color: #60A5FA; border: 1px solid rgba(59,130,246,0.3); }
 
-    /* ---- Calendar Grid ---- */
+    .appt-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      justify-content: flex-end;
+      align-items: center;
+      border-top: 1px solid var(--border);
+      padding-top: 14px;
+    }
+    .btn {
+      padding: 8px 14px;
+      border-radius: 8px;
+      font-size: 0.8rem;
+      font-weight: 700;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.15s;
+      border: 1px solid transparent;
+    }
+    .btn-primary { background: var(--accent); color: #FFF; }
+    .btn-primary:hover { background: var(--accent-hover); }
+    .btn-success { background: var(--emerald); color: #FFF; }
+    .btn-danger { background: rgba(239,68,68,0.15); color: #F87171; border-color: rgba(239,68,68,0.3); }
+    .btn-danger:hover { background: #EF4444; color: #FFF; }
+    .btn-outline { background: var(--surface2); color: var(--text); border-color: var(--border); }
+    .btn-outline:hover { background: var(--border); }
+    .btn-whatsapp { background: rgba(37,211,102,0.15); color: #25D366; border-color: rgba(37,211,102,0.3); }
+    .btn-whatsapp:hover { background: #25D366; color: #000; }
+
+    /* Calendar Grid & Interactive Block Controls */
     .cal-controls {
       display: flex;
       align-items: center;
-      gap: 14px;
+      justify-content: space-between;
       margin-bottom: 18px;
     }
-    .cal-controls button {
-      background: var(--surface2);
-      border: 1px solid var(--border);
-      color: var(--text-dim);
-      width: 36px;
-      height: 36px;
-      border-radius: 10px;
-      font-size: 1rem;
-      cursor: pointer;
-      transition: all .2s;
-    }
-    .cal-controls button:hover { border-color: var(--cyan); color: var(--cyan); }
-    .cal-controls .month-label {
-      font-size: 1rem;
+    .cal-month-title {
+      font-family: var(--font-display);
+      font-size: 1.3rem;
       font-weight: 700;
-      min-width: 180px;
-      text-align: center;
+      color: #FFF;
+      text-transform: capitalize;
     }
     .cal-grid {
       display: grid;
       grid-template-columns: repeat(7, 1fr);
-      gap: 6px;
+      gap: 8px;
+      margin-bottom: 20px;
     }
-    .cal-day-header {
+    .cal-header-day {
       text-align: center;
-      font-size: .7rem;
+      font-size: 0.75rem;
       font-weight: 700;
       color: var(--text-dim);
+      padding: 8px;
       text-transform: uppercase;
-      padding: 8px 0;
     }
-    .cal-day {
-      aspect-ratio: 1;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      border-radius: 10px;
-      font-size: .82rem;
-      font-weight: 600;
+    .cal-day-cell {
       background: var(--surface);
       border: 1px solid var(--border);
-      color: var(--text-dim);
-      transition: all .2s;
-    }
-    .cal-day.empty-day { background: transparent; border-color: transparent; }
-    .cal-day.available { background: var(--green-dim); color: var(--green); border-color: rgba(52,211,153,.2); }
-    .cal-day.blocked { background: var(--red-dim); color: var(--red); border-color: rgba(248,113,113,.15); }
-    .cal-day.today { box-shadow: inset 0 0 0 2px var(--cyan); color: var(--cyan); }
-
-    .legend {
+      border-radius: 12px;
+      min-height: 100px;
+      padding: 10px;
+      cursor: pointer;
       display: flex;
-      gap: 20px;
-      margin-top: 18px;
-      font-size: .78rem;
-      color: var(--text-dim);
+      flex-direction: column;
+      justify-content: space-between;
+      transition: all 0.15s;
+      position: relative;
     }
-    .legend span {
-      display: flex;
-      align-items: center;
-      gap: 6px;
+    .cal-day-cell:hover {
+      border-color: #4B5563;
+      transform: translateY(-2px);
     }
-    .legend .dot {
-      width: 10px;
-      height: 10px;
-      border-radius: 4px;
+    .cal-day-cell.today {
+      border-color: #3B82F6;
+      box-shadow: 0 0 0 1px #3B82F6;
     }
-    .dot-avail { background: var(--green); }
-    .dot-blocked { background: var(--red); }
-    .dot-today { background: var(--cyan); }
+    .cal-day-cell.blocked {
+      background: rgba(239, 68, 68, 0.08);
+      border-color: rgba(239, 68, 68, 0.4);
+    }
+    .cal-day-cell.full {
+      background: rgba(245, 158, 11, 0.08);
+      border-color: rgba(245, 158, 11, 0.4);
+    }
+    .cal-day-cell.weekend {
+      opacity: 0.55;
+      background: #0D121B;
+    }
+    .cal-day-cell.empty {
+      background: transparent;
+      border: 1px dashed #1E293B;
+      cursor: default;
+      opacity: 0.2;
+    }
+    .day-num {
+      font-size: 0.95rem;
+      font-weight: 800;
+      color: #FFF;
+    }
+    .day-status-pill {
+      font-size: 0.65rem;
+      font-weight: 700;
+      padding: 2px 6px;
+      border-radius: 6px;
+      display: inline-block;
+      margin-top: 4px;
+      text-align: center;
+    }
+    .pill-avail { background: rgba(16,185,129,0.15); color: #34D399; }
+    .pill-blocked { background: rgba(239,68,68,0.2); color: #F87171; }
+    .pill-full { background: rgba(245,158,11,0.2); color: #FBBF24; }
 
-    /* ---- Notification Log ---- */
-    .log-entry {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: 10px;
-      padding: 12px 16px;
-      margin-bottom: 8px;
-      font-size: .82rem;
-      display: flex;
-      align-items: center;
-      gap: 10px;
-    }
-    .log-entry .log-icon { font-size: 1.1rem; }
-    .log-entry .log-time { color: var(--text-dim); font-size: .72rem; margin-left: auto; }
-
-    /* ---- Loading ---- */
-    .spinner {
-      width: 28px;
-      height: 28px;
-      border: 3px solid var(--border);
-      border-top-color: var(--cyan);
-      border-radius: 50%;
-      animation: spin .7s linear infinite;
-      margin: 40px auto;
-    }
-    @keyframes spin { to { transform: rotate(360deg); } }
-
-    .btn-whatsapp { background: rgba(37, 211, 102, 0.15); color: #25d366; }
-    .btn-whatsapp:hover { background: #25d366; color: #000; }
-    .btn-edit { background: var(--cyan-dim); color: var(--cyan); }
-    .btn-edit:hover { background: var(--cyan); color: #000; }
-
-    /* ---- Modal Styling ---- */
-    .modal {
-      display: none;
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background: rgba(0,0,0,0.6);
-      backdrop-filter: blur(4px);
-      z-index: 100;
-      align-items: center;
-      justify-content: center;
-    }
-    .modal.active { display: flex; }
-    .modal-content {
+    /* Day Manager Card */
+    .manager-card {
       background: var(--surface);
       border: 1px solid var(--border);
       border-radius: var(--radius);
-      padding: 28px;
-      width: 100%;
-      max-width: 440px;
-      box-shadow: 0 20px 25px -5px rgba(0,0,0,0.3);
-      position: relative;
+      padding: 24px;
+      margin-bottom: 24px;
     }
-    .modal-header {
+    .manager-title {
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: #FFF;
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .blocked-tags-container {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 12px;
+    }
+    .blocked-tag {
+      background: rgba(239,68,68,0.15);
+      border: 1px solid rgba(239,68,68,0.3);
+      color: #FCA5A5;
+      padding: 5px 10px;
+      border-radius: 8px;
+      font-size: 0.8rem;
+      font-weight: 700;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .blocked-tag button {
+      background: none;
+      border: none;
+      color: #EF4444;
+      font-weight: bold;
+      cursor: pointer;
+      font-size: 1rem;
+      line-height: 1;
+    }
+
+    /* Modal Form */
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.7);
+      backdrop-filter: blur(4px);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 100;
+      padding: 20px;
+    }
+    .modal-backdrop.active { display: flex; }
+    .modal-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      width: 100%;
+      max-width: 520px;
+      padding: 26px;
+      box-shadow: 0 25px 50px -12px rgba(0,0,0,0.5);
+      max-height: 90vh;
+      overflow-y: auto;
+    }
+    .modal-head {
       display: flex;
       justify-content: space-between;
       align-items: center;
       margin-bottom: 20px;
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 12px;
     }
-    .modal-header h2 { font-size: 1.1rem; font-weight: 700; }
-    .modal-close {
-      background: none;
+    .modal-head h3 { font-size: 1.15rem; font-weight: 700; color: #FFF; }
+    .btn-close {
+      background: transparent;
       border: none;
       color: var(--text-dim);
-      font-size: 1.5rem;
+      font-size: 1.4rem;
       cursor: pointer;
     }
-    .form-group {
-      margin-bottom: 16px;
-    }
-    .form-group label {
-      display: block;
-      font-size: 0.75rem;
-      font-weight: 700;
-      color: var(--text-dim);
-      text-transform: uppercase;
-      margin-bottom: 6px;
-      letter-spacing: 0.05em;
-    }
-    .form-control {
-      width: 100%;
+    .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 16px; }
+    .form-group { display: flex; flex-direction: column; gap: 6px; }
+    .form-group.full { grid-column: span 2; }
+    .form-group label { font-size: 0.75rem; font-weight: 700; color: var(--text-dim); text-transform: uppercase; }
+    .form-input {
       background: var(--surface2);
       border: 1px solid var(--border);
-      border-radius: 10px;
-      padding: 10px 14px;
-      color: var(--text);
+      color: #FFF;
+      padding: 10px 12px;
+      border-radius: 8px;
       font-size: 0.85rem;
       outline: none;
     }
-    .form-control:focus { border-color: var(--cyan); }
-    .modal-actions {
-      display: flex;
-      justify-content: flex-end;
-      gap: 10px;
-      margin-top: 24px;
+    .form-input:focus { border-color: var(--border-focus); }
+
+    /* Empty state */
+    .empty-state {
+      text-align: center;
+      padding: 48px 20px;
+      color: var(--text-dim);
     }
+    .empty-state span { font-size: 2.5rem; display: block; margin-bottom: 10px; }
   </style>
 </head>
 <body>
 
-<!-- Top Bar -->
-<div class="topbar">
-  <h1><span class="icon">🔧</span> Panel de Administración <span class="badge">Admin</span></h1>
-  <div class="topbar-right">
-    <button class="btn-refresh" onclick="loadAll()">↻ Actualizar</button>
-  </div>
-</div>
-
-<div class="container">
-  <!-- Tabs -->
-  <div class="tabs">
-    <button class="tab-btn" onclick="switchTab('pending')">📋 Pendientes</button>
-    <button class="tab-btn active" onclick="switchTab('all')">📁 Todas las Citas</button>
-    <button class="tab-btn" onclick="switchTab('calendar')">📅 Calendario</button>
-  </div>
-
-  <!-- Section: Pending -->
-  <div id="sec-pending" class="section">
-    <div id="pending-list"></div>
-  </div>
-
-  <!-- Section: All -->
-  <div id="sec-all" class="section active">
-    <div id="all-list"></div>
-  </div>
-
-  <!-- Section: Calendar -->
-  <div id="sec-calendar" class="section">
-    <div class="cal-controls">
-      <button onclick="changeMonth(-1)">‹</button>
-      <div class="month-label" id="month-label"></div>
-      <button onclick="changeMonth(1)">›</button>
+  <!-- Top Navigation -->
+  <div class="topbar">
+    <div class="brand-title">
+      <span>🔧</span>
+      <span>Auto Talleres Romo</span>
+      <span class="badge-admin">Gestión Citas & Calendario</span>
     </div>
-    <div class="cal-grid" id="cal-grid"></div>
-    <div class="legend">
-      <span><div class="dot dot-avail"></div> Disponible</span>
-      <span><div class="dot dot-blocked"></div> No disponible</span>
-      <span><div class="dot dot-today"></div> Hoy</span>
-    </div>
-</div>
-
-<!-- Edit Modal -->
-<div id="edit-modal" class="modal">
-  <div class="modal-content">
-    <div class="modal-header">
-      <h2>✏️ Editar Detalles de Cita</h2>
-      <button class="modal-close" onclick="closeEditModal()">×</button>
-    </div>
-    <div class="form-group">
-      <label for="edit-name">Nombre del Cliente</label>
-      <input type="text" id="edit-name" class="form-control" />
-    </div>
-    <div class="form-group">
-      <label for="edit-phone">Teléfono</label>
-      <input type="text" id="edit-phone" class="form-control" />
-    </div>
-    <div class="form-group">
-      <label for="edit-datetime">Fecha y Hora</label>
-      <input type="datetime-local" id="edit-datetime" class="form-control" />
-    </div>
-    <div class="modal-actions">
-      <button class="btn btn-cancel" onclick="closeEditModal()">Cancelar</button>
-      <button class="btn btn-confirm" onclick="saveEdit()">✓ Guardar Cambios</button>
+    <div class="topbar-actions">
+      <button class="btn-top" onclick="loadAllData()">↻ Refrescar</button>
+      <a href="/" target="_blank" class="btn-top">↗ Ver Web Citas</a>
     </div>
   </div>
-</div>
 
-<script>
-  // Initialize WebSocket for real-time admin updates
-  const wsProtocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  const ws = new WebSocket(`${wsProtocol}://${location.host}/ws/appointments`);
-  ws.addEventListener('message', e => {
-    if (e.data === 'update') {
-      loadAll();
+  <div class="container">
+    
+    <!-- Navigation Tabs -->
+    <div class="tabs">
+      <button class="tab-btn active" onclick="switchTab('calendar')">
+        📅 Control de Calendario & Bloqueos
+      </button>
+      <button class="tab-btn" onclick="switchTab('all')">
+        📁 Todas las Citas
+        <span id="all-count" class="tab-counter" style="display:none">0</span>
+      </button>
+      <button class="tab-btn" onclick="switchTab('pending')">
+        📋 Citas Pendientes
+        <span id="pending-count" class="tab-counter" style="display:none">0</span>
+      </button>
+      <button class="tab-btn" onclick="switchTab('settings')">
+        ⚙️ Ajustes de Cupos y Taller
+      </button>
+    </div>
+
+    <!-- TAB 1: CALENDAR & BLOCK CONTROL -->
+    <div id="tab-calendar" class="section active">
+      
+      <!-- Quick Block Action Card -->
+      <div class="manager-card">
+        <div class="manager-title">
+          <span>🔒</span>
+          <span>Bloquear Días Específicos (Cierre, Festivos o Vacaciones)</span>
+        </div>
+        <p style="font-size:0.85rem; color:var(--text-dim); margin-bottom:14px;">
+          Los días bloqueados aparecerán en rojo en el calendario y ningún cliente podrá reservar cita en esas fechas.
+        </p>
+        <div style="display:flex; flex-wrap:wrap; gap:10px; align-items:center;">
+          <input type="date" id="input-block-date" class="form-input" style="width:180px;" />
+          <button class="btn btn-danger" onclick="blockSpecificDate()">🔒 Bloquear Esta Fecha</button>
+          <span style="font-size:0.8rem; color:var(--text-dim); margin-left:8px;">💡 O haz clic directo sobre cualquier día del calendario abajo.</span>
+        </div>
+
+        <div style="margin-top:18px;">
+          <label style="font-size:0.75rem; font-weight:700; color:var(--text-dim); text-transform:uppercase;">Días actualmente bloqueados por el taller:</label>
+          <div id="blocked-tags" class="blocked-tags-container">
+            <span style="font-size:0.8rem; color:var(--text-dim); font-style:italic;">No hay días bloqueados manualmente.</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Monthly Calendar Grid -->
+      <div class="manager-card">
+        <div class="cal-controls">
+          <button class="btn btn-outline" onclick="changeMonth(-1)">‹ Mes Anterior</button>
+          <div id="cal-month-name" class="cal-month-title">Agosto 2026</div>
+          <button class="btn btn-outline" onclick="changeMonth(1)">Mes Siguiente ›</button>
+        </div>
+
+        <div class="cal-grid" id="cal-grid"></div>
+
+        <div style="display:flex; gap:16px; flex-wrap:wrap; font-size:0.75rem; color:var(--text-dim); border-top:1px solid var(--border); padding-top:12px;">
+          <span>🟢 <strong>Disponible:</strong> Permite reservas online</span>
+          <span>🔴 <strong>Bloqueado:</strong> Cerrado por taller</span>
+          <span>🟡 <strong>Completo:</strong> Cupo máximo alcanzado</span>
+          <span>⚪ <strong>Fin de semana:</strong> Sábados y Domingos</span>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- TAB 2: ALL APPOINTMENTS -->
+    <div id="tab-all" class="section">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
+        <h2 style="font-size:1.15rem; font-weight:700; color:#FFF;">Registro Histórico de Citas</h2>
+        <span id="total-appointments-label" style="font-size:0.85rem; color:var(--text-dim);">Cargando...</span>
+      </div>
+      <div id="all-appointments-list" class="card-list"></div>
+    </div>
+
+    <!-- TAB 3: PENDING APPOINTMENTS -->
+    <div id="tab-pending" class="section">
+      <h2 style="font-size:1.15rem; font-weight:700; color:#FFF; margin-bottom:16px;">Citas Pendientes de Confirmación</h2>
+      <div id="pending-appointments-list" class="card-list"></div>
+    </div>
+
+    <!-- TAB 4: SETTINGS -->
+    <div id="tab-settings" class="section">
+      <div class="manager-card" style="max-width:650px;">
+        <div class="manager-title">
+          <span>⚙️</span>
+          <span>Capacidad y Configuración del Taller</span>
+        </div>
+
+        <form id="settings-form" onsubmit="saveSettings(event)" style="display:flex; flex-direction:column; gap:16px; margin-top:14px;">
+          <div class="form-group">
+            <label>Cupo Máximo de Citas por Día</label>
+            <input type="number" id="setting-quota" min="1" max="50" required class="form-input" />
+            <span style="font-size:0.75rem; color:var(--text-dim);">Número de vehículos que el taller puede recibir diariamente (por defecto: 5).</span>
+          </div>
+
+          <div class="form-group">
+            <label>Bloquear Fines de Semana Automáticamente</label>
+            <select id="setting-block-weekends" class="form-input">
+              <option value="true">Sí, cerrar Sábados y Domingos</option>
+              <option value="false">No, permitir fines de semana</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label>Número de WhatsApp del Taller</label>
+            <input type="text" id="setting-whatsapp" placeholder="34600000000" class="form-input" />
+          </div>
+
+          <div class="form-group">
+            <label>Nombre del Taller</label>
+            <input type="text" id="setting-shop-name" class="form-input" />
+          </div>
+
+          <div style="margin-top:10px;">
+            <button type="submit" class="btn btn-primary">✓ Guardar Ajustes</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- EDIT APPOINTMENT MODAL -->
+  <div id="edit-modal" class="modal-backdrop">
+    <div class="modal-card">
+      <div class="modal-head">
+        <h3>✏️ Modificar Cita & Fecha</h3>
+        <button class="btn-close" onclick="closeEditModal()">×</button>
+      </div>
+
+      <form id="edit-form" onsubmit="submitEditForm(event)">
+        <input type="hidden" id="edit-id" />
+        
+        <div class="form-grid">
+          <div class="form-group full">
+            <label>Fecha y Hora de la Cita *</label>
+            <input type="datetime-local" id="edit-datetime" required class="form-input" style="color-scheme:dark;" />
+          </div>
+
+          <div class="form-group full">
+            <label>Estado de la Cita</label>
+            <select id="edit-status" class="form-input">
+              <option value="confirmed">Confirmada</option>
+              <option value="pending">Pendiente</option>
+              <option value="completed">Completada (Entregado)</option>
+              <option value="cancelled">Cancelada</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label>Nombre del Cliente *</label>
+            <input type="text" id="edit-name" required class="form-input" />
+          </div>
+
+          <div class="form-group">
+            <label>Teléfono *</label>
+            <input type="text" id="edit-phone" required class="form-input" />
+          </div>
+
+          <div class="form-group">
+            <label>Vehículo (Marca y Modelo)</label>
+            <input type="text" id="edit-car" class="form-input" />
+          </div>
+
+          <div class="form-group">
+            <label>Matrícula</label>
+            <input type="text" id="edit-plate" class="form-input" />
+          </div>
+
+          <div class="form-group full">
+            <label>Servicio Solicitado</label>
+            <input type="text" id="edit-service" class="form-input" />
+          </div>
+        </div>
+
+        <div style="display:flex; justify-content:flex-end; gap:10px; border-top:1px solid var(--border); padding-top:16px;">
+          <button type="button" class="btn btn-outline" onclick="closeEditModal()">Cancelar</button>
+          <button type="submit" class="btn btn-primary">✓ Guardar Cambios</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script>
+    let allAppointments = [];
+    let currentSettings = { daily_quota: 5, block_weekends: true, blocked_dates: [] };
+    let calDate = new Date();
+
+    // Init & WebSocket
+    window.addEventListener('DOMContentLoaded', () => {
+      loadAllData();
+      initWebSocket();
+    });
+
+    function initWebSocket() {
+      const protocol = location.protocol === 'https:' ? 'wss:' : 'ws:';
+      const wsUrl = `${protocol}//${location.host}/ws`;
+      let ws;
+      try {
+        ws = new WebSocket(wsUrl);
+        ws.onmessage = (event) => {
+          try {
+            const data = JSON.parse(event.data);
+            if (data.type === 'UPDATE_APPOINTMENTS') {
+              loadAllData();
+            }
+          } catch(e){}
+        };
+        ws.onclose = () => setTimeout(initWebSocket, 5000);
+      } catch(e){}
     }
-  });
 
-const API = window.location.origin;
-let allAppointments = [];
-let calYear, calMonth;
-const notifLog = [];
+    async function loadAllData() {
+      try {
+        const [apptsRes, settingsRes] = await Promise.all([
+          fetch('/api/appointments'),
+          fetch('/api/settings')
+        ]);
+        
+        if (apptsRes.ok) allAppointments = await apptsRes.json();
+        if (settingsRes.ok) {
+          currentSettings = await settingsRes.json();
+          fillSettingsForm();
+        }
 
-// ---- Tab switching ----
-function switchTab(tab) {
-  document.querySelectorAll('.tab-btn').forEach((b, i) => {
-    b.classList.toggle('active', ['pending','all','calendar'][i] === tab);
-  });
-  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
-  document.getElementById('sec-' + tab).classList.add('active');
-  if (tab === 'calendar') renderCalendar();
-}
+        renderAllAppointments();
+        renderPendingAppointments();
+        renderBlockedTags();
+        renderCalendar();
+      } catch(err) {
+        console.error("Error loading data:", err);
+      }
+    }
 
-// ---- Load all data ----
-async function loadAll() {
-  await loadAppointments();
-  renderPending();
-  renderAll();
-  if (document.getElementById('sec-calendar').classList.contains('active')) renderCalendar();
-}
+    function switchTab(tabId) {
+      document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+      document.querySelectorAll('.section').forEach(sec => sec.classList.remove('active'));
+      
+      const tabBtn = Array.from(document.querySelectorAll('.tab-btn')).find(b => b.getAttribute('onclick')?.includes(tabId));
+      if (tabBtn) tabBtn.classList.add('active');
+      
+      const sec = document.getElementById(`tab-${tabId}`);
+      if (sec) sec.classList.add('active');
 
-async function loadAppointments() {
-    try {
-      const res = await fetch(API + '/api/appointments');
-      if (!res.ok) {
-        console.error('Failed to fetch appointments:', res.status, res.statusText);
-        allAppointments = [];
+      if (tabId === 'calendar') renderCalendar();
+    }
+
+    // Settings
+    function fillSettingsForm() {
+      document.getElementById('setting-quota').value = currentSettings.daily_quota || 5;
+      document.getElementById('setting-block-weekends').value = String(currentSettings.block_weekends !== false);
+      document.getElementById('setting-whatsapp').value = currentSettings.whatsapp_number || '';
+      document.getElementById('setting-shop-name').value = currentSettings.shop_name || 'Auto Talleres Romo';
+    }
+
+    async function saveSettings(e) {
+      e.preventDefault();
+      const updated = {
+        ...currentSettings,
+        daily_quota: parseInt(document.getElementById('setting-quota').value, 10) || 5,
+        block_weekends: document.getElementById('setting-block-weekends').value === 'true',
+        whatsapp_number: document.getElementById('setting-whatsapp').value.trim(),
+        shop_name: document.getElementById('setting-shop-name').value.trim()
+      };
+
+      const res = await fetch('/api/settings', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(updated)
+      });
+      if (res.ok) {
+        alert('Ajustes guardados correctamente.');
+        loadAllData();
+      }
+    }
+
+    // Blocked Dates
+    function renderBlockedTags() {
+      const container = document.getElementById('blocked-tags');
+      const blocked = currentSettings.blocked_dates || [];
+      if (blocked.length === 0) {
+        container.innerHTML = `<span style="font-size:0.8rem; color:var(--text-dim); font-style:italic;">No hay días bloqueados manualmente.</span>`;
         return;
       }
-      allAppointments = await res.json();
-      console.log('Loaded appointments:', allAppointments);
-    } catch (e) {
-      allAppointments = [];
-      console.error('Error fetching appointments:', e);
+      container.innerHTML = blocked.map(d => `
+        <div class="blocked-tag">
+          <span>📅 ${d}</span>
+          <button title="Desbloquear este día" onclick="unblockDate('${d}')">×</button>
+        </div>
+      `).join('');
     }
-}
 
-// ---- Render helpers ----
-function statusBadge(s) {
-  const map = { pending: 'status-pending', confirmed: 'status-confirmed', cancelled: 'status-cancelled' };
-  const label = { pending: 'Pendiente', confirmed: 'Confirmada', cancelled: 'Cancelada' };
-  return `<span class="status ${map[s] || ''}">${label[s] || s}</span>`;
-}
-
-function formatDT(dt) {
-  if (!dt) return '—';
-  try {
-    const d = new Date(dt);
-    return d.toLocaleDateString('es-ES', { day:'2-digit', month:'short', year:'numeric' }) +
-      ' ' + d.toLocaleTimeString('es-ES', { hour:'2-digit', minute:'2-digit' });
-  } catch { return dt; }
-}
-
-function cardHTML(a, showActions) {
-  const actions = showActions && a.status === 'pending' ? `
-    <div class="card-actions">
-      <button class="btn btn-confirm" onclick="updateStatus('${a.id}','confirmed')">✓ Confirmar</button>
-      <button class="btn btn-cancel" onclick="updateStatus('${a.id}','cancelled')">✕ Rechazar</button>
-      <button class="btn btn-edit" onclick="openEditModal('${a.id}')">✏️ Editar</button>
-      <button class="btn btn-whatsapp" onclick="sendWhatsApp('${a.id}')">💬 WhatsApp</button>
-    </div>` : `
-    <div class="card-actions">
-      <button class="btn btn-edit" onclick="openEditModal('${a.id}')">✏️ Editar</button>
-      <button class="btn btn-whatsapp" onclick="sendWhatsApp('${a.id}')">💬 WhatsApp</button>
-    </div>`;
-
-  const deleteBtn = `<button class="btn btn-delete" onclick="deleteAppt('${a.id}')">🗑</button>`;
-
-  return `
-    <div class="card">
-      <div class="card-header">
-        <h3>👤 ${a.name || '—'} ${statusBadge(a.status)}</h3>
-        ${a.status !== 'pending' ? deleteBtn : ''}
-      </div>
-      <div class="card-meta">
-        <div class="meta-item">📞 <strong>${a.phone || '—'}</strong></div>
-        <div class="meta-item">🚗 <strong>${a.car_model || '—'}</strong></div>
-        <div class="meta-item">🔢 <strong>${a.license_plate || '—'}</strong></div>
-        <div class="meta-item">📅 <strong>${formatDT(a.datetime)}</strong></div>
-        <div class="meta-item">🛠️ <strong>${a.service || '—'}</strong></div>
-        <div class="meta-item">🕐 Creada: <strong>${formatDT(a.created_at)}</strong></div>
-      </div>
-      ${actions}
-    </div>`;
-}
-
-function renderPending() {
-  const pending = allAppointments.filter(a => a.status === 'pending');
-  const el = document.getElementById('pending-list');
-  if (!pending.length) {
-    el.innerHTML = `<div class="empty"><div class="icon">✅</div><p>No hay solicitudes pendientes</p></div>`;
-    return;
-  }
-  el.innerHTML = pending.map(a => cardHTML(a, true)).join('');
-}
-
-function renderAll() {
-  const el = document.getElementById('all-list');
-  if (!allAppointments.length) {
-    el.innerHTML = `<div class="empty"><div class="icon">📭</div><p>No hay citas registradas</p></div>`;
-    return;
-  }
-  // Sort newest first
-  const sorted = [...allAppointments].sort((a,b) => (b.created_at || '').localeCompare(a.created_at || ''));
-  el.innerHTML = sorted.map(a => cardHTML(a, true)).join('');
-}
-
-// ---- Actions ----
-async function updateStatus(id, status) {
-  if (!confirm(`¿Seguro que quieres ${status === 'confirmed' ? 'CONFIRMAR' : 'CANCELAR'} esta cita?`)) return;
-  try {
-    const res = await fetch(API + '/api/appointments/' + id, {
-      method: 'PATCH',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ status })
-    });
-    const data = await res.json();
-    if (res.ok) {
-      addLog(status === 'confirmed' ? '✅' : '❌', `Cita ${status === 'confirmed' ? 'confirmada' : 'cancelada'} — notificación enviada`);
-      await loadAll();
-    } else {
-      alert('Error: ' + (data.detail || 'Unknown'));
-    }
-  } catch (e) {
-    alert('Error de red: ' + e.message);
-  }
-}
-
-async function deleteAppt(id) {
-  if (!confirm('¿Eliminar esta cita permanentemente?')) return;
-  try {
-    await fetch(API + '/api/appointments/' + id, { method: 'DELETE' });
-    await loadAll();
-  } catch (e) {
-    alert('Error: ' + e.message);
-  }
-}
-
-function addLog(icon, msg) {
-  notifLog.unshift({ icon, msg, time: new Date().toLocaleTimeString('es-ES') });
-}
-
-// ---- Calendar ----
-function initCal() {
-  const now = new Date();
-  calYear = now.getFullYear();
-  calMonth = now.getMonth();
-}
-
-function changeMonth(delta) {
-  calMonth += delta;
-  if (calMonth < 0) { calMonth = 11; calYear--; }
-  if (calMonth > 11) { calMonth = 0; calYear++; }
-  renderCalendar();
-}
-
-async function renderCalendar() {
-  const label = document.getElementById('month-label');
-  const grid = document.getElementById('cal-grid');
-  const monthNames = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
-  label.textContent = `${monthNames[calMonth]} ${calYear}`;
-
-  // Fetch available dates for this month
-  const start = `${calYear}-${String(calMonth+1).padStart(2,'0')}-01`;
-  const lastDay = new Date(calYear, calMonth+1, 0).getDate();
-  const end = `${calYear}-${String(calMonth+1).padStart(2,'0')}-${String(lastDay).padStart(2,'0')}`;
-
-  let availDates = [];
-  try {
-    const res = await fetch(API + `/api/available-dates?start=${start}&end=${end}`);
-    availDates = await res.json();
-  } catch (e) {
-    console.error(e);
-  }
-  const availSet = new Set(availDates);
-
-  const today = new Date();
-  const todayStr = `${today.getFullYear()}-${String(today.getMonth()+1).padStart(2,'0')}-${String(today.getDate()).padStart(2,'0')}`;
-
-  // Day headers
-  const dayNames = ['Lun','Mar','Mié','Jue','Vie','Sáb','Dom'];
-  let html = dayNames.map(d => `<div class="cal-day-header">${d}</div>`).join('');
-
-  // First day of month (0=Sun → adjust to Mon-based)
-  const firstDow = new Date(calYear, calMonth, 1).getDay();
-  const offset = (firstDow === 0 ? 6 : firstDow - 1);
-
-  for (let i = 0; i < offset; i++) html += '<div class="cal-day empty-day"></div>';
-
-  for (let d = 1; d <= lastDay; d++) {
-    const dateStr = `${calYear}-${String(calMonth+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
-    const isAvail = availSet.has(dateStr);
-    const isToday = dateStr === todayStr;
-    let cls = 'cal-day';
-    if (isToday) cls += ' today';
-    else if (isAvail) cls += ' available';
-    else cls += ' blocked';
-    html += `<div class="${cls}">${d}</div>`;
-  }
-
-  grid.innerHTML = html;
-}
-
-// ---- Init ----
-initCal();
-console.log('Calling loadAll()');
-loadAll();
-// Auto-refresh every 30 seconds
-setInterval(loadAll, 30000);
-
-// ---- Edit & WhatsApp Helpers ----
-let currentEditId = null;
-
-function openEditModal(id) {
-  console.log("openEditModal called with ID:", id);
-  const a = allAppointments.find(item => item.id === id);
-  if (!a) {
-    console.error("No appointment found for ID:", id);
-    alert("Error: No se encontró la cita con ID " + id);
-    return;
-  }
-  currentEditId = id;
-  document.getElementById('edit-name').value = a.name || '';
-  document.getElementById('edit-phone').value = a.phone || '';
-  
-  // Format to YYYY-MM-DDThh:mm for datetime-local input safely
-  let formattedDt = '';
-  if (a.datetime) {
-    try {
-      const d = new Date(a.datetime);
-      if (!isNaN(d.getTime())) {
-        const pad = (n) => String(n).padStart(2, '0');
-        formattedDt = `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
-      } else {
-        formattedDt = a.datetime;
+    async function blockSpecificDate() {
+      const input = document.getElementById('input-block-date');
+      const val = input.value;
+      if (!val) {
+        alert('Selecciona una fecha para bloquear.');
+        return;
       }
-    } catch (e) {
-      formattedDt = a.datetime;
+      await toggleDateBlock(val);
+      input.value = '';
     }
-  }
-  document.getElementById('edit-datetime').value = formattedDt;
-  document.getElementById('edit-modal').classList.add('active');
-}
 
-function closeEditModal() {
-  document.getElementById('edit-modal').classList.remove('active');
-  currentEditId = null;
-}
-
-async function saveEdit() {
-  if (!currentEditId) return;
-  const name = document.getElementById('edit-name').value;
-  const phone = document.getElementById('edit-phone').value;
-  const datetime = document.getElementById('edit-datetime').value;
-  
-  try {
-    const res = await fetch(API + '/api/appointments/' + currentEditId, {
-      method: 'PATCH',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ name, phone, datetime })
-    });
-    if (res.ok) {
-      closeEditModal();
-      await loadAll();
-    } else {
-      const data = await res.json();
-      alert('Error: ' + (data.detail || 'Fallo al guardar'));
+    async function unblockDate(dateStr) {
+      await fetch(`/api/admin/blocked-dates/${dateStr}`, { method: 'DELETE' });
+      loadAllData();
     }
-  } catch (e) {
-    alert('Error: ' + e.message);
-  }
-}
 
-function sendWhatsApp(id) {
-  const a = allAppointments.find(item => item.id === id);
-  if (!a) return;
-  const cleanPhone = a.phone.replace(/\D/g, '');
-  
-  let text = "";
-  if (a.status === 'confirmed') {
-    text = `Hola ${a.name}, su cita para el coche ${a.car_model} con matrícula ${a.license_plate} ha sido CONFIRMADA para el día ${formatDT(a.datetime)}. ¡Le esperamos en Auto Talleres Romo!`;
-  } else if (a.status === 'pending') {
-    text = `Hola ${a.name}, nos ponemos en contacto de Auto Talleres Romo sobre su solicitud de cita para el coche ${a.car_model}. ¿Le iría bien el día ${formatDT(a.datetime)}?`;
-  } else {
-    text = `Hola ${a.name}, nos ponemos en contacto de Auto Talleres Romo sobre su solicitud de cita para el coche ${a.car_model}.`;
-  }
-  
-  const encoded = encodeURIComponent(text);
-  window.open(`https://wa.me/${cleanPhone.startsWith('34') || cleanPhone.length > 9 ? cleanPhone : '34' + cleanPhone}?text=${encoded}`, '_blank');
-}
-</script>
+    async function toggleDateBlock(dateStr) {
+      const res = await fetch('/api/admin/toggle-blocked-date', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ date: dateStr })
+      });
+      if (res.ok) {
+        loadAllData();
+      }
+    }
 
+    // Calendar
+    function changeMonth(delta) {
+      calDate.setMonth(calDate.getMonth() + delta);
+      renderCalendar();
+    }
+
+    function renderCalendar() {
+      const year = calDate.getFullYear();
+      const month = calDate.getMonth();
+      
+      const monthNames = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'];
+      document.getElementById('cal-month-name').innerText = `${monthNames[month]} ${year}`;
+
+      const grid = document.getElementById('cal-grid');
+      grid.innerHTML = '';
+
+      const dayHeaders = ['Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb', 'Dom'];
+      dayHeaders.forEach(dh => {
+        grid.innerHTML += `<div class="cal-header-day">${dh}</div>`;
+      });
+
+      const firstDay = new Date(year, month, 1);
+      const lastDay = new Date(year, month + 1, 0);
+      
+      // Calculate Monday-based start index (0 = Monday, 6 = Sunday)
+      let startOffset = firstDay.getDay() - 1;
+      if (startOffset === -1) startOffset = 6;
+
+      for (let i = 0; i < startOffset; i++) {
+        grid.innerHTML += `<div class="cal-day-cell empty"></div>`;
+      }
+
+      const todayStr = new Date().toISOString().split('T')[0];
+      const blockedSet = new Set(currentSettings.blocked_dates || []);
+      const quota = currentSettings.daily_quota || 5;
+
+      for (let d = 1; d <= lastDay.getDate(); d++) {
+        const dObj = new Date(year, month, d);
+        const yyyy = dObj.getFullYear();
+        const mm = String(dObj.getMonth() + 1).padStart(2, '0');
+        const dd = String(dObj.getDate()).padStart(2, '0');
+        const dateStr = `${yyyy}-${mm}-${dd}`;
+
+        const isWeekend = dObj.getDay() === 0 || dObj.getDay() === 6;
+        const isBlocked = blockedSet.has(dateStr);
+        const isToday = dateStr === todayStr;
+
+        // Count confirmed appointments on this date
+        const confirmedCount = allAppointments.filter(a => {
+          if (a.status !== 'confirmed') return false;
+          return a.datetime && a.datetime.startsWith(dateStr);
+        }).length;
+
+        const isFull = confirmedCount >= quota;
+
+        let cellClass = 'cal-day-cell';
+        if (isToday) cellClass += ' today';
+        if (isBlocked) cellClass += ' blocked';
+        else if (isFull) cellClass += ' full';
+        else if (isWeekend) cellClass += ' weekend';
+
+        let badgeHtml = '';
+        if (isBlocked) {
+          badgeHtml = `<span class="day-status-pill pill-blocked">🔒 Bloqueado</span>`;
+        } else if (isWeekend) {
+          badgeHtml = `<span class="day-status-pill" style="background:#1E293B;color:#64748B;">Fin de sem.</span>`;
+        } else if (isFull) {
+          badgeHtml = `<span class="day-status-pill pill-full">🟡 Lleno (${confirmedCount}/${quota})</span>`;
+        } else {
+          badgeHtml = `<span class="day-status-pill pill-avail">🟢 Libre (${confirmedCount}/${quota})</span>`;
+        }
+
+        const cell = document.createElement('div');
+        cell.className = cellClass;
+        cell.title = isBlocked ? 'Haz clic para DESBLOQUEAR este día' : 'Haz clic para BLOQUEAR este día';
+        cell.onclick = () => toggleDateBlock(dateStr);
+        cell.innerHTML = `
+          <div style="display:flex; justify-content:space-between; align-items:center;">
+            <span class="day-num">${d}</span>
+            ${isToday ? '<span style="font-size:0.65rem; color:#60A5FA; font-weight:800;">HOY</span>' : ''}
+          </div>
+          <div>${badgeHtml}</div>
+        `;
+        grid.appendChild(cell);
+      }
+    }
+
+    // Render Lists
+    function renderAllAppointments() {
+      const container = document.getElementById('all-appointments-list');
+      const countLabel = document.getElementById('total-appointments-label');
+      const counterBadge = document.getElementById('all-count');
+
+      countLabel.innerText = `Total: ${allAppointments.length} citas registradas`;
+      counterBadge.innerText = allAppointments.length;
+      counterBadge.style.display = allAppointments.length > 0 ? 'inline-block' : 'none';
+
+      if (allAppointments.length === 0) {
+        container.innerHTML = `<div class="empty-state"><span>📭</span><p>No hay citas registradas en el sistema.</p></div>`;
+        return;
+      }
+
+      // Sort descending by datetime
+      const sorted = [...allAppointments].sort((a, b) => (b.datetime || '').localeCompare(a.datetime || ''));
+      container.innerHTML = sorted.map(a => renderAppointmentCard(a)).join('');
+    }
+
+    function renderPendingAppointments() {
+      const container = document.getElementById('pending-appointments-list');
+      const counterBadge = document.getElementById('pending-count');
+      const pending = allAppointments.filter(a => a.status === 'pending');
+
+      counterBadge.innerText = pending.length;
+      counterBadge.style.display = pending.length > 0 ? 'inline-block' : 'none';
+
+      if (pending.length === 0) {
+        container.innerHTML = `<div class="empty-state"><span>🎉</span><p>No hay citas pendientes de confirmación.</p></div>`;
+        return;
+      }
+
+      container.innerHTML = pending.map(a => renderAppointmentCard(a)).join('');
+    }
+
+    function renderAppointmentCard(a) {
+      const dt = a.datetime ? a.datetime.replace('T', ' ') : 'Sin fecha';
+      const statusClass = `status-${a.status || 'pending'}`;
+      const statusLabels = { confirmed: 'Confirmada', pending: 'Pendiente', completed: 'Completada', cancelled: 'Cancelada' };
+
+      const cleanPhone = (a.phone || '').replace(/\D/g, '');
+      const waPhone = cleanPhone.startsWith('34') || cleanPhone.length > 9 ? cleanPhone : '34' + cleanPhone;
+      const waMsg = encodeURIComponent(`Hola ${a.name}, te contactamos desde Auto Talleres Romo sobre tu cita del ${dt}.`);
+      const waUrl = `https://wa.me/${waPhone}?text=${waMsg}`;
+
+      return `
+        <div class="appt-card">
+          <div class="appt-header">
+            <div>
+              <div class="client-title">
+                <span>👤 ${a.name || 'Sin nombre'}</span>
+                <span class="status-badge ${statusClass}">${statusLabels[a.status] || a.status}</span>
+              </div>
+              <div style="font-size:0.8rem; color:var(--text-dim); margin-top:3px;">
+                📞 ${a.phone || 'Sin teléfono'}
+              </div>
+            </div>
+            
+            <div class="car-badge">
+              <span>🚗 ${a.car_model || 'Vehículo'}</span>
+              ${a.license_plate ? `<span class="plate-badge">${a.license_plate}</span>` : ''}
+            </div>
+          </div>
+
+          <div class="appt-body">
+            <div class="info-item">
+              <label>Fecha y Hora</label>
+              <span style="color:#60A5FA;">📅 ${dt} h</span>
+            </div>
+            <div class="info-item">
+              <label>Servicio</label>
+              <span>🛠️ ${a.service || 'Mantenimiento'}</span>
+            </div>
+            <div class="info-item">
+              <label>ID Registro</label>
+              <span style="font-size:0.7rem; font-family:monospace; color:var(--text-dim);">${(a.id || '').substring(0, 8)}</span>
+            </div>
+          </div>
+
+          <div class="appt-actions">
+            <a href="${waUrl}" target="_blank" class="btn btn-whatsapp">
+              <span>💬 Abrir WhatsApp</span>
+            </a>
+
+            <button class="btn btn-outline" onclick="openEditModal('${a.id}')">
+              <span>✏️ Editar / Cambiar Fecha</span>
+            </button>
+
+            ${a.status !== 'confirmed' ? `
+              <button class="btn btn-success" onclick="updateStatus('${a.id}', 'confirmed')">
+                <span>✓ Confirmar</span>
+              </button>
+            ` : ''}
+
+            ${a.status !== 'completed' ? `
+              <button class="btn btn-primary" onclick="updateStatus('${a.id}', 'completed')">
+                <span>🚘 Marcar Entregado</span>
+              </button>
+            ` : ''}
+
+            ${a.status !== 'cancelled' ? `
+              <button class="btn btn-danger" onclick="updateStatus('${a.id}', 'cancelled')">
+                <span>✕ Cancelar</span>
+              </button>
+            ` : ''}
+
+            <button class="btn btn-danger" style="background:transparent; border-color:transparent;" title="Eliminar definitivamente" onclick="deleteAppointment('${a.id}')">
+              🗑️
+            </button>
+          </div>
+        </div>
+      `;
+    }
+
+    // Modal Actions
+    function openEditModal(id) {
+      const appt = allAppointments.find(a => a.id === id);
+      if (!appt) return;
+
+      document.getElementById('edit-id').value = appt.id;
+      document.getElementById('edit-datetime').value = (appt.datetime || '').substring(0, 16);
+      document.getElementById('edit-status').value = appt.status || 'confirmed';
+      document.getElementById('edit-name').value = appt.name || '';
+      document.getElementById('edit-phone').value = appt.phone || '';
+      document.getElementById('edit-car').value = appt.car_model || '';
+      document.getElementById('edit-plate').value = appt.license_plate || '';
+      document.getElementById('edit-service').value = appt.service || '';
+
+      document.getElementById('edit-modal').classList.add('active');
+    }
+
+    function closeEditModal() {
+      document.getElementById('edit-modal').classList.remove('active');
+    }
+
+    async function submitEditForm(e) {
+      e.preventDefault();
+      const id = document.getElementById('edit-id').value;
+      const payload = {
+        datetime: document.getElementById('edit-datetime').value,
+        status: document.getElementById('edit-status').value,
+        name: document.getElementById('edit-name').value.trim(),
+        phone: document.getElementById('edit-phone').value.trim(),
+        car_model: document.getElementById('edit-car').value.trim(),
+        license_plate: document.getElementById('edit-plate').value.trim().toUpperCase(),
+        service: document.getElementById('edit-service').value.trim()
+      };
+
+      const res = await fetch(`/api/appointments/${id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+
+      if (res.ok) {
+        closeEditModal();
+        loadAllData();
+      } else {
+        const err = await res.json().catch(() => ({}));
+        alert('Error al guardar: ' + (err.detail || 'No se pudo actualizar'));
+      }
+    }
+
+    async function updateStatus(id, newStatus) {
+      const res = await fetch(`/api/appointments/${id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ status: newStatus })
+      });
+      if (res.ok) loadAllData();
+    }
+
+    async function deleteAppointment(id) {
+      if (!confirm('¿Estás seguro de eliminar este registro de cita?')) return;
+      const res = await fetch(`/api/appointments/${id}`, { method: 'DELETE' });
+      if (res.ok) loadAllData();
+    }
+  </script>
 </body>
 </html>

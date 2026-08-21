@@ -1,83 +1,65 @@
 import os
-import uuid
 import json
-import asyncio
+import uuid
 import datetime
 import logging
-
-from fastapi import FastAPI, WebSocket, WebSocketDisconnect, HTTPException, Depends, Request, status
-# Removed sys.path manipulation; using proper package imports
+from typing import List, Optional
+from fastapi import FastAPI, HTTPException, WebSocket, WebSocketDisconnect, Depends, status, Request
+from fastapi.staticfiles import StaticFiles
+from fastapi.responses import HTMLResponse, JSONResponse
+from fastapi.security import HTTPBasic, HTTPBasicCredentials
 from fastapi.middleware.cors import CORSMiddleware
-import base64
-from typing import List
+from pydantic import BaseModel
 
-app = FastAPI(title="Auto Talleres Romo - Appointment API")
+from utils.ai import (
+    check_system_health,
+    load_settings,
+    save_settings,
+)
+from utils.scheduling import (
+    is_slot_available,
+    is_date_full,
+    get_next_available_date,
+    get_available_dates,
+    get_blocked_dates,
+    get_daily_quota,
+    is_date_blocked_by_admin,
+    auto_approve_pending,
+    DAILY_QUOTA,
+)
+from utils.notifications import notify_appointment, build_whatsapp_url
 
-def get_current_user(request: Request):
-    auth = request.headers.get("Authorization")
-    if not auth or not auth.startswith("Basic "):
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Missing basic authentication",
-            headers={"WWW-Authenticate": "Basic"},
-        )
-    try:
-        decoded = base64.b64decode(auth.split(" ")[1]).decode()
-        username, _, password = decoded.partition(":")
-    except Exception:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Invalid authentication header",
-            headers={"WWW-Authenticate": "Basic"},
-        )
-    if username != os.getenv("ADMIN_USERNAME", "admin") or password != os.getenv("ADMIN_PASSWORD", "admin"):
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Invalid credentials",
-            headers={"WWW-Authenticate": "Basic"},
-        )
-    return username
-# Global list of active WebSocket connections for admin updates
-websocket_connections: List[WebSocket] = []
+# Initialize logging
+logging.basicConfig(level=logging.INFO)
 
-@app.websocket("/ws/appointments")
-async def appointments_ws(ws: WebSocket):
-    await ws.accept()
-    websocket_connections.append(ws)
-    try:
-        while True:
-            # Keep connection alive; ignore inbound messages
-            await ws.receive_text()
-    except WebSocketDisconnect:
-        websocket_connections.remove(ws)
+# --- Active WebSocket Connections Manager ---
+class ConnectionManager:
+    def __init__(self):
+        self.active_connections: List[WebSocket] = []
+
+    async def connect(self, websocket: WebSocket):
+        await websocket.accept()
+        self.active_connections.append(websocket)
+
+    def disconnect(self, websocket: WebSocket):
+        if websocket in self.active_connections:
+            self.active_connections.remove(websocket)
+
+    async def broadcast(self, message: dict):
+        for connection in self.active_connections:
+            try:
+                await connection.send_json(message)
+            except Exception:
+                pass
+
+manager = ConnectionManager()
 
 async def broadcast_appointment_update():
-    # Notify all connected admin clients that a change occurred
-    for conn in list(websocket_connections):
-        try:
-            await conn.send_text("update")
-        except Exception:
-            # Remove broken connections
-            websocket_connections.remove(conn)
+    """Helper to broadcast latest appointment updates over WS."""
+    await manager.broadcast({"type": "UPDATE_APPOINTMENTS"})
 
-from fastapi.responses import HTMLResponse, FileResponse
-from fastapi.staticfiles import StaticFiles
-from fastapi.responses import HTMLResponse, FileResponse
-from pydantic import BaseModel
-from typing import Optional, List
-
-from utils.notify import notify_appointment
-from utils.scheduling import is_slot_available, get_available_dates, get_confirmed_count_for_date, DAILY_QUOTA, get_next_available_date, is_date_full
-from utils.ai import check_system_health, load_settings, save_settings
-from utils.whatsapp import build_whatsapp_url
-
-logging.basicConfig(
-    level=logging.INFO,
-    format="%(asctime)s %(levelname)s %(message)s",
-    handlers=[logging.StreamHandler()],
-)
-
-# FastAPI app already defined above
+# FastAPI app definition
+app = FastAPI(title="Auto Talleres Romo API", version="2.0.0")
 
 # Enable CORS
 app.add_middleware(
@@ -93,14 +75,21 @@ BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
 # ---------- Settings schema ----------
 class SettingsModel(BaseModel):
-    provider: str
+    provider: Optional[str] = "ollama"
     api_key_openai: Optional[str] = ""
     api_key_gemini: Optional[str] = ""
     whisper_model: Optional[str] = "base"
     ollama_url: Optional[str] = "http://localhost:11434"
-    whatsapp_number: Optional[str] = ""
+    whatsapp_number: Optional[str] = "34600000000"
     shop_name: Optional[str] = "Auto Talleres Romo"
-    opening_hours: Optional[str] = "Lunes a Viernes 08:30 - 18:30"
+    opening_hours: Optional[str] = "Lunes a Viernes 08:30 - 13:00 / 15:00 - 18:30"
+    daily_quota: Optional[int] = 5
+    block_weekends: Optional[bool] = True
+    blocked_dates: Optional[List[str]] = []
+
+class BlockDatePayload(BaseModel):
+    date: Optional[str] = None
+    dates: Optional[List[str]] = None
 
 # ---------- Appointment schema ----------
 class AppointmentModel(BaseModel):
@@ -149,7 +138,6 @@ def ping():
     return {"message": "pong"}
 
 
-
 @app.get("/api/settings")
 def get_current_settings():
     """Retrieves current application config settings."""
@@ -157,10 +145,72 @@ def get_current_settings():
 
 
 @app.post("/api/settings")
-def update_settings(settings: SettingsModel):
+async def update_settings(settings: SettingsModel):
     """Updates global config settings."""
     save_settings(settings.model_dump())
+    await broadcast_appointment_update()
     return {"status": "success", "message": "Settings updated successfully."}
+
+
+# ---------- Blocked Dates Controls ----------
+
+@app.get("/api/blocked-dates")
+def get_blocked_dates_api():
+    """Return all dates currently blocked by workshop admin."""
+    return get_blocked_dates()
+
+
+@app.post("/api/admin/blocked-dates")
+async def add_blocked_dates(payload: BlockDatePayload):
+    """Block one or more dates from receiving bookings."""
+    settings = load_settings()
+    current_blocked = set(settings.get("blocked_dates", []))
+    
+    if payload.date:
+        current_blocked.add(payload.date.strip())
+    if payload.dates:
+        for d in payload.dates:
+            current_blocked.add(d.strip())
+            
+    settings["blocked_dates"] = sorted(list(current_blocked))
+    save_settings(settings)
+    await broadcast_appointment_update()
+    return {"status": "success", "blocked_dates": settings["blocked_dates"]}
+
+
+@app.delete("/api/admin/blocked-dates/{date_str}")
+async def remove_blocked_date(date_str: str):
+    """Unblock a previously blocked date."""
+    settings = load_settings()
+    current_blocked = set(settings.get("blocked_dates", []))
+    if date_str in current_blocked:
+        current_blocked.remove(date_str)
+    settings["blocked_dates"] = sorted(list(current_blocked))
+    save_settings(settings)
+    await broadcast_appointment_update()
+    return {"status": "success", "blocked_dates": settings["blocked_dates"]}
+
+
+@app.post("/api/admin/toggle-blocked-date")
+async def toggle_blocked_date(payload: BlockDatePayload):
+    """Toggle a date between blocked and unblocked."""
+    if not payload.date:
+        raise HTTPException(status_code=400, detail="Date is required.")
+    date_clean = payload.date.strip()
+    settings = load_settings()
+    current_blocked = set(settings.get("blocked_dates", []))
+    
+    if date_clean in current_blocked:
+        current_blocked.remove(date_clean)
+        is_blocked = False
+    else:
+        current_blocked.add(date_clean)
+        is_blocked = True
+        
+    settings["blocked_dates"] = sorted(list(current_blocked))
+    save_settings(settings)
+    await broadcast_appointment_update()
+    return {"status": "success", "date": date_clean, "is_blocked": is_blocked, "blocked_dates": settings["blocked_dates"]}
 
 
 # ---------- Appointments ----------
@@ -194,27 +244,28 @@ async def create_appointment(appointment: AppointmentModel):
     except Exception:
         raise HTTPException(status_code=400, detail="Invalid datetime format. Use ISO8601.")
 
-    # Enforce business rules — slot must be valid (work hours, not weekend, not past)
+    # Enforce business rules — slot must be valid (work hours, not weekend, not past, not blocked)
     if not is_slot_available(appt_dt):
-        raise HTTPException(status_code=400, detail="Selected slot is unavailable.")
+        raise HTTPException(status_code=400, detail="El turno seleccionado no está disponible o el día está cerrado.")
 
-    # Check if the day is already full (5 confirmed appointments)
+    # Check if the day is already full or blocked
     appt_date = appt_dt.date()
     if is_date_full(appt_date):
-        # Find the next available date and tell the user
         next_date = get_next_available_date(appt_date + datetime.timedelta(days=1))
+        quota = get_daily_quota()
         raise HTTPException(
             status_code=409,
-            detail=f"Este día ya está completo (máximo {DAILY_QUOTA} citas). El próximo día disponible es: {next_date}"
+            detail=f"Este día ya está completo o cerrado por el taller (máximo {quota} citas). El próximo día disponible es: {next_date}"
         )
 
-    # Auto-confirm since we know quota is not exceeded
+    # Auto-confirm since quota is not exceeded
     app_data["status"] = "confirmed"
 
     # Save to local JSON DB
     appointments.append(app_data)
     save_appointments(appointments)
-    # Notify admin clients of new/updated appointment
+    
+    # Notify admin clients of new appointment
     await broadcast_appointment_update()
 
     # Write to Google Sheet (ignore failures)
@@ -228,17 +279,17 @@ async def create_appointment(appointment: AppointmentModel):
 
 @app.patch("/api/appointments/{appointment_id}")
 async def update_appointment_status(appointment_id: str, payload: dict):
-    """Update status or details of an appointment (admin). Triggers Telegram/Slack notification and broadcasts update."""
+    """Update status or any details of an appointment (admin)."""
     appointments = load_appointments()
     for a in appointments:
         if a["id"] == appointment_id:
+            new_status = payload.get("status", a.get("status"))
+            
             # Update status if provided
             if "status" in payload:
-                new_status = payload["status"]
-                if new_status not in {"confirmed", "cancelled", "pending"}:
+                if new_status not in {"confirmed", "cancelled", "pending", "completed"}:
                     raise HTTPException(status_code=400, detail="Invalid status value")
                 a["status"] = new_status
-                # Notify via Telegram / Slack if confirming or cancelling
                 if new_status in {"confirmed", "cancelled"}:
                     notify_appointment(new_status, a)
 
@@ -246,18 +297,23 @@ async def update_appointment_status(appointment_id: str, payload: dict):
             if "datetime" in payload:
                 a["datetime"] = payload["datetime"]
 
-            # Update other fields if provided
+            # Update client and car fields if provided
             if "name" in payload:
                 a["name"] = payload["name"]
             if "phone" in payload:
                 a["phone"] = payload["phone"]
+            if "car_model" in payload:
+                a["car_model"] = payload["car_model"]
+            if "license_plate" in payload:
+                a["license_plate"] = payload["license_plate"]
+            if "service" in payload:
+                a["service"] = payload["service"]
 
             save_appointments(appointments)
 
-            # Generate WhatsApp URL for confirmed or cancelled status
+            # Generate WhatsApp URL for quick response
             whatsapp_url = ""
             if new_status in {"confirmed", "cancelled"}:
-                # Load settings to get default WhatsApp number if needed
                 settings = load_settings()
                 phone = a.get("phone") or settings.get("whatsapp_number", "")
                 whatsapp_url = build_whatsapp_url(
@@ -269,9 +325,11 @@ async def update_appointment_status(appointment_id: str, payload: dict):
 
             # After updating status, attempt auto-approve for the appointment's date
             if "status" in payload and payload["status"] == "confirmed":
-                from utils.scheduling import auto_approve_pending
-                appt_date = datetime.datetime.fromisoformat(a["datetime"]).date()
-                auto_approve_pending(appt_date)
+                try:
+                    appt_date = datetime.datetime.fromisoformat(a["datetime"]).date()
+                    auto_approve_pending(appt_date)
+                except Exception:
+                    pass
 
             # Broadcast update to admin UI
             await broadcast_appointment_update()
@@ -279,6 +337,7 @@ async def update_appointment_status(appointment_id: str, payload: dict):
             if whatsapp_url:
                 response["whatsapp_url"] = whatsapp_url
             return response
+            
     raise HTTPException(status_code=404, detail="Appointment not found")
 
 
@@ -291,7 +350,6 @@ async def delete_appointment(appointment_id: str):
     if len(appointments) == initial_len:
         raise HTTPException(status_code=404, detail="Appointment not found.")
     save_appointments(appointments)
-    # Broadcast update to admin UI
     await broadcast_appointment_update()
     return {"status": "success", "message": "Appointment deleted successfully."}
 
@@ -319,27 +377,56 @@ def api_next_available_date(from_date: Optional[str] = None):
             start_date = datetime.datetime.now().date()
     except Exception:
         raise HTTPException(status_code=400, detail="Invalid date format. Use YYYY-MM-DD.")
-    next_date = get_next_available_date(start_date)
-    return {"next_available_date": next_date}
+    return {"next_available_date": get_next_available_date(start_date)}
 
 
-# ---------- Admin Dashboard ----------
+# ---------- WebSocket Endpoint ----------
 
-@app.get("/admin", response_class=HTMLResponse, dependencies=[Depends(get_current_user)])
-def admin_page():
-    """Serve the admin dashboard page."""
-    admin_path = os.path.join(BASE_DIR, "admin.html")
-    if not os.path.exists(admin_path):
-        raise HTTPException(status_code=404, detail="Admin page not found.")
-    return FileResponse(admin_path, media_type="text/html")
+@app.websocket("/ws")
+async def websocket_endpoint(websocket: WebSocket):
+    await manager.connect(websocket)
+    try:
+        while True:
+            await websocket.receive_text()
+    except WebSocketDisconnect:
+        manager.disconnect(websocket)
+    except Exception:
+        manager.disconnect(websocket)
 
 
-# ---------- Frontend static files ----------
+# ---------- Admin Basic Auth ----------
 
-FRONTEND_DIR = os.path.join(BASE_DIR, "frontend", "dist")
-if os.path.exists(FRONTEND_DIR):
-    app.mount("/", StaticFiles(directory=FRONTEND_DIR, html=True), name="frontend")
+security = HTTPBasic()
 
-if __name__ == "__main__":
-    import uvicorn
-    uvicorn.run("main:app", host="127.0.0.1", port=8000, reload=True)
+def authenticate_admin(credentials: HTTPBasicCredentials = Depends(security)):
+    admin_user = os.getenv("ADMIN_USERNAME", "admin")
+    admin_pass = os.getenv("ADMIN_PASSWORD", "admin")
+    if credentials.username != admin_user or credentials.password != admin_pass:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Credenciales incorrectas",
+            headers={"WWW-Authenticate": "Basic"},
+        )
+    return credentials.username
+
+
+@app.get("/admin", response_class=HTMLResponse)
+def admin_panel(user: str = Depends(authenticate_admin)):
+    """Serves the Admin Panel HTML interface."""
+    admin_file = os.path.join(BASE_DIR, "admin.html")
+    if not os.path.exists(admin_file):
+        raise HTTPException(status_code=404, detail="Admin panel template not found.")
+    with open(admin_file, "r", encoding="utf-8") as f:
+        return f.read()
+
+
+# ---------- Static Frontend Fallback ----------
+
+FRONTEND_DIST = os.path.abspath(os.path.join(BASE_DIR, "..", "frontend", "dist"))
+
+if os.path.exists(FRONTEND_DIST):
+    app.mount("/", StaticFiles(directory=FRONTEND_DIST, html=True), name="frontend")
+else:
+    @app.get("/")
+    def root_fallback():
+        return {"message": "Auto Talleres Romo Backend API is running.", "admin": "/admin", "docs": "/docs"}

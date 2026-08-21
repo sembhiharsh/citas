@@ -8,7 +8,6 @@ import {
   User,
   CheckCircle2,
   AlertCircle,
-  ShieldCheck,
   MapPin,
   MessageSquare,
   ChevronRight,
@@ -22,9 +21,9 @@ import {
   Disc,
   ClipboardCheck,
   Cpu,
-  Wind,
-  Navigation
+  Wind
 } from 'lucide-react';
+import logoImg from './assets/logo.jpg';
 
 const getBackendUrl = () => {
   if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
@@ -331,44 +330,48 @@ function App() {
   };
 
   return (
-    <div className="min-h-screen bg-[#0B0F17] text-slate-100 flex flex-col justify-between selection:bg-blue-600 selection:text-white">
+    <div className="min-h-screen bg-[#F8FAFC] text-slate-900 flex flex-col justify-between selection:bg-blue-600 selection:text-white">
       
-      {/* Top Header Bar */}
-      <header className="sticky top-0 z-40 bg-[#0F172A]/95 backdrop-blur-md border-b border-slate-800/80">
+      {/* Top Header Bar (Clean White) */}
+      <header className="sticky top-0 z-40 bg-white/95 backdrop-blur-md border-b border-slate-200/90 shadow-xs">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
           
-          {/* Logo & Workshop Brand */}
+          {/* Official Logo & Brand */}
           <div className="flex items-center gap-3.5">
-            <div className="w-11 h-11 rounded-xl bg-gradient-to-br from-blue-600 to-indigo-700 flex items-center justify-center text-white shadow-lg shadow-blue-500/20 border border-blue-400/30">
-              <Wrench className="w-6 h-6" />
+            <div className="h-14 w-auto flex items-center justify-center p-1 bg-white rounded-lg border border-slate-200/80 shadow-xs">
+              <img 
+                src={logoImg} 
+                alt="Auto Talleres Romo Logo" 
+                className="h-12 w-auto object-contain"
+              />
             </div>
             <div>
               <div className="flex items-center gap-2">
-                <span className="font-bold text-xl tracking-tight text-white font-display">
+                <span className="font-extrabold text-xl tracking-tight text-slate-900 font-display">
                   {settings.shop_name || 'AUTO TALLERES ROMO'}
                 </span>
-                <span className="hidden sm:inline-flex items-center px-2 py-0.5 rounded text-[11px] font-semibold bg-blue-500/10 text-blue-400 border border-blue-500/20">
+                <span className="hidden sm:inline-flex items-center px-2 py-0.5 rounded text-[11px] font-bold bg-blue-50 text-blue-700 border border-blue-200">
                   Multimarca & Diagnosis
                 </span>
               </div>
-              <p className="text-xs text-slate-400 flex items-center gap-1.5 mt-0.5">
-                <MapPin className="w-3.5 h-3.5 text-slate-500" /> Sant Adrià de Besòs, Barcelona
+              <p className="text-xs text-slate-500 flex items-center gap-1.5 mt-0.5 font-medium">
+                <MapPin className="w-3.5 h-3.5 text-slate-400" /> Sant Adrià de Besòs, Barcelona
               </p>
             </div>
           </div>
 
-          {/* Quick Contact & Admin Link */}
+          {/* Quick Contact & External Link */}
           <div className="flex items-center gap-3 sm:gap-4">
             <div className="hidden lg:flex flex-col text-right">
-              <span className="text-[11px] text-slate-400 flex items-center justify-end gap-1.5">
-                <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+              <span className="text-[11px] text-slate-500 flex items-center justify-end gap-1.5 font-medium">
+                <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
                 Recepción abierta hoy
               </span>
               <a 
                 href="tel:933812345" 
-                className="text-sm font-semibold text-slate-200 hover:text-blue-400 transition-colors flex items-center gap-1"
+                className="text-sm font-bold text-slate-800 hover:text-blue-600 transition-colors flex items-center gap-1"
               >
-                <Phone className="w-3.5 h-3.5 text-blue-400" /> 93 381 23 45
+                <Phone className="w-3.5 h-3.5 text-blue-600" /> 93 381 23 45
               </a>
             </div>
 
@@ -376,11 +379,11 @@ function App() {
               href="https://romo-mercedesbenz.es/"
               target="_blank"
               rel="noopener noreferrer"
-              className="px-3.5 py-2 text-xs font-semibold text-slate-300 bg-slate-800/80 hover:bg-slate-800 hover:text-white rounded-lg border border-slate-700/80 transition-all flex items-center gap-1.5 shadow-sm"
+              className="px-3.5 py-2 text-xs font-bold text-slate-700 bg-slate-100 hover:bg-slate-200 hover:text-slate-900 rounded-lg border border-slate-300 transition-all flex items-center gap-1.5 shadow-xs"
               title="Web Oficial Romo Mercedes-Benz"
             >
               <span>Acceso Taller</span>
-              <ExternalLink className="w-3.5 h-3.5 text-slate-400" />
+              <ExternalLink className="w-3.5 h-3.5 text-slate-500" />
             </a>
           </div>
         </div>
@@ -392,17 +395,17 @@ function App() {
         {/* Success / Confirmation Screen */}
         {submittedAppointment ? (
           <div className="max-w-2xl mx-auto animate-fade-in">
-            <div className="bg-[#131B2A] border border-slate-700/80 rounded-2xl p-6 sm:p-10 shadow-2xl space-y-8">
+            <div className="bg-white border border-slate-200 rounded-2xl p-6 sm:p-10 shadow-xl space-y-8">
               
               {/* Header Status */}
               <div className="text-center space-y-3">
-                <div className="inline-flex p-4 rounded-2xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 mb-1">
+                <div className="inline-flex p-4 rounded-2xl bg-emerald-50 border border-emerald-200 text-emerald-600 mb-1">
                   <CheckCircle2 className="w-12 h-12" />
                 </div>
-                <h1 className="text-2xl sm:text-3xl font-extrabold text-white">
+                <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-900">
                   {submittedAppointment.isAutoApproved ? '¡Cita Confirmada con Éxito!' : '¡Solicitud Recibida Correctamente!'}
                 </h1>
-                <p className="text-sm text-slate-300 max-w-md mx-auto leading-relaxed">
+                <p className="text-sm text-slate-600 max-w-md mx-auto leading-relaxed">
                   {submittedAppointment.isAutoApproved
                     ? 'Tu vehículo ha quedado agendado en el sistema del taller. Te esperamos el día y hora indicados.'
                     : 'Hemos recibido tu solicitud. Nuestro equipo la revisará y te contactaremos de inmediato por teléfono o WhatsApp.'}
@@ -410,10 +413,10 @@ function App() {
               </div>
 
               {/* Appointment Ticket Card */}
-              <div className="bg-[#0B0F17] rounded-xl p-5 sm:p-6 border border-slate-800 space-y-4">
-                <div className="flex items-center justify-between border-b border-slate-800 pb-3">
-                  <span className="text-xs font-semibold text-slate-400 uppercase tracking-wider">Detalles de la Reserva</span>
-                  <span className="px-2.5 py-1 text-xs font-bold bg-emerald-500/15 text-emerald-400 rounded-md border border-emerald-500/30">
+              <div className="bg-slate-50 rounded-xl p-5 sm:p-6 border border-slate-200 space-y-4">
+                <div className="flex items-center justify-between border-b border-slate-200 pb-3">
+                  <span className="text-xs font-bold text-slate-500 uppercase tracking-wider">Detalles de la Reserva</span>
+                  <span className="px-2.5 py-1 text-xs font-bold bg-emerald-100 text-emerald-800 rounded-md border border-emerald-300">
                     {submittedAppointment.isAutoApproved ? 'Confirmada' : 'Pendiente'}
                   </span>
                 </div>
@@ -421,13 +424,13 @@ function App() {
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
                   <div>
                     <span className="text-xs text-slate-500 block">Titular de la Cita</span>
-                    <span className="font-semibold text-slate-200">{submittedAppointment.name}</span>
-                    <span className="text-xs text-slate-400 block mt-0.5">📞 {submittedAppointment.phone}</span>
+                    <span className="font-bold text-slate-900">{submittedAppointment.name}</span>
+                    <span className="text-xs text-slate-600 block mt-0.5 font-medium">📞 {submittedAppointment.phone}</span>
                   </div>
 
                   <div>
                     <span className="text-xs text-slate-500 block">Vehículo Registrado</span>
-                    <span className="font-semibold text-slate-200">{submittedAppointment.car_model}</span>
+                    <span className="font-bold text-slate-900">{submittedAppointment.car_model}</span>
                     <div className="mt-1">
                       <div className="license-plate inline-flex text-xs">
                         <span className="eu-flag">🇪🇸</span>
@@ -438,12 +441,12 @@ function App() {
 
                   <div>
                     <span className="text-xs text-slate-500 block">Servicio Solicitado</span>
-                    <span className="font-medium text-slate-200">{submittedAppointment.service}</span>
+                    <span className="font-semibold text-slate-800">{submittedAppointment.service}</span>
                   </div>
 
                   <div>
                     <span className="text-xs text-slate-500 block">Fecha y Hora de Entrega</span>
-                    <span className="font-bold text-blue-400 text-base">
+                    <span className="font-extrabold text-blue-700 text-base">
                       {submittedAppointment.formattedDate} — {submittedAppointment.formattedTime} h
                     </span>
                   </div>
@@ -458,7 +461,7 @@ function App() {
                       href={submittedAppointment.whatsappUrl}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="flex-1 py-3.5 px-4 bg-emerald-600 hover:bg-emerald-500 text-white font-semibold rounded-xl flex items-center justify-center gap-2 shadow-lg shadow-emerald-600/20 transition-all text-sm"
+                      className="flex-1 py-3.5 px-4 bg-emerald-600 hover:bg-emerald-500 text-white font-bold rounded-xl flex items-center justify-center gap-2 shadow-md shadow-emerald-600/20 transition-all text-sm"
                     >
                       <MessageSquare className="w-4 h-4" />
                       <span>Notificar por WhatsApp</span>
@@ -468,15 +471,15 @@ function App() {
                   <button
                     type="button"
                     onClick={downloadCalendarEvent}
-                    className="py-3.5 px-4 bg-slate-800 hover:bg-slate-700 text-slate-200 font-semibold rounded-xl border border-slate-700 flex items-center justify-center gap-2 transition-all text-sm"
+                    className="py-3.5 px-4 bg-white hover:bg-slate-50 text-slate-800 font-bold rounded-xl border border-slate-300 flex items-center justify-center gap-2 transition-all text-sm shadow-xs"
                   >
-                    <CalendarPlus className="w-4 h-4 text-blue-400" />
+                    <CalendarPlus className="w-4 h-4 text-blue-600" />
                     <span>Añadir a mi Calendario</span>
                   </button>
                 </div>
 
-                <div className="p-4 rounded-xl bg-blue-500/10 border border-blue-500/20 text-xs text-slate-300 flex gap-3 items-start">
-                  <Info className="w-4 h-4 text-blue-400 shrink-0 mt-0.5" />
+                <div className="p-4 rounded-xl bg-blue-50 border border-blue-200 text-xs text-slate-700 flex gap-3 items-start">
+                  <Info className="w-4 h-4 text-blue-600 shrink-0 mt-0.5" />
                   <p>
                     <strong>Indicaciones de llegada:</strong> Por favor, acude con 5 minutos de antelación y la documentación del vehículo (ficha técnica y permiso de circulación). Si necesitas modificar o cancelar la cita, llámanos al 93 381 23 45.
                   </p>
@@ -489,7 +492,7 @@ function App() {
                       setSubmittedAppointment(null);
                       setClientNotes('');
                     }}
-                    className="text-xs text-slate-400 hover:text-slate-200 underline transition-colors cursor-pointer"
+                    className="text-xs text-slate-500 hover:text-slate-900 font-semibold underline transition-colors cursor-pointer"
                   >
                     ← Solicitar otra cita diferente
                   </button>
@@ -500,46 +503,46 @@ function App() {
           </div>
         ) : (
           
-          /* Main Interactive Booking Page */
+          /* Main Interactive Booking Page (Light Mode) */
           <div className="space-y-10">
             
             {/* Hero Header & Value Proposition */}
             <div className="text-center max-w-3xl mx-auto space-y-4">
-              <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-blue-500/10 text-blue-400 border border-blue-500/20 text-xs font-semibold">
-                <Sparkles className="w-3.5 h-3.5" />
+              <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-blue-50 text-blue-700 border border-blue-200 text-xs font-bold shadow-xs">
+                <Sparkles className="w-3.5 h-3.5 text-blue-600" />
                 <span>Gestión de Cita Previa Oficial</span>
               </div>
-              <h1 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-white tracking-tight">
-                Reserva cita para tu vehículo en <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-indigo-300">Auto Talleres Romo</span>
+              <h1 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-slate-900 tracking-tight">
+                Reserva cita para tu vehículo en <span className="text-blue-600">Auto Talleres Romo</span>
               </h1>
-              <p className="text-base sm:text-lg text-slate-400 max-w-2xl mx-auto font-normal leading-relaxed">
+              <p className="text-base sm:text-lg text-slate-600 max-w-2xl mx-auto font-normal leading-relaxed">
                 Mantenimiento oficial multimarca, diagnosis electrónica por ordenador, neumáticos y mecánica en Sant Adrià de Besòs. Confirmación inmediata sin esperas.
               </p>
             </div>
 
             {/* 3 Trust Pillars */}
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 max-w-5xl mx-auto">
-              <div className="bg-[#131B2A]/80 border border-slate-800 rounded-xl p-3.5 flex items-center gap-3">
-                <Clock className="w-5 h-5 text-blue-400 shrink-0" />
+              <div className="bg-white border border-slate-200 rounded-xl p-4 flex items-center gap-3.5 shadow-xs">
+                <Clock className="w-5 h-5 text-blue-600 shrink-0" />
                 <div>
-                  <span className="text-xs font-bold text-white block">Confirmación Directa</span>
-                  <span className="text-[11px] text-slate-400 block">Horario en tiempo real</span>
+                  <span className="text-xs font-bold text-slate-900 block">Confirmación Directa</span>
+                  <span className="text-[11px] text-slate-500 block">Horario en tiempo real</span>
                 </div>
               </div>
 
-              <div className="bg-[#131B2A]/80 border border-slate-800 rounded-xl p-3.5 flex items-center gap-3">
-                <FileText className="w-5 h-5 text-amber-400 shrink-0" />
+              <div className="bg-white border border-slate-200 rounded-xl p-4 flex items-center gap-3.5 shadow-xs">
+                <FileText className="w-5 h-5 text-amber-600 shrink-0" />
                 <div>
-                  <span className="text-xs font-bold text-white block">Presupuesto Claro</span>
-                  <span className="text-[11px] text-slate-400 block">Sin sorpresas ni extras</span>
+                  <span className="text-xs font-bold text-slate-900 block">Presupuesto Claro</span>
+                  <span className="text-[11px] text-slate-500 block">Sin sorpresas ni extras</span>
                 </div>
               </div>
 
-              <div className="bg-[#131B2A]/80 border border-slate-800 rounded-xl p-3.5 flex items-center gap-3">
-                <Car className="w-5 h-5 text-indigo-400 shrink-0" />
+              <div className="bg-white border border-slate-200 rounded-xl p-4 flex items-center gap-3.5 shadow-xs">
+                <Car className="w-5 h-5 text-indigo-600 shrink-0" />
                 <div>
-                  <span className="text-xs font-bold text-white block">Especialistas Multimarca</span>
-                  <span className="text-[11px] text-slate-400 block">Todas las marcas europeas</span>
+                  <span className="text-xs font-bold text-slate-900 block">Especialistas Multimarca</span>
+                  <span className="text-[11px] text-slate-500 block">Todas las marcas europeas</span>
                 </div>
               </div>
             </div>
@@ -553,19 +556,19 @@ function App() {
                   
                   {/* Global Error Notice */}
                   {errorMessage && (
-                    <div className="p-4 bg-amber-500/10 border border-amber-500/30 rounded-xl text-amber-200 text-sm space-y-3 animate-fade-in">
+                    <div className="p-4 bg-amber-50 border border-amber-300 rounded-xl text-amber-900 text-sm space-y-3 animate-fade-in shadow-xs">
                       <div className="flex gap-2.5 items-start">
-                        <AlertCircle className="w-5 h-5 shrink-0 text-amber-400 mt-0.5" />
+                        <AlertCircle className="w-5 h-5 shrink-0 text-amber-600 mt-0.5" />
                         <div>
-                          <p className="font-semibold text-amber-300">Aviso sobre tu solicitud</p>
-                          <p className="text-xs text-amber-200/90 mt-0.5">{errorMessage}</p>
+                          <p className="font-bold text-amber-900">Aviso sobre tu solicitud</p>
+                          <p className="text-xs text-amber-800 mt-0.5">{errorMessage}</p>
                         </div>
                       </div>
                       {suggestedDate && (
                         <button
                           type="button"
                           onClick={handleApplySuggestedDate}
-                          className="w-full py-2 px-3 bg-amber-500/20 hover:bg-amber-500/30 text-amber-100 font-semibold rounded-lg text-xs transition-colors border border-amber-500/40 flex items-center justify-center gap-1.5"
+                          className="w-full py-2 px-3 bg-amber-100 hover:bg-amber-200 text-amber-900 font-bold rounded-lg text-xs transition-colors border border-amber-300 flex items-center justify-center gap-1.5 cursor-pointer"
                         >
                           <Calendar className="w-3.5 h-3.5" />
                           <span>Cambiar automáticamente al próximo día libre ({suggestedDate})</span>
@@ -575,11 +578,11 @@ function App() {
                   )}
 
                   {/* STEP 1: Selecciona el Servicio */}
-                  <div className="bg-[#131B2A] border border-slate-800 rounded-2xl p-6 space-y-4">
-                    <div className="flex items-center justify-between border-b border-slate-800 pb-3">
+                  <div className="bg-white border border-slate-200 rounded-2xl p-6 sm:p-7 space-y-5 shadow-sm">
+                    <div className="flex items-center justify-between border-b border-slate-100 pb-3">
                       <div className="flex items-center gap-2.5">
-                        <span className="w-6 h-6 rounded-full bg-blue-600 text-white text-xs font-bold flex items-center justify-center">1</span>
-                        <h2 className="text-lg font-bold text-white font-display">¿Qué servicio o revisión necesita tu vehículo?</h2>
+                        <span className="w-6 h-6 rounded-full bg-blue-600 text-white text-xs font-bold flex items-center justify-center shadow-xs">1</span>
+                        <h2 className="text-lg font-bold text-slate-900 font-display">¿Qué servicio o revisión necesita tu vehículo?</h2>
                       </div>
                     </div>
 
@@ -591,27 +594,27 @@ function App() {
                           <div
                             key={svc.id}
                             onClick={() => setSelectedService(svc.id)}
-                            className={`p-3.5 rounded-xl border cursor-pointer transition-all relative ${
+                            className={`p-4 rounded-xl border cursor-pointer transition-all relative ${
                               isSelected
-                                ? 'bg-blue-600/10 border-blue-500 ring-1 ring-blue-500'
-                                : 'bg-[#0B0F17]/60 border-slate-800/80 hover:border-slate-700 hover:bg-[#0B0F17]'
+                                ? 'bg-blue-50/80 border-blue-600 ring-2 ring-blue-600/20 shadow-xs'
+                                : 'bg-slate-50/70 border-slate-200 hover:border-slate-300 hover:bg-slate-50'
                             }`}
                           >
                             <div className="flex items-start justify-between">
-                              <div className={`p-2 rounded-lg ${isSelected ? 'bg-blue-600 text-white' : 'bg-slate-800 text-slate-400'}`}>
+                              <div className={`p-2.5 rounded-lg ${isSelected ? 'bg-blue-600 text-white' : 'bg-white text-slate-600 border border-slate-200'}`}>
                                 <IconComp className="w-4 h-4" />
                               </div>
-                              <span className={`text-[10px] font-semibold px-2 py-0.5 rounded-full ${
-                                isSelected ? 'bg-blue-500/20 text-blue-300' : 'bg-slate-800 text-slate-400'
+                              <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${
+                                isSelected ? 'bg-blue-200/80 text-blue-900' : 'bg-slate-200/80 text-slate-700'
                               }`}>
                                 {svc.badge}
                               </span>
                             </div>
-                            <div className="mt-2.5">
-                              <span className={`text-xs font-bold block ${isSelected ? 'text-white' : 'text-slate-200'}`}>
+                            <div className="mt-3">
+                              <span className={`text-xs font-bold block ${isSelected ? 'text-blue-950' : 'text-slate-900'}`}>
                                 {svc.title}
                               </span>
-                              <span className="text-[11px] text-slate-400 block mt-0.5 line-clamp-2">
+                              <span className="text-[11px] text-slate-500 block mt-0.5 line-clamp-2 leading-relaxed">
                                 {svc.shortDesc}
                               </span>
                             </div>
@@ -620,29 +623,29 @@ function App() {
                       })}
                     </div>
 
-                    {/* Dedicated Client Issue Box */}
-                    <div className="pt-3 border-t border-slate-800/80 space-y-1.5">
-                      <label className="text-xs font-semibold text-slate-300 flex items-center justify-between">
+                    {/* Dedicated Client Issue Box (Always Visible) */}
+                    <div className="pt-4 border-t border-slate-100 space-y-1.5">
+                      <label className="text-xs font-bold text-slate-800 flex items-center justify-between">
                         <span>Describe el problema, avería o detalles del trabajo (Opcional):</span>
-                        <span className="text-[11px] text-slate-500">Síntomas, ruidos, testigos...</span>
+                        <span className="text-[11px] text-slate-400 font-normal">Síntomas, ruidos, testigos...</span>
                       </label>
                       <textarea
                         rows="2"
-                        placeholder="Ej. Noto vibración al frenar a más de 80 km/h, o se enciende testigo de motor en frío..."
+                        placeholder="Ej. Noto vibración al frenar a más de 80 km/h, testigo de motor encendido en frío..."
                         value={customServiceText}
                         onChange={(e) => setCustomServiceText(e.target.value)}
-                        className="w-full bg-[#0B0F17] border border-slate-700/80 rounded-xl py-2 px-3 text-xs text-slate-200 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none resize-none"
+                        className="w-full bg-white border border-slate-300 rounded-xl py-2 px-3 text-xs text-slate-900 focus:border-blue-600 focus:ring-1 focus:ring-blue-600 outline-none resize-none placeholder:text-slate-400 shadow-2xs"
                       />
                     </div>
 
                     {/* Direct WhatsApp Consultation Button */}
-                    <div className="p-3.5 rounded-xl bg-emerald-500/10 border border-emerald-500/25 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+                    <div className="p-4 rounded-xl bg-emerald-50 border border-emerald-200 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
                       <div>
-                        <span className="text-xs font-bold text-emerald-400 flex items-center gap-1.5">
-                          <MessageSquare className="w-4 h-4" />
+                        <span className="text-xs font-bold text-emerald-900 flex items-center gap-1.5">
+                          <MessageSquare className="w-4 h-4 text-emerald-600" />
                           ¿Dudas o consulta urgente de tu avería?
                         </span>
-                        <span className="text-[11px] text-slate-400 block mt-0.5">
+                        <span className="text-[11px] text-emerald-700 block mt-0.5">
                           Puedes escribirnos por WhatsApp o enviarnos fotos/vídeos del problema.
                         </span>
                       </div>
@@ -650,7 +653,7 @@ function App() {
                         href={directWhatsAppUrl}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white font-bold rounded-lg text-xs flex items-center gap-1.5 shrink-0 transition-all shadow-sm"
+                        className="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-lg text-xs flex items-center gap-1.5 shrink-0 transition-all shadow-xs"
                       >
                         <MessageSquare className="w-3.5 h-3.5" />
                         <span>Escribir por WhatsApp</span>
@@ -659,27 +662,27 @@ function App() {
                   </div>
 
                   {/* STEP 2: Datos del Vehículo */}
-                  <div className="bg-[#131B2A] border border-slate-800 rounded-2xl p-6 space-y-4">
-                    <div className="flex items-center justify-between border-b border-slate-800 pb-3">
+                  <div className="bg-white border border-slate-200 rounded-2xl p-6 sm:p-7 space-y-5 shadow-sm">
+                    <div className="flex items-center justify-between border-b border-slate-100 pb-3">
                       <div className="flex items-center gap-2.5">
-                        <span className="w-6 h-6 rounded-full bg-blue-600 text-white text-xs font-bold flex items-center justify-center">2</span>
-                        <h2 className="text-lg font-bold text-white font-display">Identificación del Vehículo</h2>
+                        <span className="w-6 h-6 rounded-full bg-blue-600 text-white text-xs font-bold flex items-center justify-center shadow-xs">2</span>
+                        <h2 className="text-lg font-bold text-slate-900 font-display">Identificación del Vehículo</h2>
                       </div>
                     </div>
 
                     {/* Popular Brand Pills */}
                     <div>
-                      <span className="text-xs text-slate-400 block mb-2">Marcas frecuentes:</span>
+                      <span className="text-xs text-slate-500 font-semibold block mb-2">Marcas frecuentes:</span>
                       <div className="flex flex-wrap gap-1.5">
                         {POPULAR_BRANDS.map((brand) => (
                           <button
                             key={brand}
                             type="button"
                             onClick={() => setCarBrand(brand)}
-                            className={`px-2.5 py-1 rounded-lg text-xs font-medium border transition-colors ${
+                            className={`px-3 py-1 rounded-lg text-xs font-bold border transition-colors cursor-pointer ${
                               carBrand.toLowerCase() === brand.toLowerCase()
-                                ? 'bg-blue-600 text-white border-blue-500'
-                                : 'bg-[#0B0F17] text-slate-300 border-slate-800 hover:border-slate-700'
+                                ? 'bg-blue-600 text-white border-blue-600 shadow-xs'
+                                : 'bg-slate-100 text-slate-700 border-slate-200 hover:border-slate-300 hover:bg-slate-200'
                             }`}
                           >
                             {brand}
@@ -690,7 +693,7 @@ function App() {
 
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                       <div className="space-y-1.5">
-                        <label className="text-xs font-semibold text-slate-300">Marca y Modelo del Vehículo *</label>
+                        <label className="text-xs font-bold text-slate-800">Marca y Modelo del Vehículo *</label>
                         <div className="grid grid-cols-2 gap-2">
                           <input
                             type="text"
@@ -698,7 +701,7 @@ function App() {
                             placeholder="Marca (ej. Seat)"
                             value={carBrand}
                             onChange={(e) => setCarBrand(e.target.value)}
-                            className="bg-[#0B0F17] border border-slate-700/80 rounded-xl py-2.5 px-3 text-slate-200 text-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none"
+                            className="bg-white border border-slate-300 rounded-xl py-2.5 px-3 text-slate-900 text-sm focus:border-blue-600 focus:ring-1 focus:ring-blue-600 outline-none placeholder:text-slate-400 shadow-2xs"
                           />
                           <input
                             type="text"
@@ -706,15 +709,15 @@ function App() {
                             placeholder="Modelo (ej. Ibiza)"
                             value={carModel}
                             onChange={(e) => setCarModel(e.target.value)}
-                            className="bg-[#0B0F17] border border-slate-700/80 rounded-xl py-2.5 px-3 text-slate-200 text-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none"
+                            className="bg-white border border-slate-300 rounded-xl py-2.5 px-3 text-slate-900 text-sm focus:border-blue-600 focus:ring-1 focus:ring-blue-600 outline-none placeholder:text-slate-400 shadow-2xs"
                           />
                         </div>
                       </div>
 
                       <div className="space-y-1.5">
-                        <label className="text-xs font-semibold text-slate-300 flex items-center justify-between">
+                        <label className="text-xs font-bold text-slate-800 flex items-center justify-between">
                           <span>Matrícula del Vehículo *</span>
-                          <span className="text-[11px] text-slate-500">Formato: 1234ABC</span>
+                          <span className="text-[11px] text-slate-400 font-normal">Formato: 1234ABC</span>
                         </label>
                         <div className="flex items-center gap-2">
                           <input
@@ -724,7 +727,7 @@ function App() {
                             placeholder="1234ABC"
                             value={licensePlate}
                             onChange={(e) => setLicensePlate(e.target.value.toUpperCase())}
-                            className="bg-[#0B0F17] border border-slate-700/80 rounded-xl py-2.5 px-3 text-slate-100 font-mono font-bold tracking-widest uppercase text-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none w-full"
+                            className="bg-white border border-slate-300 rounded-xl py-2.5 px-3 text-slate-900 font-mono font-bold tracking-widest uppercase text-sm focus:border-blue-600 focus:ring-1 focus:ring-blue-600 outline-none w-full placeholder:text-slate-400 shadow-2xs"
                           />
                           {licensePlate && (
                             <div className="license-plate shrink-0 text-xs">
@@ -738,22 +741,22 @@ function App() {
                   </div>
 
                   {/* STEP 3: Fecha y Hora */}
-                  <div className="bg-[#131B2A] border border-slate-800 rounded-2xl p-6 space-y-5">
-                    <div className="flex items-center justify-between border-b border-slate-800 pb-3">
+                  <div className="bg-white border border-slate-200 rounded-2xl p-6 sm:p-7 space-y-5 shadow-sm">
+                    <div className="flex items-center justify-between border-b border-slate-100 pb-3">
                       <div className="flex items-center gap-2.5">
-                        <span className="w-6 h-6 rounded-full bg-blue-600 text-white text-xs font-bold flex items-center justify-center">3</span>
-                        <h2 className="text-lg font-bold text-white font-display">Fecha y Turno de Recepción</h2>
+                        <span className="w-6 h-6 rounded-full bg-blue-600 text-white text-xs font-bold flex items-center justify-center shadow-xs">3</span>
+                        <h2 className="text-lg font-bold text-slate-900 font-display">Fecha y Turno de Recepción</h2>
                       </div>
-                      <span className="text-xs text-slate-400">Lunes a Viernes</span>
+                      <span className="text-xs text-slate-500 font-medium">Lunes a Viernes</span>
                     </div>
 
                     {/* Available Date Chips */}
                     <div>
-                      <label className="text-xs font-semibold text-slate-300 block mb-2.5">Selecciona el día de entrega:</label>
+                      <label className="text-xs font-bold text-slate-800 block mb-2.5">Selecciona el día de entrega:</label>
                       {loadingDates ? (
-                        <div className="text-xs text-slate-400 py-3">Cargando disponibilidad del taller...</div>
+                        <div className="text-xs text-slate-500 py-3">Cargando disponibilidad del taller...</div>
                       ) : availableDates.length === 0 ? (
-                        <div className="text-xs text-amber-400 py-2">Consultando calendario...</div>
+                        <div className="text-xs text-amber-600 py-2 font-semibold">Consultando calendario...</div>
                       ) : (
                         <div className="grid grid-cols-3 sm:grid-cols-5 gap-2">
                           {availableDates.slice(0, 10).map((dateStr) => {
@@ -770,17 +773,17 @@ function App() {
                                 onClick={() => setSelectedDate(dateStr)}
                                 className={`p-2.5 rounded-xl border text-center transition-all cursor-pointer ${
                                   isSelected
-                                    ? 'bg-blue-600 text-white border-blue-500 shadow-md shadow-blue-600/30'
-                                    : 'bg-[#0B0F17] text-slate-300 border-slate-800 hover:border-slate-700'
+                                    ? 'bg-blue-600 text-white border-blue-600 shadow-md shadow-blue-600/20'
+                                    : 'bg-slate-50 text-slate-700 border-slate-200 hover:border-slate-300 hover:bg-slate-100'
                                 }`}
                               >
-                                <span className="text-[10px] uppercase font-bold tracking-wider block opacity-75">
+                                <span className="text-[10px] uppercase font-bold tracking-wider block opacity-80">
                                   {dayName}
                                 </span>
                                 <span className="text-base font-extrabold block my-0.5">
                                   {dayNum}
                                 </span>
-                                <span className="text-[10px] capitalize block opacity-75">
+                                <span className="text-[10px] capitalize block opacity-80 font-medium">
                                   {monthName}
                                 </span>
                               </button>
@@ -792,21 +795,21 @@ function App() {
 
                     {/* Time Slot Picker */}
                     <div className="space-y-3 pt-2">
-                      <label className="text-xs font-semibold text-slate-300 block">Horario preferido de entrega del coche:</label>
+                      <label className="text-xs font-bold text-slate-800 block">Horario preferido de entrega del coche:</label>
                       
                       <div className="space-y-3">
                         <div>
-                          <span className="text-[11px] text-slate-400 font-semibold block mb-1.5">Turno Mañana (08:30 - 13:00)</span>
+                          <span className="text-[11px] text-slate-500 font-bold block mb-1.5">Turno Mañana (08:30 - 13:00)</span>
                           <div className="flex flex-wrap gap-2">
                             {MORNING_HOURS.map((h) => (
                               <button
                                 key={h}
                                 type="button"
                                 onClick={() => setSelectedTime(h)}
-                                className={`px-3 py-1.5 rounded-lg text-xs font-semibold border transition-all ${
+                                className={`px-3.5 py-1.5 rounded-lg text-xs font-bold border transition-all cursor-pointer ${
                                   selectedTime === h
-                                    ? 'bg-blue-600 text-white border-blue-500 shadow-sm'
-                                    : 'bg-[#0B0F17] text-slate-300 border-slate-800 hover:border-slate-700'
+                                    ? 'bg-blue-600 text-white border-blue-600 shadow-xs'
+                                    : 'bg-slate-50 text-slate-700 border-slate-200 hover:border-slate-300 hover:bg-slate-100'
                                 }`}
                               >
                                 {h} h
@@ -816,17 +819,17 @@ function App() {
                         </div>
 
                         <div>
-                          <span className="text-[11px] text-slate-400 font-semibold block mb-1.5">Turno Tarde (15:00 - 18:30)</span>
+                          <span className="text-[11px] text-slate-500 font-bold block mb-1.5">Turno Tarde (15:00 - 18:30)</span>
                           <div className="flex flex-wrap gap-2">
                             {AFTERNOON_HOURS.map((h) => (
                               <button
                                 key={h}
                                 type="button"
                                 onClick={() => setSelectedTime(h)}
-                                className={`px-3 py-1.5 rounded-lg text-xs font-semibold border transition-all ${
+                                className={`px-3.5 py-1.5 rounded-lg text-xs font-bold border transition-all cursor-pointer ${
                                   selectedTime === h
-                                    ? 'bg-blue-600 text-white border-blue-500 shadow-sm'
-                                    : 'bg-[#0B0F17] text-slate-300 border-slate-800 hover:border-slate-700'
+                                    ? 'bg-blue-600 text-white border-blue-600 shadow-xs'
+                                    : 'bg-slate-50 text-slate-700 border-slate-200 hover:border-slate-300 hover:bg-slate-100'
                                 }`}
                               >
                                 {h} h
@@ -839,54 +842,54 @@ function App() {
                   </div>
 
                   {/* STEP 4: Datos de Contacto */}
-                  <div className="bg-[#131B2A] border border-slate-800 rounded-2xl p-6 space-y-4">
-                    <div className="flex items-center justify-between border-b border-slate-800 pb-3">
+                  <div className="bg-white border border-slate-200 rounded-2xl p-6 sm:p-7 space-y-5 shadow-sm">
+                    <div className="flex items-center justify-between border-b border-slate-100 pb-3">
                       <div className="flex items-center gap-2.5">
-                        <span className="w-6 h-6 rounded-full bg-blue-600 text-white text-xs font-bold flex items-center justify-center">4</span>
-                        <h2 className="text-lg font-bold text-white font-display">Tus Datos de Contacto</h2>
+                        <span className="w-6 h-6 rounded-full bg-blue-600 text-white text-xs font-bold flex items-center justify-center shadow-xs">4</span>
+                        <h2 className="text-lg font-bold text-slate-900 font-display">Tus Datos de Contacto</h2>
                       </div>
                     </div>
 
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                       <div className="space-y-1.5">
-                        <label className="text-xs font-semibold text-slate-300">Nombre y Apellidos *</label>
+                        <label className="text-xs font-bold text-slate-800">Nombre y Apellidos *</label>
                         <div className="relative">
-                          <User className="w-4 h-4 text-slate-500 absolute left-3 top-3" />
+                          <User className="w-4 h-4 text-slate-400 absolute left-3 top-3" />
                           <input
                             type="text"
                             required
                             placeholder="Ej. Carlos Martínez López"
                             value={clientName}
                             onChange={(e) => setClientName(e.target.value)}
-                            className="w-full bg-[#0B0F17] border border-slate-700/80 rounded-xl py-2.5 pl-9 pr-3 text-slate-200 text-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none"
+                            className="w-full bg-white border border-slate-300 rounded-xl py-2.5 pl-9 pr-3 text-slate-900 text-sm focus:border-blue-600 focus:ring-1 focus:ring-blue-600 outline-none placeholder:text-slate-400 shadow-2xs"
                           />
                         </div>
                       </div>
 
                       <div className="space-y-1.5">
-                        <label className="text-xs font-semibold text-slate-300">Teléfono Móvil (Avisos & WhatsApp) *</label>
+                        <label className="text-xs font-bold text-slate-800">Teléfono Móvil (Avisos & WhatsApp) *</label>
                         <div className="relative">
-                          <Phone className="w-4 h-4 text-slate-500 absolute left-3 top-3" />
+                          <Phone className="w-4 h-4 text-slate-400 absolute left-3 top-3" />
                           <input
                             type="tel"
                             required
                             placeholder="Ej. 612 345 678"
                             value={clientPhone}
                             onChange={(e) => setClientPhone(e.target.value)}
-                            className="w-full bg-[#0B0F17] border border-slate-700/80 rounded-xl py-2.5 pl-9 pr-3 text-slate-200 text-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none"
+                            className="w-full bg-white border border-slate-300 rounded-xl py-2.5 pl-9 pr-3 text-slate-900 text-sm focus:border-blue-600 focus:ring-1 focus:ring-blue-600 outline-none placeholder:text-slate-400 shadow-2xs"
                           />
                         </div>
                       </div>
                     </div>
 
                     <div className="space-y-1.5 pt-1">
-                      <label className="text-xs font-semibold text-slate-300">Observaciones o Síntomas Adicionales (Opcional)</label>
+                      <label className="text-xs font-bold text-slate-800">Observaciones o Síntomas Adicionales (Opcional)</label>
                       <textarea
                         rows="2"
                         placeholder="Ej. Dejar vehículo antes de ir al trabajo, necesito presupuesto previo de frenos..."
                         value={clientNotes}
                         onChange={(e) => setClientNotes(e.target.value)}
-                        className="w-full bg-[#0B0F17] border border-slate-700/80 rounded-xl py-2 px-3 text-slate-200 text-xs focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none resize-none"
+                        className="w-full bg-white border border-slate-300 rounded-xl py-2 px-3 text-slate-900 text-xs focus:border-blue-600 focus:ring-1 focus:ring-blue-600 outline-none resize-none placeholder:text-slate-400 shadow-2xs"
                       />
                     </div>
                   </div>
@@ -897,51 +900,51 @@ function App() {
               {/* Sticky Summary & Submit Sidebar (Cols 9-12) */}
               <div className="lg:col-span-4 lg:sticky lg:top-28 space-y-4">
                 
-                <div className="bg-[#131B2A] border border-slate-800 rounded-2xl p-6 shadow-xl space-y-5">
-                  <div className="border-b border-slate-800 pb-3">
-                    <h3 className="text-base font-bold text-white flex items-center gap-2 font-display">
+                <div className="bg-white border border-slate-200 rounded-2xl p-6 shadow-md space-y-5">
+                  <div className="border-b border-slate-100 pb-3">
+                    <h3 className="text-base font-bold text-slate-900 flex items-center gap-2 font-display">
                       <span>Resumen de tu Cita</span>
                     </h3>
-                    <span className="text-xs text-slate-400">Comprueba los datos antes de confirmar</span>
+                    <span className="text-xs text-slate-500">Comprueba los datos antes de confirmar</span>
                   </div>
 
                   <div className="space-y-3.5 text-xs">
                     
-                    <div className="flex items-start justify-between gap-2 border-b border-slate-800/60 pb-2.5">
-                      <span className="text-slate-400">Servicio:</span>
-                      <span className="font-semibold text-slate-200 text-right max-w-[170px]">
+                    <div className="flex items-start justify-between gap-2 border-b border-slate-100 pb-2.5">
+                      <span className="text-slate-500 font-medium">Servicio:</span>
+                      <span className="font-bold text-slate-900 text-right max-w-[170px]">
                         {resolvedServiceName}
                       </span>
                     </div>
 
-                    <div className="flex items-start justify-between gap-2 border-b border-slate-800/60 pb-2.5">
-                      <span className="text-slate-400">Vehículo:</span>
-                      <span className="font-semibold text-slate-200 text-right">
+                    <div className="flex items-start justify-between gap-2 border-b border-slate-100 pb-2.5">
+                      <span className="text-slate-500 font-medium">Vehículo:</span>
+                      <span className="font-bold text-slate-900 text-right">
                         {fullCarString || 'Pendiente de indicar'}
                       </span>
                     </div>
 
-                    <div className="flex items-center justify-between gap-2 border-b border-slate-800/60 pb-2.5">
-                      <span className="text-slate-400">Matrícula:</span>
+                    <div className="flex items-center justify-between gap-2 border-b border-slate-100 pb-2.5">
+                      <span className="text-slate-500 font-medium">Matrícula:</span>
                       {licensePlate ? (
-                        <span className="font-mono font-bold text-blue-400 uppercase bg-blue-500/10 px-2 py-0.5 rounded border border-blue-500/20">
+                        <span className="font-mono font-bold text-blue-700 uppercase bg-blue-50 px-2 py-0.5 rounded border border-blue-200">
                           {licensePlate}
                         </span>
                       ) : (
-                        <span className="text-slate-500 italic">No indicada</span>
+                        <span className="text-slate-400 italic">No indicada</span>
                       )}
                     </div>
 
-                    <div className="flex items-start justify-between gap-2 border-b border-slate-800/60 pb-2.5">
-                      <span className="text-slate-400">Fecha y Hora:</span>
-                      <span className="font-bold text-emerald-400 text-right">
+                    <div className="flex items-start justify-between gap-2 border-b border-slate-100 pb-2.5">
+                      <span className="text-slate-500 font-medium">Fecha y Hora:</span>
+                      <span className="font-bold text-emerald-700 text-right">
                         {selectedDate ? `${selectedDate} — ${selectedTime} h` : 'Selecciona fecha'}
                       </span>
                     </div>
 
                     <div className="flex items-start justify-between gap-2">
-                      <span className="text-slate-400">Ubicación:</span>
-                      <span className="font-medium text-slate-300 text-right">Sant Adrià de Besòs</span>
+                      <span className="text-slate-500 font-medium">Ubicación:</span>
+                      <span className="font-semibold text-slate-800 text-right">Sant Adrià de Besòs</span>
                     </div>
                   </div>
 
@@ -950,7 +953,7 @@ function App() {
                     type="submit"
                     form="appointment-form"
                     disabled={submitting}
-                    className="w-full py-3.5 px-4 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white font-bold rounded-xl shadow-lg shadow-blue-600/25 flex items-center justify-center gap-2 cursor-pointer transition-all border-none disabled:opacity-50 disabled:cursor-not-allowed text-sm"
+                    className="w-full py-3.5 px-4 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-bold rounded-xl shadow-md shadow-blue-600/20 flex items-center justify-center gap-2 cursor-pointer transition-all border-none disabled:opacity-50 disabled:cursor-not-allowed text-sm"
                   >
                     {submitting ? (
                       <>
@@ -965,18 +968,18 @@ function App() {
                     )}
                   </button>
 
-                  <p className="text-[11px] text-slate-500 text-center leading-normal">
+                  <p className="text-[11px] text-slate-400 text-center leading-normal">
                     Al solicitar cita aceptas el tratamiento de datos para la gestión del servicio mecánico.
                   </p>
                 </div>
 
                 {/* Direct Phone & WhatsApp Assistance Card */}
-                <div className="bg-[#0F172A] border border-slate-800/80 rounded-xl p-4 text-xs text-slate-300 space-y-3">
-                  <div className="font-bold text-white flex items-center gap-1.5">
-                    <Phone className="w-3.5 h-3.5 text-blue-400" />
+                <div className="bg-white border border-slate-200 rounded-xl p-4 text-xs text-slate-700 space-y-3 shadow-xs">
+                  <div className="font-bold text-slate-900 flex items-center gap-1.5">
+                    <Phone className="w-3.5 h-3.5 text-blue-600" />
                     <span>¿Tienes una consulta o urgencia?</span>
                   </div>
-                  <p className="text-slate-400 text-[11px] leading-relaxed">
+                  <p className="text-slate-500 text-[11px] leading-relaxed">
                     Contáctanos directamente con el taller por teléfono o WhatsApp para atención inmediata.
                   </p>
                   <div className="flex flex-col gap-2 pt-1">
@@ -984,16 +987,16 @@ function App() {
                       href={directWhatsAppUrl}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="w-full py-2.5 px-3 bg-emerald-600 hover:bg-emerald-500 text-white font-bold rounded-lg text-xs flex items-center justify-center gap-1.5 shadow-sm transition-all"
+                      className="w-full py-2.5 px-3 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-lg text-xs flex items-center justify-center gap-1.5 shadow-xs transition-all"
                     >
                       <MessageSquare className="w-3.5 h-3.5" />
                       <span>Abrir WhatsApp del Taller</span>
                     </a>
                     <a
                       href="tel:933812345"
-                      className="w-full py-2 px-3 bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white font-semibold rounded-lg text-xs flex items-center justify-center gap-1.5 border border-slate-700 transition-all"
+                      className="w-full py-2 px-3 bg-slate-50 hover:bg-slate-100 text-slate-800 font-bold rounded-lg text-xs flex items-center justify-center gap-1.5 border border-slate-200 transition-all shadow-2xs"
                     >
-                      <Phone className="w-3.5 h-3.5 text-blue-400" />
+                      <Phone className="w-3.5 h-3.5 text-blue-600" />
                       <span>Llamar al taller: 93 381 23 45</span>
                     </a>
                   </div>
@@ -1004,41 +1007,41 @@ function App() {
             </div>
 
             {/* Workshop Facilities & Trust Showcase */}
-            <div className="pt-12 border-t border-slate-800/80 max-w-6xl mx-auto space-y-8">
+            <div className="pt-12 border-t border-slate-200 max-w-6xl mx-auto space-y-8">
               <div className="text-center max-w-2xl mx-auto space-y-2">
-                <h3 className="text-2xl font-bold text-white font-display">Taller Mecánico en Sant Adrià de Besòs</h3>
-                <p className="text-sm text-slate-400">
+                <h3 className="text-2xl font-bold text-slate-900 font-display">Taller Mecánico en Sant Adrià de Besòs</h3>
+                <p className="text-sm text-slate-600">
                   Instalaciones equipadas con elevadores homologados y equipos de diagnosis multimarca de última generación.
                 </p>
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-xs">
-                <div className="bg-[#131B2A] border border-slate-800 p-5 rounded-xl space-y-2">
-                  <div className="w-8 h-8 rounded-lg bg-blue-600/10 text-blue-400 flex items-center justify-center font-bold">
+                <div className="bg-white border border-slate-200 p-5 rounded-xl space-y-2 shadow-xs">
+                  <div className="w-8 h-8 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center font-bold text-sm">
                     📍
                   </div>
-                  <span className="font-bold text-sm text-white block">Ubicación & Acceso</span>
-                  <p className="text-slate-400 leading-relaxed">
+                  <span className="font-bold text-sm text-slate-900 block">Ubicación & Acceso</span>
+                  <p className="text-slate-600 leading-relaxed">
                     Situados estratégicamente junto a los accesos principales de Sant Adrià y Ronda Litoral. Fácil acceso y aparcamiento de clientes.
                   </p>
                 </div>
 
-                <div className="bg-[#131B2A] border border-slate-800 p-5 rounded-xl space-y-2">
-                  <div className="w-8 h-8 rounded-lg bg-emerald-600/10 text-emerald-400 flex items-center justify-center font-bold">
+                <div className="bg-white border border-slate-200 p-5 rounded-xl space-y-2 shadow-xs">
+                  <div className="w-8 h-8 rounded-lg bg-emerald-50 text-emerald-600 flex items-center justify-center font-bold text-sm">
                     ⭐
                   </div>
-                  <span className="font-bold text-sm text-white block">Valoración de Clientes</span>
-                  <p className="text-slate-400 leading-relaxed">
+                  <span className="font-bold text-sm text-slate-900 block">Valoración de Clientes</span>
+                  <p className="text-slate-600 leading-relaxed">
                     4.9 / 5 estrellas en reseñas de Google. Máxima transparencia en presupuestos y trato personalizado desde 2004.
                   </p>
                 </div>
 
-                <div className="bg-[#131B2A] border border-slate-800 p-5 rounded-xl space-y-2">
-                  <div className="w-8 h-8 rounded-lg bg-amber-600/10 text-amber-400 flex items-center justify-center font-bold">
+                <div className="bg-white border border-slate-200 p-5 rounded-xl space-y-2 shadow-xs">
+                  <div className="w-8 h-8 rounded-lg bg-amber-50 text-amber-600 flex items-center justify-center font-bold text-sm">
                     🕒
                   </div>
-                  <span className="font-bold text-sm text-white block">Horario Ininterrumpido</span>
-                  <p className="text-slate-400 leading-relaxed">
+                  <span className="font-bold text-sm text-slate-900 block">Horario Ininterrumpido</span>
+                  <p className="text-slate-600 leading-relaxed">
                     Mañanas: 08:30 a 13:00 h<br />
                     Tardes: 15:00 a 18:30 h<br />
                     De lunes a viernes.
@@ -1053,10 +1056,10 @@ function App() {
       </main>
 
       {/* Modern Workshop Footer */}
-      <footer className="bg-[#090D14] border-t border-slate-800/80 py-8 text-xs text-slate-400">
+      <footer className="bg-white border-t border-slate-200 py-8 text-xs text-slate-500">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-4">
           <div className="flex items-center gap-2">
-            <span className="font-bold text-slate-300">{settings.shop_name || 'Auto Talleres Romo'}</span>
+            <span className="font-bold text-slate-800">{settings.shop_name || 'Auto Talleres Romo'}</span>
             <span>— Taller Mecánico Especializado</span>
           </div>
 
@@ -1072,7 +1075,7 @@ function App() {
         href={directWhatsAppUrl}
         target="_blank"
         rel="noopener noreferrer"
-        className="fixed bottom-6 right-6 z-50 p-3.5 bg-emerald-600 hover:bg-emerald-500 text-white rounded-full shadow-2xl shadow-emerald-600/50 flex items-center gap-2 border border-emerald-400/40 transition-all hover:scale-105 group"
+        className="fixed bottom-6 right-6 z-50 p-3.5 bg-emerald-600 hover:bg-emerald-500 text-white rounded-full shadow-xl shadow-emerald-600/40 flex items-center gap-2 border border-emerald-400/40 transition-all hover:scale-105 group"
         title="Consultar por WhatsApp con el taller"
       >
         <MessageSquare className="w-6 h-6" />
