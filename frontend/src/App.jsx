@@ -364,9 +364,11 @@ function App() {
             </div>
 
             <a
-              href="/admin"
+              href="https://romo-mercedesbenz.es/"
+              target="_blank"
+              rel="noopener noreferrer"
               className="px-3.5 py-2 text-xs font-semibold text-slate-300 bg-slate-800/80 hover:bg-slate-800 hover:text-white rounded-lg border border-slate-700/80 transition-all flex items-center gap-1.5 shadow-sm"
-              title="Acceso restringido para el equipo del taller"
+              title="Web Oficial Romo Mercedes-Benz"
             >
               <span>Acceso Taller</span>
               <ExternalLink className="w-3.5 h-3.5 text-slate-400" />
@@ -1016,9 +1018,7 @@ function App() {
 
           <div className="flex items-center gap-6">
             <span>Sant Adrià de Besòs (Barcelona)</span>
-            <a href="/admin" className="hover:text-blue-400 transition-colors">
-              Panel Administrativo
-            </a>
+            <span>© {new Date().getFullYear()} Todos los derechos reservados</span>
           </div>
         </div>
       </footer>
