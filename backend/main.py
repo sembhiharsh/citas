@@ -87,10 +87,16 @@ class SettingsModel(BaseModel):
     daily_quota: Optional[int] = 5
     block_weekends: Optional[bool] = True
     blocked_dates: Optional[List[str]] = []
+    custom_daily_quotas: Optional[dict] = {}
 
 class BlockDatePayload(BaseModel):
     date: Optional[str] = None
     dates: Optional[List[str]] = None
+
+class SetDayQuotaPayload(BaseModel):
+    date: str
+    quota: Optional[int] = 5
+    blocked: Optional[bool] = None
 
 # ---------- Appointment schema ----------
 class AppointmentModel(BaseModel):
@@ -212,6 +218,42 @@ async def toggle_blocked_date(payload: BlockDatePayload):
     save_settings(settings)
     await broadcast_appointment_update()
     return {"status": "success", "date": date_clean, "is_blocked": is_blocked, "blocked_dates": settings["blocked_dates"]}
+
+
+@app.post("/api/admin/set-day-quota")
+async def set_day_quota(payload: SetDayQuotaPayload):
+    """Set custom quota for a specific date or toggle its block status."""
+    date_clean = payload.date.strip()
+    settings = load_settings()
+    custom_quotas = settings.get("custom_daily_quotas", {})
+    blocked_dates = set(settings.get("blocked_dates", []))
+
+    if payload.quota is not None:
+        custom_quotas[date_clean] = int(payload.quota)
+        if int(payload.quota) <= 0:
+            blocked_dates.add(date_clean)
+        else:
+            if date_clean in blocked_dates and (payload.blocked is None or payload.blocked is False):
+                blocked_dates.remove(date_clean)
+
+    if payload.blocked is True:
+        blocked_dates.add(date_clean)
+    elif payload.blocked is False:
+        if date_clean in blocked_dates:
+            blocked_dates.remove(date_clean)
+
+    settings["custom_daily_quotas"] = custom_quotas
+    settings["blocked_dates"] = sorted(list(blocked_dates))
+    save_settings(settings)
+    await broadcast_appointment_update()
+    return {
+        "status": "success",
+        "date": date_clean,
+        "quota": custom_quotas.get(date_clean, settings.get("daily_quota", 5)),
+        "is_blocked": date_clean in blocked_dates,
+        "blocked_dates": settings["blocked_dates"],
+        "custom_daily_quotas": settings["custom_daily_quotas"]
+    }
 
 
 # ---------- Appointments ----------

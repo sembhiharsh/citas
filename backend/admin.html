@@ -301,7 +301,7 @@
       background: var(--surface);
       border: 1px solid var(--border);
       border-radius: 12px;
-      min-height: 100px;
+      min-height: 105px;
       padding: 10px;
       cursor: pointer;
       display: flex;
@@ -311,8 +311,9 @@
       position: relative;
     }
     .cal-day-cell:hover {
-      border-color: #4B5563;
+      border-color: #3B82F6;
       transform: translateY(-2px);
+      box-shadow: 0 6px 16px rgba(0,0,0,0.3);
     }
     .cal-day-cell.today {
       border-color: #3B82F6;
@@ -327,7 +328,7 @@
       border-color: rgba(245, 158, 11, 0.4);
     }
     .cal-day-cell.weekend {
-      opacity: 0.55;
+      opacity: 0.6;
       background: #0D121B;
     }
     .cal-day-cell.empty {
@@ -344,17 +345,18 @@
     .day-status-pill {
       font-size: 0.65rem;
       font-weight: 700;
-      padding: 2px 6px;
+      padding: 3px 6px;
       border-radius: 6px;
       display: inline-block;
       margin-top: 4px;
       text-align: center;
+      transition: background 0.15s;
     }
     .pill-avail { background: rgba(16,185,129,0.15); color: #34D399; }
     .pill-blocked { background: rgba(239,68,68,0.2); color: #F87171; }
     .pill-full { background: rgba(245,158,11,0.2); color: #FBBF24; }
 
-    /* Day Manager Card */
+    /* Manager Card */
     .manager-card {
       background: var(--surface);
       border: 1px solid var(--border);
@@ -417,7 +419,7 @@
       border: 1px solid var(--border);
       border-radius: var(--radius);
       width: 100%;
-      max-width: 520px;
+      max-width: 540px;
       padding: 26px;
       box-shadow: 0 25px 50px -12px rgba(0,0,0,0.5);
       max-height: 90vh;
@@ -453,6 +455,29 @@
       outline: none;
     }
     .form-input:focus { border-color: var(--border-focus); }
+
+    /* Quick Quota Buttons */
+    .quota-preset-btn {
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      color: var(--text);
+      padding: 6px 12px;
+      border-radius: 8px;
+      font-size: 0.8rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+    .quota-preset-btn:hover {
+      background: var(--accent);
+      color: #FFF;
+      border-color: var(--accent);
+    }
+    .quota-preset-btn.active {
+      background: var(--accent);
+      color: #FFF;
+      border-color: #60A5FA;
+    }
 
     /* Empty state */
     .empty-state {
@@ -505,15 +530,15 @@
       <div class="manager-card">
         <div class="manager-title">
           <span>🔒</span>
-          <span>Bloquear Días Específicos (Cierre, Festivos o Vacaciones)</span>
+          <span>Bloquear o Configurar Días Específicos</span>
         </div>
         <p style="font-size:0.85rem; color:var(--text-dim); margin-bottom:14px;">
-          Los días bloqueados aparecerán en rojo en el calendario y ningún cliente podrá reservar cita en esas fechas.
+          Haz clic directo sobre cualquier día del calendario abajo para <strong>elegir cuántas citas admitir (cupo)</strong> o <strong>bloquearlo por completo</strong>.
         </p>
         <div style="display:flex; flex-wrap:wrap; gap:10px; align-items:center;">
           <input type="date" id="input-block-date" class="form-input" style="width:180px;" />
           <button class="btn btn-danger" onclick="blockSpecificDate()">🔒 Bloquear Esta Fecha</button>
-          <span style="font-size:0.8rem; color:var(--text-dim); margin-left:8px;">💡 O haz clic directo sobre cualquier día del calendario abajo.</span>
+          <button class="btn btn-outline" onclick="openDayModalFromInput()">⚙️ Ajustar Cupo de Esta Fecha</button>
         </div>
 
         <div style="margin-top:18px;">
@@ -535,7 +560,7 @@
         <div class="cal-grid" id="cal-grid"></div>
 
         <div style="display:flex; gap:16px; flex-wrap:wrap; font-size:0.75rem; color:var(--text-dim); border-top:1px solid var(--border); padding-top:12px;">
-          <span>🟢 <strong>Disponible:</strong> Permite reservas online</span>
+          <span>🟢 <strong>Disponible:</strong> Haz clic para cambiar cupo o bloquear</span>
           <span>🔴 <strong>Bloqueado:</strong> Cerrado por taller</span>
           <span>🟡 <strong>Completo:</strong> Cupo máximo alcanzado</span>
           <span>⚪ <strong>Fin de semana:</strong> Sábados y Domingos</span>
@@ -564,14 +589,14 @@
       <div class="manager-card" style="max-width:650px;">
         <div class="manager-title">
           <span>⚙️</span>
-          <span>Capacidad y Configuración del Taller</span>
+          <span>Capacidad General del Taller</span>
         </div>
 
         <form id="settings-form" onsubmit="saveSettings(event)" style="display:flex; flex-direction:column; gap:16px; margin-top:14px;">
           <div class="form-group">
-            <label>Cupo Máximo de Citas por Día</label>
+            <label>Cupo General por Defecto de Citas por Día</label>
             <input type="number" id="setting-quota" min="1" max="50" required class="form-input" />
-            <span style="font-size:0.75rem; color:var(--text-dim);">Número de vehículos que el taller puede recibir diariamente (por defecto: 5).</span>
+            <span style="font-size:0.75rem; color:var(--text-dim);">Número estándar de vehículos por día cuando no hay un cupo especial configurado.</span>
           </div>
 
           <div class="form-group">
@@ -599,6 +624,70 @@
       </div>
     </div>
 
+  </div>
+
+  <!-- DAY MANAGEMENT & QUOTA MODAL (CLICK ON ANY CALENDAR DAY) -->
+  <div id="day-modal" class="modal-backdrop">
+    <div class="modal-card">
+      <div class="modal-head">
+        <h3 id="day-modal-title">⚙️ Gestión de Capacidad del Día</h3>
+        <button class="btn-close" onclick="closeDayModal()">×</button>
+      </div>
+
+      <input type="hidden" id="day-modal-date" />
+
+      <div style="display:flex; flex-direction:column; gap:18px;">
+        
+        <!-- Status Banner -->
+        <div id="day-modal-status-banner" style="padding:12px 14px; border-radius:10px; font-size:0.85rem; font-weight:700; display:flex; align-items:center; justify-content:space-between;">
+          <span id="day-modal-status-text">🟢 Día Abierto para Citas</span>
+          <span id="day-modal-booked-count" style="font-size:0.75rem; color:var(--text-dim);">0 citas reservadas</span>
+        </div>
+
+        <!-- Quota Control Section -->
+        <div style="background:var(--surface2); padding:16px; border-radius:12px; border:1px solid var(--border); display:flex; flex-direction:column; gap:12px;">
+          <label style="font-size:0.8rem; font-weight:800; color:#FFF;">¿Cuántas citas puede recibir el taller este día?</label>
+          
+          <div style="display:flex; gap:8px; align-items:center;">
+            <input type="number" id="day-modal-quota-input" min="0" max="50" class="form-input" style="width:120px; font-size:1.1rem; font-weight:800; text-align:center;" />
+            <span style="font-size:0.85rem; color:var(--text-dim);">vehículos / citas máximas</span>
+          </div>
+
+          <!-- Quick presets -->
+          <div>
+            <span style="font-size:0.7rem; color:var(--text-dim); text-transform:uppercase; font-weight:700; display:block; margin-bottom:6px;">Selección Rápida:</span>
+            <div style="display:flex; flex-wrap:wrap; gap:6px;">
+              <button type="button" class="quota-preset-btn" onclick="setQuotaPreset(0)">0 (Cerrado)</button>
+              <button type="button" class="quota-preset-btn" onclick="setQuotaPreset(1)">1</button>
+              <button type="button" class="quota-preset-btn" onclick="setQuotaPreset(2)">2</button>
+              <button type="button" class="quota-preset-btn" onclick="setQuotaPreset(3)">3</button>
+              <button type="button" class="quota-preset-btn" onclick="setQuotaPreset(4)">4</button>
+              <button type="button" class="quota-preset-btn" onclick="setQuotaPreset(5)">5 (Normal)</button>
+              <button type="button" class="quota-preset-btn" onclick="setQuotaPreset(6)">6</button>
+              <button type="button" class="quota-preset-btn" onclick="setQuotaPreset(8)">8</button>
+              <button type="button" class="quota-preset-btn" onclick="setQuotaPreset(10)">10</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Action Buttons -->
+        <div style="display:flex; gap:8px; flex-wrap:wrap;">
+          <button type="button" class="btn btn-primary" style="flex:1;" onclick="saveDayQuotaModal()">
+            💾 Guardar Capacidad
+          </button>
+          <button type="button" id="btn-toggle-block-modal" class="btn btn-danger" onclick="toggleBlockFromModal()">
+            🔒 Bloquear Día
+          </button>
+        </div>
+
+        <!-- Appointments List for this specific day -->
+        <div style="border-top:1px solid var(--border); padding-top:14px;">
+          <label style="font-size:0.75rem; font-weight:800; color:var(--text-dim); text-transform:uppercase; display:block; margin-bottom:8px;">Citas agendadas en este día:</label>
+          <div id="day-modal-appts-list" style="display:flex; flex-direction:column; gap:8px;"></div>
+        </div>
+
+      </div>
+    </div>
   </div>
 
   <!-- EDIT APPOINTMENT MODAL -->
@@ -664,7 +753,7 @@
 
   <script>
     let allAppointments = [];
-    let currentSettings = { daily_quota: 5, block_weekends: true, blocked_dates: [] };
+    let currentSettings = { daily_quota: 5, block_weekends: true, blocked_dates: [], custom_daily_quotas: {} };
     let calDate = new Date();
 
     // Init & WebSocket
@@ -782,6 +871,16 @@
       input.value = '';
     }
 
+    function openDayModalFromInput() {
+      const input = document.getElementById('input-block-date');
+      const val = input.value;
+      if (!val) {
+        alert('Selecciona una fecha primero.');
+        return;
+      }
+      openDayModal(val);
+    }
+
     async function unblockDate(dateStr) {
       await fetch(`/api/admin/blocked-dates/${dateStr}`, { method: 'DELETE' });
       loadAllData();
@@ -802,6 +901,12 @@
     function changeMonth(delta) {
       calDate.setMonth(calDate.getMonth() + delta);
       renderCalendar();
+    }
+
+    function getQuotaForDate(dateStr) {
+      const custom = currentSettings.custom_daily_quotas || {};
+      if (dateStr in custom) return parseInt(custom[dateStr], 10);
+      return currentSettings.daily_quota || 5;
     }
 
     function renderCalendar() {
@@ -832,7 +937,6 @@
 
       const todayStr = new Date().toISOString().split('T')[0];
       const blockedSet = new Set(currentSettings.blocked_dates || []);
-      const quota = currentSettings.daily_quota || 5;
 
       for (let d = 1; d <= lastDay.getDate(); d++) {
         const dObj = new Date(year, month, d);
@@ -842,7 +946,8 @@
         const dateStr = `${yyyy}-${mm}-${dd}`;
 
         const isWeekend = dObj.getDay() === 0 || dObj.getDay() === 6;
-        const isBlocked = blockedSet.has(dateStr);
+        const quota = getQuotaForDate(dateStr);
+        const isBlocked = blockedSet.has(dateStr) || quota <= 0;
         const isToday = dateStr === todayStr;
 
         // Count confirmed appointments on this date
@@ -851,7 +956,7 @@
           return a.datetime && a.datetime.startsWith(dateStr);
         }).length;
 
-        const isFull = confirmedCount >= quota;
+        const isFull = !isBlocked && confirmedCount >= quota;
 
         let cellClass = 'cal-day-cell';
         if (isToday) cellClass += ' today';
@@ -872,8 +977,8 @@
 
         const cell = document.createElement('div');
         cell.className = cellClass;
-        cell.title = isBlocked ? 'Haz clic para DESBLOQUEAR este día' : 'Haz clic para BLOQUEAR este día';
-        cell.onclick = () => toggleDateBlock(dateStr);
+        cell.title = 'Haz clic para ajustar el cupo de citas o bloquear este día';
+        cell.onclick = () => openDayModal(dateStr);
         cell.innerHTML = `
           <div style="display:flex; justify-content:space-between; align-items:center;">
             <span class="day-num">${d}</span>
@@ -882,6 +987,115 @@
           <div>${badgeHtml}</div>
         `;
         grid.appendChild(cell);
+      }
+    }
+
+    // DAY MANAGEMENT MODAL
+    function openDayModal(dateStr) {
+      document.getElementById('day-modal-date').value = dateStr;
+      
+      const dObj = new Date(dateStr + 'T00:00:00');
+      const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+      const formatted = dObj.toLocaleDateString('es-ES', options);
+      document.getElementById('day-modal-title').innerText = `⚙️ ${formatted.charAt(0).toUpperCase() + formatted.slice(1)}`;
+
+      const quota = getQuotaForDate(dateStr);
+      document.getElementById('day-modal-quota-input').value = quota;
+
+      const blockedSet = new Set(currentSettings.blocked_dates || []);
+      const isBlocked = blockedSet.has(dateStr) || quota <= 0;
+
+      const banner = document.getElementById('day-modal-status-banner');
+      const statusText = document.getElementById('day-modal-status-text');
+      const toggleBtn = document.getElementById('btn-toggle-block-modal');
+
+      if (isBlocked) {
+        banner.style.background = 'rgba(239,68,68,0.15)';
+        banner.style.border = '1px solid rgba(239,68,68,0.4)';
+        statusText.innerHTML = `<span style="color:#F87171;">🔴 Día Bloqueado (Cerrado para reservas)</span>`;
+        toggleBtn.className = 'btn btn-success';
+        toggleBtn.innerText = '🔓 Abrir / Desbloquear Día';
+      } else {
+        banner.style.background = 'rgba(16,185,129,0.15)';
+        banner.style.border = '1px solid rgba(16,185,129,0.4)';
+        statusText.innerHTML = `<span style="color:#34D399;">🟢 Día Abierto para Citas Online</span>`;
+        toggleBtn.className = 'btn btn-danger';
+        toggleBtn.innerText = '🔒 Bloquear / Cerrar Día';
+      }
+
+      // Find appointments for this date
+      const apptsOnDate = allAppointments.filter(a => a.datetime && a.datetime.startsWith(dateStr));
+      document.getElementById('day-modal-booked-count').innerText = `${apptsOnDate.length} citas registradas`;
+
+      const listContainer = document.getElementById('day-modal-appts-list');
+      if (apptsOnDate.length === 0) {
+        listContainer.innerHTML = `<span style="font-size:0.8rem; color:var(--text-dim); font-style:italic;">No hay citas agendadas para esta fecha.</span>`;
+      } else {
+        listContainer.innerHTML = apptsOnDate.map(a => {
+          const time = (a.datetime || '').substring(11, 16) || '--:--';
+          return `
+            <div style="background:var(--surface); padding:10px 12px; border-radius:8px; border:1px solid var(--border); display:flex; justify-content:space-between; align-items:center; font-size:0.8rem;">
+              <div>
+                <span style="color:#60A5FA; font-weight:800;">${time} h</span>
+                <strong style="color:#FFF; margin-left:6px;">${a.name}</strong>
+                <span style="color:var(--text-dim); margin-left:6px;">(${a.car_model || ''} - ${a.license_plate || ''})</span>
+              </div>
+              <button class="btn btn-outline" style="padding:4px 8px; font-size:0.7rem;" onclick="closeDayModal(); openEditModal('${a.id}')">✏️ Editar</button>
+            </div>
+          `;
+        }).join('');
+      }
+
+      document.getElementById('day-modal').classList.add('active');
+    }
+
+    function closeDayModal() {
+      document.getElementById('day-modal').classList.remove('active');
+    }
+
+    function setQuotaPreset(val) {
+      document.getElementById('day-modal-quota-input').value = val;
+    }
+
+    async function saveDayQuotaModal() {
+      const dateStr = document.getElementById('day-modal-date').value;
+      const quotaVal = parseInt(document.getElementById('day-modal-quota-input').value, 10);
+      
+      const res = await fetch('/api/admin/set-day-quota', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          date: dateStr,
+          quota: isNaN(quotaVal) ? 5 : quotaVal,
+          blocked: quotaVal <= 0 ? true : false
+        })
+      });
+
+      if (res.ok) {
+        closeDayModal();
+        loadAllData();
+      } else {
+        alert('Error al guardar la capacidad del día.');
+      }
+    }
+
+    async function toggleBlockFromModal() {
+      const dateStr = document.getElementById('day-modal-date').value;
+      const blockedSet = new Set(currentSettings.blocked_dates || []);
+      const isCurrentlyBlocked = blockedSet.has(dateStr);
+
+      const res = await fetch('/api/admin/set-day-quota', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          date: dateStr,
+          blocked: !isCurrentlyBlocked
+        })
+      });
+
+      if (res.ok) {
+        closeDayModal();
+        loadAllData();
       }
     }
 

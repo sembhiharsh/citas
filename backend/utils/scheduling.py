@@ -1,7 +1,7 @@
 import os
 import json
 import datetime
-from typing import List
+from typing import List, Dict
 
 # ==== DEFAULT CONFIGURATION ====
 DEFAULT_BLOCK_WEEKENDS = True
@@ -40,14 +40,16 @@ def get_schedule_settings() -> dict:
                 return {
                     "daily_quota": int(data.get("daily_quota", DEFAULT_DAILY_QUOTA)),
                     "block_weekends": bool(data.get("block_weekends", DEFAULT_BLOCK_WEEKENDS)),
-                    "blocked_dates": list(data.get("blocked_dates", []))
+                    "blocked_dates": list(data.get("blocked_dates", [])),
+                    "custom_daily_quotas": dict(data.get("custom_daily_quotas", {}))
                 }
         except Exception:
             pass
     return {
         "daily_quota": DEFAULT_DAILY_QUOTA,
         "block_weekends": DEFAULT_BLOCK_WEEKENDS,
-        "blocked_dates": []
+        "blocked_dates": [],
+        "custom_daily_quotas": {}
     }
 
 
@@ -56,18 +58,34 @@ def get_blocked_dates() -> List[str]:
     return get_schedule_settings().get("blocked_dates", [])
 
 
-def get_daily_quota() -> int:
-    """Return max confirmed appointments allowed per day."""
-    return get_schedule_settings().get("daily_quota", DEFAULT_DAILY_QUOTA)
+def get_custom_daily_quotas() -> Dict[str, int]:
+    """Return dictionary mapping date ISO strings to specific custom quotas."""
+    return get_schedule_settings().get("custom_daily_quotas", {})
+
+
+def get_daily_quota(target_date: datetime.date = None) -> int:
+    """Return max confirmed appointments allowed per day (per-date or global default)."""
+    settings = get_schedule_settings()
+    if target_date is not None:
+        date_str = target_date.isoformat() if isinstance(target_date, datetime.date) else str(target_date)
+        custom_quotas = settings.get("custom_daily_quotas", {})
+        if date_str in custom_quotas:
+            return int(custom_quotas[date_str])
+    return int(settings.get("daily_quota", DEFAULT_DAILY_QUOTA))
 
 
 DAILY_QUOTA = DEFAULT_DAILY_QUOTA
 
 
 def is_date_blocked_by_admin(target_date: datetime.date) -> bool:
-    """Return True if target_date is in the admin blocked dates list."""
-    date_str = target_date.isoformat()
-    return date_str in get_blocked_dates()
+    """Return True if target_date is in the admin blocked dates list or has quota 0."""
+    date_str = target_date.isoformat() if isinstance(target_date, datetime.date) else str(target_date)
+    if date_str in get_blocked_dates():
+        return True
+    custom_quotas = get_custom_daily_quotas()
+    if date_str in custom_quotas and int(custom_quotas[date_str]) <= 0:
+        return True
+    return False
 
 
 # ---- Core helpers ----
@@ -81,7 +99,7 @@ def is_slot_available(appt_dt: datetime.datetime) -> bool:
     if appt_dt < datetime.datetime.now():
         return False
 
-    # 2. Check admin manually blocked dates
+    # 2. Check admin manually blocked dates or quota 0
     if is_date_blocked_by_admin(date):
         return False
 
@@ -130,7 +148,9 @@ def is_date_full(target_date: datetime.date) -> bool:
     """Return True if target_date is blocked or already has max confirmed appointments."""
     if is_date_blocked_by_admin(target_date):
         return True
-    quota = get_daily_quota()
+    quota = get_daily_quota(target_date)
+    if quota <= 0:
+        return True
     return get_confirmed_count_for_date(target_date) >= quota
 
 
@@ -138,11 +158,11 @@ def get_next_available_date(start_date: datetime.date) -> str:
     """Find the first available date from start_date. Returns ISO date string."""
     current = start_date
     delta = datetime.timedelta(days=1)
-    quota = get_daily_quota()
     for _ in range(120):
         if not is_date_blocked_by_admin(current):
+            quota = get_daily_quota(current)
             dummy_dt = datetime.datetime.combine(current, datetime.time(10, 0))
-            if is_slot_available(dummy_dt) and get_confirmed_count_for_date(current) < quota:
+            if is_slot_available(dummy_dt) and quota > 0 and get_confirmed_count_for_date(current) < quota:
                 return current.isoformat()
         current += delta
     return start_date.isoformat()
@@ -153,11 +173,11 @@ def get_available_dates(start: datetime.date, end: datetime.date) -> List[str]:
     available = []
     delta = datetime.timedelta(days=1)
     current = start
-    quota = get_daily_quota()
     while current <= end:
         if not is_date_blocked_by_admin(current):
+            quota = get_daily_quota(current)
             dummy_dt = datetime.datetime.combine(current, datetime.time(10, 0))
-            if is_slot_available(dummy_dt) and get_confirmed_count_for_date(current) < quota:
+            if is_slot_available(dummy_dt) and quota > 0 and get_confirmed_count_for_date(current) < quota:
                 available.append(current.isoformat())
         current += delta
     return available
@@ -170,7 +190,7 @@ def auto_approve_pending(date: datetime.date) -> None:
             data = json.load(f)
     except Exception:
         return
-    quota = get_daily_quota()
+    quota = get_daily_quota(date)
     confirmed = sum(
         1 for a in data
         if a.get('status') == 'confirmed' and datetime.datetime.fromisoformat(a.get('datetime')).date() == date
