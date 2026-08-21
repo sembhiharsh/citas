@@ -27,7 +27,8 @@ from utils.scheduling import (
     auto_approve_pending,
     DAILY_QUOTA,
 )
-from utils.notifications import notify_appointment, build_whatsapp_url
+from utils.notify import notify_appointment
+from utils.whatsapp import build_whatsapp_url
 
 # Initialize logging
 logging.basicConfig(level=logging.INFO)
