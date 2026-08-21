@@ -109,6 +109,27 @@
       flex: 1;
     }
 
+    /* Search Bar */
+    .search-box {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 10px 14px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 16px;
+      box-shadow: var(--shadow-sm);
+    }
+    .search-box input {
+      border: none;
+      outline: none;
+      width: 100%;
+      font-size: 0.85rem;
+      color: var(--text);
+      background: transparent;
+    }
+
     /* Navigation Tabs */
     .tabs {
       display: flex;
@@ -266,6 +287,7 @@
       gap: 6px;
       transition: all 0.15s;
       border: 1px solid transparent;
+      text-decoration: none;
     }
     .btn-primary { background: var(--accent); color: #FFF; }
     .btn-primary:hover { background: var(--accent-hover); }
@@ -278,7 +300,7 @@
     .btn-whatsapp { background: #DCFCE7; color: #15803D; border-color: #BBF7D0; }
     .btn-whatsapp:hover { background: #16A34A; color: #FFF; }
 
-    /* Calendar Grid & Interactive Block Controls */
+    /* Calendar Grid */
     .cal-controls {
       display: flex;
       align-items: center;
@@ -310,7 +332,7 @@
       background: var(--surface);
       border: 1px solid var(--border);
       border-radius: 12px;
-      min-height: 105px;
+      min-height: 115px;
       padding: 10px;
       cursor: pointer;
       display: flex;
@@ -329,6 +351,20 @@
       border-color: #2563EB;
       box-shadow: 0 0 0 2px rgba(37,99,235,0.25);
     }
+    
+    /* PAST DAYS - REDDISH AND LOCKED */
+    .cal-day-cell.past {
+      background: #FFF5F5 !important;
+      border-color: #FED7D7 !important;
+    }
+    .cal-day-cell.past .day-num {
+      color: #991B1B !important;
+    }
+    .cal-day-cell.past:hover {
+      border-color: #F87171 !important;
+      box-shadow: var(--shadow-sm);
+    }
+
     .cal-day-cell.blocked {
       background: #FEF2F2;
       border-color: #FECACA;
@@ -365,6 +401,22 @@
     .pill-avail { background: #ECFDF5; color: #059669; border: 1px solid #A7F3D0; }
     .pill-blocked { background: #FEF2F2; color: #DC2626; border: 1px solid #FECACA; }
     .pill-full { background: #FFFBEB; color: #D97706; border: 1px solid #FDE68A; }
+    .pill-past { background: #FEE2E2; color: #991B1B; border: 1px solid #FECACA; }
+
+    .cell-client-tag {
+      font-size: 0.65rem;
+      background: #EFF6FF;
+      color: #1E40AF;
+      border: 1px solid #DBEAFE;
+      border-radius: 4px;
+      padding: 1px 4px;
+      margin-top: 3px;
+      display: block;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      font-weight: 600;
+    }
 
     /* Manager Card */
     .manager-card {
@@ -430,7 +482,7 @@
       border: 1px solid var(--border);
       border-radius: var(--radius);
       width: 100%;
-      max-width: 540px;
+      max-width: 600px;
       padding: 26px;
       box-shadow: var(--shadow-lg);
       max-height: 90vh;
@@ -483,6 +535,18 @@
       background: var(--accent);
       color: #FFF;
       border-color: var(--accent);
+    }
+
+    /* Client Detail Card inside Day Modal */
+    .client-detail-box {
+      background: #FFFFFF;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      box-shadow: var(--shadow-sm);
     }
 
     /* Empty state */
@@ -543,7 +607,7 @@
           <span>Bloquear o Configurar Días Específicos</span>
         </div>
         <p style="font-size:0.85rem; color:var(--text-dim); margin-bottom:14px;">
-          Haz clic directo sobre cualquier día del calendario abajo para <strong>elegir cuántas citas admitir (cupo)</strong> o <strong>bloquearlo por completo</strong>. Si un día está bloqueado o completo, los clientes podrán anotarse en la <strong>Lista de Espera</strong>.
+          Haz clic directo sobre cualquier día del calendario para <strong>ver todas las citas y datos de clientes</strong>, <strong>ajustar el cupo</strong> o <strong>bloquear el día</strong>. Los días pasados aparecen en tono rojizo bloqueados.
         </p>
         <div style="display:flex; flex-wrap:wrap; gap:10px; align-items:center;">
           <input type="date" id="input-block-date" class="form-input" style="width:180px;" />
@@ -570,9 +634,10 @@
         <div class="cal-grid" id="cal-grid"></div>
 
         <div style="display:flex; gap:16px; flex-wrap:wrap; font-size:0.75rem; color:var(--text-dim); border-top:1px solid var(--border); padding-top:12px;">
-          <span>🟢 <strong>Disponible:</strong> Haz clic para cambiar cupo o bloquear</span>
-          <span>🔴 <strong>Bloqueado:</strong> Cerrado por taller (permite lista de espera)</span>
-          <span>🟡 <strong>Completo:</strong> Cupo máximo alcanzado (permite lista de espera)</span>
+          <span>🟢 <strong>Disponible:</strong> Clic para ver clientes o cambiar cupo</span>
+          <span>🔴 <strong>Bloqueado:</strong> Cerrado por taller</span>
+          <span>🛑 <strong>Pasado:</strong> Días anteriores bloqueados (rojo)</span>
+          <span>🟡 <strong>Completo:</strong> Cupo máximo alcanzado</span>
           <span>⚪ <strong>Fin de semana:</strong> Sábados y Domingos</span>
         </div>
       </div>
@@ -584,7 +649,7 @@
       <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
         <div>
           <h2 style="font-size:1.15rem; font-weight:700; color:var(--text);">⏳ Solicitudes en Lista de Espera / Avisos de Hueco</h2>
-          <p style="font-size:0.8rem; color:var(--text-dim);">Clientes que han pedido cita para días que estaban bloqueados o completos. Puedes avisarles por WhatsApp o confirmar su cita si tienes un hueco.</p>
+          <p style="font-size:0.8rem; color:var(--text-dim);">Clientes que han pedido cita para días bloqueados o completos. Contacta con ellos o acéptalos en cuanto tengas disponibilidad.</p>
         </div>
       </div>
       <div id="waiting-appointments-list" class="card-list"></div>
@@ -599,9 +664,16 @@
     <!-- TAB 4: ALL APPOINTMENTS -->
     <div id="tab-all" class="section">
       <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
-        <h2 style="font-size:1.15rem; font-weight:700; color:var(--text);">Registro Histórico de Citas</h2>
+        <h2 style="font-size:1.15rem; font-weight:700; color:var(--text);">Registro Histórico de Clientes & Citas</h2>
         <span id="total-appointments-label" style="font-size:0.85rem; color:var(--text-dim);">Cargando...</span>
       </div>
+
+      <!-- Search Input -->
+      <div class="search-box">
+        <span>🔍</span>
+        <input type="text" id="search-all-input" placeholder="Buscar por nombre de cliente, teléfono, matrícula o vehículo..." oninput="filterAllAppointments()" />
+      </div>
+
       <div id="all-appointments-list" class="card-list"></div>
     </div>
 
@@ -647,11 +719,11 @@
 
   </div>
 
-  <!-- DAY MANAGEMENT & QUOTA MODAL (CLICK ON ANY CALENDAR DAY) -->
+  <!-- DAY & CLIENT MANAGEMENT MODAL (CLICK ON ANY CALENDAR DAY) -->
   <div id="day-modal" class="modal-backdrop">
     <div class="modal-card">
       <div class="modal-head">
-        <h3 id="day-modal-title">⚙️ Gestión de Capacidad del Día</h3>
+        <h3 id="day-modal-title">⚙️ Citas & Capacidad del Día</h3>
         <button class="btn-close" onclick="closeDayModal()">×</button>
       </div>
 
@@ -665,8 +737,8 @@
           <span id="day-modal-booked-count" style="font-size:0.75rem; color:var(--text-dim);">0 citas reservadas</span>
         </div>
 
-        <!-- Quota Control Section -->
-        <div style="background:var(--surface2); padding:16px; border-radius:12px; border:1px solid var(--border); display:flex; flex-direction:column; gap:12px;">
+        <!-- Quota Control Section (Hidden or Disabled for Past Days) -->
+        <div id="day-modal-quota-section" style="background:var(--surface2); padding:16px; border-radius:12px; border:1px solid var(--border); display:flex; flex-direction:column; gap:12px;">
           <label style="font-size:0.8rem; font-weight:800; color:var(--text);">¿Cuántas citas puede recibir el taller este día?</label>
           
           <div style="display:flex; gap:8px; align-items:center;">
@@ -689,22 +761,33 @@
               <button type="button" class="quota-preset-btn" onclick="setQuotaPreset(10)">10</button>
             </div>
           </div>
+
+          <!-- Action Buttons -->
+          <div style="display:flex; gap:8px; flex-wrap:wrap; margin-top:6px;">
+            <button type="button" class="btn btn-primary" style="flex:1;" onclick="saveDayQuotaModal()">
+              💾 Guardar Capacidad
+            </button>
+            <button type="button" id="btn-toggle-block-modal" class="btn btn-danger" onclick="toggleBlockFromModal()">
+              🔒 Bloquear Día
+            </button>
+          </div>
         </div>
 
-        <!-- Action Buttons -->
-        <div style="display:flex; gap:8px; flex-wrap:wrap;">
-          <button type="button" class="btn btn-primary" style="flex:1;" onclick="saveDayQuotaModal()">
-            💾 Guardar Capacidad
-          </button>
-          <button type="button" id="btn-toggle-block-modal" class="btn btn-danger" onclick="toggleBlockFromModal()">
-            🔒 Bloquear Día
-          </button>
+        <!-- Past Day Notice -->
+        <div id="day-modal-past-notice" style="display:none; background:#FFF5F5; border:1px solid #FED7D7; padding:12px; border-radius:10px; font-size:0.8rem; color:#991B1B; font-weight:600;">
+          🛑 Este día ya ha finalizado en el calendario (registro histórico bloqueado).
         </div>
 
-        <!-- Appointments List for this specific day -->
+        <!-- Appointments & Client Data List for this specific day -->
         <div style="border-top:1px solid var(--border); padding-top:14px;">
-          <label style="font-size:0.75rem; font-weight:800; color:var(--text-dim); text-transform:uppercase; display:block; margin-bottom:8px;">Citas agendadas en este día:</label>
-          <div id="day-modal-appts-list" style="display:flex; flex-direction:column; gap:8px;"></div>
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+            <label style="font-size:0.8rem; font-weight:800; color:var(--text); text-transform:uppercase;">
+              🚗 Citas & Clientes del Día:
+            </label>
+            <span id="day-modal-client-count" style="font-size:0.75rem; color:var(--text-dim); font-weight:700;"></span>
+          </div>
+
+          <div id="day-modal-appts-list" style="display:flex; flex-direction:column; gap:12px;"></div>
         </div>
 
       </div>
@@ -968,32 +1051,29 @@
         const dd = String(dObj.getDate()).padStart(2, '0');
         const dateStr = `${yyyy}-${mm}-${dd}`;
 
+        const isPast = dateStr < todayStr;
+        const isToday = dateStr === todayStr;
         const isWeekend = dObj.getDay() === 0 || dObj.getDay() === 6;
         const quota = getQuotaForDate(dateStr);
         const isBlocked = blockedSet.has(dateStr) || quota <= 0;
-        const isToday = dateStr === todayStr;
 
-        // Count confirmed appointments and waiting list on this date
-        const confirmedCount = allAppointments.filter(a => {
-          if (a.status !== 'confirmed') return false;
-          return a.datetime && a.datetime.startsWith(dateStr);
-        }).length;
-
-        const waitingCount = allAppointments.filter(a => {
-          if (a.status !== 'waiting_list') return false;
-          return a.datetime && a.datetime.startsWith(dateStr);
-        }).length;
-
+        // Appointments on this date
+        const dayAppts = allAppointments.filter(a => a.datetime && a.datetime.startsWith(dateStr));
+        const confirmedCount = dayAppts.filter(a => a.status === 'confirmed').length;
+        const waitingCount = dayAppts.filter(a => a.status === 'waiting_list').length;
         const isFull = !isBlocked && confirmedCount >= quota;
 
         let cellClass = 'cal-day-cell';
         if (isToday) cellClass += ' today';
-        if (isBlocked) cellClass += ' blocked';
+        if (isPast) cellClass += ' past';
+        else if (isBlocked) cellClass += ' blocked';
         else if (isFull) cellClass += ' full';
         else if (isWeekend) cellClass += ' weekend';
 
         let badgeHtml = '';
-        if (isBlocked) {
+        if (isPast) {
+          badgeHtml = `<span class="day-status-pill pill-past">🔒 Pasado (${dayAppts.length} citas)</span>`;
+        } else if (isBlocked) {
           badgeHtml = `<span class="day-status-pill pill-blocked">🔒 Bloqueado</span>`;
         } else if (isWeekend) {
           badgeHtml = `<span class="day-status-pill" style="background:#F1F5F9;color:#94A3B8;">Fin sem.</span>`;
@@ -1003,18 +1083,39 @@
           badgeHtml = `<span class="day-status-pill pill-avail">🟢 Libre (${confirmedCount}/${quota})</span>`;
         }
 
-        if (waitingCount > 0) {
+        if (!isPast && waitingCount > 0) {
           badgeHtml += `<span class="day-status-pill" style="background:#FEF3C7; color:#B45309; border:1px solid #FCD34D; margin-left:2px;">⏳ ${waitingCount}</span>`;
+        }
+
+        // Preview up to 2 client names inside cell
+        let clientsPreviewHtml = '';
+        if (dayAppts.length > 0) {
+          clientsPreviewHtml = `
+            <div style="margin-top:4px;">
+              ${dayAppts.slice(0, 2).map(a => `
+                <span class="cell-client-tag" title="${a.name} - ${a.car_model || ''}">
+                  👤 ${(a.name || 'Cliente').split(' ')[0]}
+                </span>
+              `).join('')}
+              ${dayAppts.length > 2 ? `<span style="font-size:0.6rem; color:#64748B; font-weight:700;">+${dayAppts.length - 2} más...</span>` : ''}
+            </div>
+          `;
         }
 
         const cell = document.createElement('div');
         cell.className = cellClass;
-        cell.title = 'Haz clic para ajustar el cupo de citas o bloquear este día';
+        cell.title = isPast 
+          ? 'Día pasado — Haz clic para ver todas las citas registradas' 
+          : 'Haz clic para ver clientes, ajustar cupo o bloquear';
         cell.onclick = () => openDayModal(dateStr);
         cell.innerHTML = `
-          <div style="display:flex; justify-content:space-between; align-items:center;">
-            <span class="day-num">${d}</span>
-            ${isToday ? '<span style="font-size:0.65rem; color:#2563EB; font-weight:800;">HOY</span>' : ''}
+          <div>
+            <div style="display:flex; justify-content:space-between; align-items:center;">
+              <span class="day-num">${d}</span>
+              ${isToday ? '<span style="font-size:0.65rem; color:#2563EB; font-weight:800;">HOY</span>' : ''}
+              ${isPast ? '<span style="font-size:0.6rem; color:#DC2626; font-weight:700;">PASADO</span>' : ''}
+            </div>
+            ${clientsPreviewHtml}
           </div>
           <div>${badgeHtml}</div>
         `;
@@ -1022,14 +1123,17 @@
       }
     }
 
-    // DAY MANAGEMENT MODAL
+    // DAY & CLIENT MANAGEMENT MODAL
     function openDayModal(dateStr) {
       document.getElementById('day-modal-date').value = dateStr;
       
+      const todayStr = new Date().toISOString().split('T')[0];
+      const isPast = dateStr < todayStr;
+
       const dObj = new Date(dateStr + 'T00:00:00');
       const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
       const formatted = dObj.toLocaleDateString('es-ES', options);
-      document.getElementById('day-modal-title').innerText = `⚙️ ${formatted.charAt(0).toUpperCase() + formatted.slice(1)}`;
+      document.getElementById('day-modal-title').innerText = `📅 ${formatted.charAt(0).toUpperCase() + formatted.slice(1)}`;
 
       const quota = getQuotaForDate(dateStr);
       document.getElementById('day-modal-quota-input').value = quota;
@@ -1040,46 +1144,104 @@
       const banner = document.getElementById('day-modal-status-banner');
       const statusText = document.getElementById('day-modal-status-text');
       const toggleBtn = document.getElementById('btn-toggle-block-modal');
+      const quotaSection = document.getElementById('day-modal-quota-section');
+      const pastNotice = document.getElementById('day-modal-past-notice');
 
-      if (isBlocked) {
+      if (isPast) {
         banner.style.background = '#FEF2F2';
         banner.style.border = '1px solid #FECACA';
-        statusText.innerHTML = `<span style="color:#DC2626;">🔴 Día Bloqueado (Cerrado - Admite Lista de Espera)</span>`;
-        toggleBtn.className = 'btn btn-success';
-        toggleBtn.innerText = '🔓 Abrir / Desbloquear Día';
+        statusText.innerHTML = `<span style="color:#991B1B;">🛑 Día Pasado (Registro Histórico)</span>`;
+        quotaSection.style.display = 'none';
+        pastNotice.style.display = 'block';
       } else {
-        banner.style.background = '#ECFDF5';
-        banner.style.border = '1px solid #A7F3D0';
-        statusText.innerHTML = `<span style="color:#059669;">🟢 Día Abierto para Citas Online</span>`;
-        toggleBtn.className = 'btn btn-danger';
-        toggleBtn.innerText = '🔒 Bloquear / Cerrar Día';
+        quotaSection.style.display = 'flex';
+        pastNotice.style.display = 'none';
+
+        if (isBlocked) {
+          banner.style.background = '#FEF2F2';
+          banner.style.border = '1px solid #FECACA';
+          statusText.innerHTML = `<span style="color:#DC2626;">🔴 Día Bloqueado (Cerrado - Admite Lista de Espera)</span>`;
+          toggleBtn.className = 'btn btn-success';
+          toggleBtn.innerText = '🔓 Abrir / Desbloquear Día';
+        } else {
+          banner.style.background = '#ECFDF5';
+          banner.style.border = '1px solid #A7F3D0';
+          statusText.innerHTML = `<span style="color:#059669;">🟢 Día Abierto para Citas Online</span>`;
+          toggleBtn.className = 'btn btn-danger';
+          toggleBtn.innerText = '🔒 Bloquear / Cerrar Día';
+        }
       }
 
-      // Find appointments for this date
+      // Find all appointments for this date
       const apptsOnDate = allAppointments.filter(a => a.datetime && a.datetime.startsWith(dateStr));
-      document.getElementById('day-modal-booked-count').innerText = `${apptsOnDate.length} solicitudes registradas`;
+      document.getElementById('day-modal-booked-count').innerText = `${apptsOnDate.length} registros`;
+      document.getElementById('day-modal-client-count').innerText = `Total: ${apptsOnDate.length} clientes`;
 
       const listContainer = document.getElementById('day-modal-appts-list');
       if (apptsOnDate.length === 0) {
-        listContainer.innerHTML = `<span style="font-size:0.8rem; color:var(--text-dim); font-style:italic;">No hay citas agendadas para esta fecha.</span>`;
+        listContainer.innerHTML = `<div class="empty-state" style="padding:20px 0;"><span>📭</span><p>No hay ninguna cita registrada en este día.</p></div>`;
       } else {
-        listContainer.innerHTML = apptsOnDate.map(a => {
-          const time = (a.datetime || '').substring(11, 16) || '--:--';
-          const isWait = a.status === 'waiting_list';
-          return `
-            <div style="background:var(--surface); padding:10px 12px; border-radius:8px; border:1px solid var(--border); display:flex; justify-content:space-between; align-items:center; font-size:0.8rem; box-shadow:var(--shadow-sm);">
-              <div>
-                <span style="color:${isWait ? '#D97706' : '#2563EB'}; font-weight:800;">${isWait ? '⏳ Espera' : `${time} h`}</span>
-                <strong style="color:var(--text); margin-left:6px;">${a.name}</strong>
-                <span style="color:var(--text-dim); margin-left:6px;">(${a.car_model || ''} - ${a.license_plate || ''})</span>
-              </div>
-              <button class="btn btn-outline" style="padding:4px 8px; font-size:0.7rem;" onclick="closeDayModal(); openEditModal('${a.id}')">✏️ Gestionar</button>
-            </div>
-          `;
-        }).join('');
+        listContainer.innerHTML = apptsOnDate.map(a => renderClientDetailCard(a)).join('');
       }
 
       document.getElementById('day-modal').classList.add('active');
+    }
+
+    function renderClientDetailCard(a) {
+      const time = (a.datetime || '').substring(11, 16) || '--:--';
+      const isWait = a.status === 'waiting_list';
+      const statusLabels = { 
+        confirmed: 'Confirmada', 
+        pending: 'Pendiente', 
+        waiting_list: '⏳ Lista de Espera',
+        completed: 'Completada (Entregado)', 
+        cancelled: 'Cancelada' 
+      };
+
+      const cleanPhone = (a.phone || '').replace(/\D/g, '');
+      const waPhone = cleanPhone.startsWith('34') || cleanPhone.length > 9 ? cleanPhone : '34' + cleanPhone;
+      const waMsg = isWait
+        ? encodeURIComponent(`Hola ${a.name}, te contactamos desde Auto Talleres Romo sobre tu solicitud en lista de espera. ¡Tenemos un hueco disponible!`)
+        : encodeURIComponent(`Hola ${a.name}, te contactamos desde Auto Talleres Romo sobre tu cita de las ${time} h.`);
+      const waUrl = `https://wa.me/${waPhone}?text=${waMsg}`;
+
+      return `
+        <div class="client-detail-box">
+          <div style="display:flex; justify-content:space-between; align-items:flex-start; gap:8px;">
+            <div>
+              <div style="font-size:0.95rem; font-weight:800; color:var(--text); display:flex; align-items:center; gap:6px;">
+                <span>👤 ${a.name || 'Sin Nombre'}</span>
+                <span class="status-badge status-${a.status || 'pending'}">${statusLabels[a.status] || a.status}</span>
+              </div>
+              <div style="font-size:0.8rem; color:var(--text-dim); margin-top:2px;">
+                📞 ${a.phone || 'Sin teléfono'}
+              </div>
+            </div>
+
+            <div class="car-badge">
+              <span>🚗 ${a.car_model || 'Vehículo'}</span>
+              ${a.license_plate ? `<span class="plate-badge">${a.license_plate}</span>` : ''}
+            </div>
+          </div>
+
+          <div style="background:var(--surface2); padding:8px 10px; border-radius:8px; font-size:0.78rem; display:flex; justify-content:space-between; flex-wrap:wrap; gap:6px;">
+            <div><strong>⏰ Hora:</strong> ${time} h</div>
+            <div><strong>🛠️ Trabajo:</strong> ${a.service || 'Mantenimiento'}</div>
+          </div>
+
+          <div style="display:flex; justify-content:flex-end; gap:6px; flex-wrap:wrap; margin-top:4px;">
+            <a href="${waUrl}" target="_blank" class="btn btn-whatsapp" style="padding:5px 10px; font-size:0.75rem;">
+              💬 WhatsApp
+            </a>
+            <a href="tel:${cleanPhone}" class="btn btn-outline" style="padding:5px 10px; font-size:0.75rem;">
+              📞 Llamar
+            </a>
+            <button class="btn btn-primary" style="padding:5px 10px; font-size:0.75rem;" onclick="closeDayModal(); openEditModal('${a.id}')">
+              ✏️ Ver Ficha / Editar
+            </button>
+          </div>
+        </div>
+      `;
     }
 
     function closeDayModal() {
@@ -1132,24 +1294,37 @@
       }
     }
 
-    // Render Lists
-    function renderAllAppointments() {
+    // Filter & Search All Appointments
+    function filterAllAppointments() {
+      const q = (document.getElementById('search-all-input')?.value || '').toLowerCase().trim();
+      const filtered = q
+        ? allAppointments.filter(a => 
+            (a.name || '').toLowerCase().includes(q) ||
+            (a.phone || '').toLowerCase().includes(q) ||
+            (a.license_plate || '').toLowerCase().includes(q) ||
+            (a.car_model || '').toLowerCase().includes(q) ||
+            (a.service || '').toLowerCase().includes(q)
+          )
+        : allAppointments;
+
       const container = document.getElementById('all-appointments-list');
       const countLabel = document.getElementById('total-appointments-label');
-      const counterBadge = document.getElementById('all-count');
+      countLabel.innerText = `Mostrando: ${filtered.length} de ${allAppointments.length} citas`;
 
-      countLabel.innerText = `Total: ${allAppointments.length} citas registradas`;
-      counterBadge.innerText = allAppointments.length;
-      counterBadge.style.display = allAppointments.length > 0 ? 'inline-block' : 'none';
-
-      if (allAppointments.length === 0) {
-        container.innerHTML = `<div class="empty-state"><span>📭</span><p>No hay citas registradas en el sistema.</p></div>`;
+      if (filtered.length === 0) {
+        container.innerHTML = `<div class="empty-state"><span>🔍</span><p>No se han encontrado citas con ese término.</p></div>`;
         return;
       }
-
-      // Sort descending by datetime
-      const sorted = [...allAppointments].sort((a, b) => (b.datetime || '').localeCompare(a.datetime || ''));
+      const sorted = [...filtered].sort((a, b) => (b.datetime || '').localeCompare(a.datetime || ''));
       container.innerHTML = sorted.map(a => renderAppointmentCard(a)).join('');
+    }
+
+    // Render Lists
+    function renderAllAppointments() {
+      filterAllAppointments();
+      const counterBadge = document.getElementById('all-count');
+      counterBadge.innerText = allAppointments.length;
+      counterBadge.style.display = allAppointments.length > 0 ? 'inline-block' : 'none';
     }
 
     function renderPendingAppointments() {
@@ -1191,7 +1366,7 @@
         confirmed: 'Confirmada', 
         pending: 'Pendiente', 
         waiting_list: '⏳ Lista de Espera',
-        completed: 'Completada', 
+        completed: 'Completada (Entregado)', 
         cancelled: 'Cancelada' 
       };
 
