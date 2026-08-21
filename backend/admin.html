@@ -10,24 +10,27 @@
 
   <style>
     :root {
-      --bg: #0B0F17;
-      --surface: #131B2A;
-      --surface2: #1A2438;
-      --border: #23314B;
-      --border-focus: #3B82F6;
-      --text: #F1F5F9;
-      --text-dim: #94A3B8;
+      --bg: #F8FAFC;
+      --surface: #FFFFFF;
+      --surface2: #F1F5F9;
+      --border: #E2E8F0;
+      --border-focus: #2563EB;
+      --text: #0F172A;
+      --text-dim: #64748B;
       --accent: #2563EB;
       --accent-hover: #1D4ED8;
-      --emerald: #10B981;
-      --emerald-dim: rgba(16,185,129,0.12);
-      --amber: #F59E0B;
-      --amber-dim: rgba(245,158,11,0.12);
-      --red: #EF4444;
-      --red-dim: rgba(239,68,68,0.12);
+      --emerald: #059669;
+      --emerald-dim: #ECFDF5;
+      --amber: #D97706;
+      --amber-dim: #FFFBEB;
+      --red: #DC2626;
+      --red-dim: #FEF2F2;
       --radius: 14px;
       --font: 'Plus Jakarta Sans', system-ui, sans-serif;
       --font-display: 'Space Grotesk', system-ui, sans-serif;
+      --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+      --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.07), 0 2px 4px -2px rgba(0, 0, 0, 0.05);
+      --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.08), 0 4px 6px -4px rgba(0, 0, 0, 0.04);
     }
 
     * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -51,20 +54,21 @@
       position: sticky;
       top: 0;
       z-index: 50;
+      box-shadow: var(--shadow-sm);
     }
     .brand-title {
       font-family: var(--font-display);
       font-size: 1.15rem;
       font-weight: 700;
-      color: #FFF;
+      color: #0F172A;
       display: flex;
       align-items: center;
       gap: 10px;
     }
     .badge-admin {
-      background: rgba(37,99,235,0.2);
-      color: #60A5FA;
-      border: 1px solid rgba(37,99,235,0.4);
+      background: #EFF6FF;
+      color: #2563EB;
+      border: 1px solid #BFDBFE;
       font-size: 0.7rem;
       padding: 3px 8px;
       border-radius: 6px;
@@ -89,10 +93,11 @@
       align-items: center;
       gap: 6px;
       transition: all 0.2s;
+      text-decoration: none;
     }
     .btn-top:hover {
-      background: var(--border);
-      border-color: var(--text-dim);
+      background: #E2E8F0;
+      border-color: #CBD5E1;
     }
 
     /* Layout Container */
@@ -135,12 +140,12 @@
     .tab-btn.active {
       background: var(--surface);
       border-color: var(--border);
-      color: #FFF;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+      color: var(--accent);
+      box-shadow: var(--shadow-sm);
     }
     .tab-counter {
-      background: rgba(239,68,68,0.2);
-      color: #F87171;
+      background: #FEE2E2;
+      color: #DC2626;
       font-size: 0.7rem;
       padding: 1px 6px;
       border-radius: 10px;
@@ -162,9 +167,10 @@
       display: flex;
       flex-direction: column;
       gap: 16px;
-      transition: border-color 0.2s;
+      transition: border-color 0.2s, box-shadow 0.2s;
+      box-shadow: var(--shadow-sm);
     }
-    .appt-card:hover { border-color: #334466; }
+    .appt-card:hover { border-color: #CBD5E1; box-shadow: var(--shadow-md); }
     .appt-header {
       display: flex;
       justify-content: space-between;
@@ -175,7 +181,7 @@
     .client-title {
       font-size: 1.05rem;
       font-weight: 700;
-      color: #FFF;
+      color: var(--text);
       display: flex;
       align-items: center;
       gap: 8px;
@@ -184,19 +190,19 @@
       display: inline-flex;
       align-items: center;
       gap: 6px;
-      background: var(--surface2);
-      border: 1px solid var(--border);
+      background: #EFF6FF;
+      border: 1px solid #DBEAFE;
       padding: 4px 10px;
       border-radius: 8px;
       font-size: 0.8rem;
       font-weight: 600;
-      color: #93C5FD;
+      color: #1E40AF;
     }
     .plate-badge {
       font-family: var(--font-display), monospace;
       font-weight: 700;
-      background: #FFF;
-      color: #0B0F17;
+      background: #0F172A;
+      color: #FFF;
       padding: 2px 6px;
       border-radius: 4px;
       font-size: 0.75rem;
@@ -210,6 +216,7 @@
       padding: 14px;
       border-radius: 10px;
       font-size: 0.82rem;
+      border: 1px solid var(--border);
     }
     .info-item label {
       display: block;
@@ -233,11 +240,11 @@
       font-weight: 700;
       text-transform: uppercase;
     }
-    .status-confirmed { background: var(--emerald-dim); color: var(--emerald); border: 1px solid rgba(16,185,129,0.3); }
-    .status-pending { background: var(--amber-dim); color: var(--amber); border: 1px solid rgba(245,158,11,0.3); }
-    .status-waiting_list { background: rgba(245,158,11,0.18); color: #FBBF24; border: 1px solid rgba(245,158,11,0.4); }
-    .status-cancelled { background: var(--red-dim); color: var(--red); border: 1px solid rgba(239,68,68,0.3); }
-    .status-completed { background: rgba(59,130,246,0.15); color: #60A5FA; border: 1px solid rgba(59,130,246,0.3); }
+    .status-confirmed { background: var(--emerald-dim); color: var(--emerald); border: 1px solid #A7F3D0; }
+    .status-pending { background: var(--amber-dim); color: var(--amber); border: 1px solid #FDE68A; }
+    .status-waiting_list { background: #FEF3C7; color: #B45309; border: 1px solid #FCD34D; }
+    .status-cancelled { background: var(--red-dim); color: var(--red); border: 1px solid #FECACA; }
+    .status-completed { background: #EFF6FF; color: #2563EB; border: 1px solid #BFDBFE; }
 
     .appt-actions {
       display: flex;
@@ -263,12 +270,13 @@
     .btn-primary { background: var(--accent); color: #FFF; }
     .btn-primary:hover { background: var(--accent-hover); }
     .btn-success { background: var(--emerald); color: #FFF; }
-    .btn-danger { background: rgba(239,68,68,0.15); color: #F87171; border-color: rgba(239,68,68,0.3); }
-    .btn-danger:hover { background: #EF4444; color: #FFF; }
-    .btn-outline { background: var(--surface2); color: var(--text); border-color: var(--border); }
-    .btn-outline:hover { background: var(--border); }
-    .btn-whatsapp { background: rgba(37,211,102,0.15); color: #25D366; border-color: rgba(37,211,102,0.3); }
-    .btn-whatsapp:hover { background: #25D366; color: #000; }
+    .btn-success:hover { background: #047857; }
+    .btn-danger { background: #FEE2E2; color: #DC2626; border-color: #FECACA; }
+    .btn-danger:hover { background: #DC2626; color: #FFF; }
+    .btn-outline { background: #FFFFFF; color: var(--text); border-color: var(--border); }
+    .btn-outline:hover { background: var(--surface2); }
+    .btn-whatsapp { background: #DCFCE7; color: #15803D; border-color: #BBF7D0; }
+    .btn-whatsapp:hover { background: #16A34A; color: #FFF; }
 
     /* Calendar Grid & Interactive Block Controls */
     .cal-controls {
@@ -281,7 +289,7 @@
       font-family: var(--font-display);
       font-size: 1.3rem;
       font-weight: 700;
-      color: #FFF;
+      color: var(--text);
       text-transform: capitalize;
     }
     .cal-grid {
@@ -310,38 +318,39 @@
       justify-content: space-between;
       transition: all 0.15s;
       position: relative;
+      box-shadow: var(--shadow-sm);
     }
     .cal-day-cell:hover {
-      border-color: #3B82F6;
+      border-color: #2563EB;
       transform: translateY(-2px);
-      box-shadow: 0 6px 16px rgba(0,0,0,0.3);
+      box-shadow: var(--shadow-md);
     }
     .cal-day-cell.today {
-      border-color: #3B82F6;
-      box-shadow: 0 0 0 1px #3B82F6;
+      border-color: #2563EB;
+      box-shadow: 0 0 0 2px rgba(37,99,235,0.25);
     }
     .cal-day-cell.blocked {
-      background: rgba(239, 68, 68, 0.08);
-      border-color: rgba(239, 68, 68, 0.4);
+      background: #FEF2F2;
+      border-color: #FECACA;
     }
     .cal-day-cell.full {
-      background: rgba(245, 158, 11, 0.08);
-      border-color: rgba(245, 158, 11, 0.4);
+      background: #FFFBEB;
+      border-color: #FDE68A;
     }
     .cal-day-cell.weekend {
-      opacity: 0.6;
-      background: #0D121B;
+      opacity: 0.65;
+      background: #F1F5F9;
     }
     .cal-day-cell.empty {
       background: transparent;
-      border: 1px dashed #1E293B;
+      border: 1px dashed #E2E8F0;
       cursor: default;
-      opacity: 0.2;
+      opacity: 0.3;
     }
     .day-num {
       font-size: 0.95rem;
       font-weight: 800;
-      color: #FFF;
+      color: var(--text);
     }
     .day-status-pill {
       font-size: 0.65rem;
@@ -353,9 +362,9 @@
       text-align: center;
       transition: background 0.15s;
     }
-    .pill-avail { background: rgba(16,185,129,0.15); color: #34D399; }
-    .pill-blocked { background: rgba(239,68,68,0.2); color: #F87171; }
-    .pill-full { background: rgba(245,158,11,0.2); color: #FBBF24; }
+    .pill-avail { background: #ECFDF5; color: #059669; border: 1px solid #A7F3D0; }
+    .pill-blocked { background: #FEF2F2; color: #DC2626; border: 1px solid #FECACA; }
+    .pill-full { background: #FFFBEB; color: #D97706; border: 1px solid #FDE68A; }
 
     /* Manager Card */
     .manager-card {
@@ -364,11 +373,12 @@
       border-radius: var(--radius);
       padding: 24px;
       margin-bottom: 24px;
+      box-shadow: var(--shadow-sm);
     }
     .manager-title {
       font-size: 1.1rem;
       font-weight: 700;
-      color: #FFF;
+      color: var(--text);
       margin-bottom: 12px;
       display: flex;
       align-items: center;
@@ -381,9 +391,9 @@
       margin-top: 12px;
     }
     .blocked-tag {
-      background: rgba(239,68,68,0.15);
-      border: 1px solid rgba(239,68,68,0.3);
-      color: #FCA5A5;
+      background: #FEF2F2;
+      border: 1px solid #FECACA;
+      color: #DC2626;
       padding: 5px 10px;
       border-radius: 8px;
       font-size: 0.8rem;
@@ -395,7 +405,7 @@
     .blocked-tag button {
       background: none;
       border: none;
-      color: #EF4444;
+      color: #DC2626;
       font-weight: bold;
       cursor: pointer;
       font-size: 1rem;
@@ -406,7 +416,7 @@
     .modal-backdrop {
       position: fixed;
       inset: 0;
-      background: rgba(0,0,0,0.7);
+      background: rgba(15, 23, 42, 0.6);
       backdrop-filter: blur(4px);
       display: none;
       align-items: center;
@@ -422,7 +432,7 @@
       width: 100%;
       max-width: 540px;
       padding: 26px;
-      box-shadow: 0 25px 50px -12px rgba(0,0,0,0.5);
+      box-shadow: var(--shadow-lg);
       max-height: 90vh;
       overflow-y: auto;
     }
@@ -434,7 +444,7 @@
       border-bottom: 1px solid var(--border);
       padding-bottom: 12px;
     }
-    .modal-head h3 { font-size: 1.15rem; font-weight: 700; color: #FFF; }
+    .modal-head h3 { font-size: 1.15rem; font-weight: 700; color: var(--text); }
     .btn-close {
       background: transparent;
       border: none;
@@ -447,15 +457,15 @@
     .form-group.full { grid-column: span 2; }
     .form-group label { font-size: 0.75rem; font-weight: 700; color: var(--text-dim); text-transform: uppercase; }
     .form-input {
-      background: var(--surface2);
-      border: 1px solid var(--border);
-      color: #FFF;
+      background: #FFFFFF;
+      border: 1px solid #CBD5E1;
+      color: var(--text);
       padding: 10px 12px;
       border-radius: 8px;
       font-size: 0.85rem;
       outline: none;
     }
-    .form-input:focus { border-color: var(--border-focus); }
+    .form-input:focus { border-color: var(--border-focus); box-shadow: 0 0 0 2px rgba(37,99,235,0.15); }
 
     /* Quick Quota Buttons */
     .quota-preset-btn {
@@ -486,12 +496,12 @@
 </head>
 <body>
 
-  <!-- Top Navigation -->
+  <!-- Top Navigation (White Theme) -->
   <div class="topbar">
     <div class="brand-title">
       <span>🔧</span>
       <span>Auto Talleres Romo</span>
-      <span class="badge-admin">Gestión Citas & Calendario</span>
+      <span class="badge-admin">Panel de Gestión</span>
     </div>
     <div class="topbar-actions">
       <button class="btn-top" onclick="loadAllData()">↻ Refrescar</button>
@@ -508,7 +518,7 @@
       </button>
       <button class="tab-btn" onclick="switchTab('waiting')">
         ⏳ Lista de Espera / Avisos
-        <span id="waiting-count" class="tab-counter" style="display:none; background:rgba(245,158,11,0.25); color:#FBBF24;">0</span>
+        <span id="waiting-count" class="tab-counter" style="display:none; background:#FEF3C7; color:#B45309;">0</span>
       </button>
       <button class="tab-btn" onclick="switchTab('pending')">
         📋 Citas Pendientes
@@ -573,7 +583,7 @@
     <div id="tab-waiting" class="section">
       <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
         <div>
-          <h2 style="font-size:1.15rem; font-weight:700; color:#FFF;">⏳ Solicitudes en Lista de Espera / Avisos de Hueco</h2>
+          <h2 style="font-size:1.15rem; font-weight:700; color:var(--text);">⏳ Solicitudes en Lista de Espera / Avisos de Hueco</h2>
           <p style="font-size:0.8rem; color:var(--text-dim);">Clientes que han pedido cita para días que estaban bloqueados o completos. Puedes avisarles por WhatsApp o confirmar su cita si tienes un hueco.</p>
         </div>
       </div>
@@ -582,14 +592,14 @@
 
     <!-- TAB 3: PENDING APPOINTMENTS -->
     <div id="tab-pending" class="section">
-      <h2 style="font-size:1.15rem; font-weight:700; color:#FFF; margin-bottom:16px;">Citas Pendientes de Confirmación</h2>
+      <h2 style="font-size:1.15rem; font-weight:700; color:var(--text); margin-bottom:16px;">Citas Pendientes de Confirmación</h2>
       <div id="pending-appointments-list" class="card-list"></div>
     </div>
 
     <!-- TAB 4: ALL APPOINTMENTS -->
     <div id="tab-all" class="section">
       <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
-        <h2 style="font-size:1.15rem; font-weight:700; color:#FFF;">Registro Histórico de Citas</h2>
+        <h2 style="font-size:1.15rem; font-weight:700; color:var(--text);">Registro Histórico de Citas</h2>
         <span id="total-appointments-label" style="font-size:0.85rem; color:var(--text-dim);">Cargando...</span>
       </div>
       <div id="all-appointments-list" class="card-list"></div>
@@ -657,7 +667,7 @@
 
         <!-- Quota Control Section -->
         <div style="background:var(--surface2); padding:16px; border-radius:12px; border:1px solid var(--border); display:flex; flex-direction:column; gap:12px;">
-          <label style="font-size:0.8rem; font-weight:800; color:#FFF;">¿Cuántas citas puede recibir el taller este día?</label>
+          <label style="font-size:0.8rem; font-weight:800; color:var(--text);">¿Cuántas citas puede recibir el taller este día?</label>
           
           <div style="display:flex; gap:8px; align-items:center;">
             <input type="number" id="day-modal-quota-input" min="0" max="50" class="form-input" style="width:120px; font-size:1.1rem; font-weight:800; text-align:center;" />
@@ -715,7 +725,7 @@
         <div class="form-grid">
           <div class="form-group full">
             <label>Fecha y Hora de la Cita *</label>
-            <input type="datetime-local" id="edit-datetime" required class="form-input" style="color-scheme:dark;" />
+            <input type="datetime-local" id="edit-datetime" required class="form-input" />
           </div>
 
           <div class="form-group full">
@@ -986,7 +996,7 @@
         if (isBlocked) {
           badgeHtml = `<span class="day-status-pill pill-blocked">🔒 Bloqueado</span>`;
         } else if (isWeekend) {
-          badgeHtml = `<span class="day-status-pill" style="background:#1E293B;color:#64748B;">Fin de sem.</span>`;
+          badgeHtml = `<span class="day-status-pill" style="background:#F1F5F9;color:#94A3B8;">Fin sem.</span>`;
         } else if (isFull) {
           badgeHtml = `<span class="day-status-pill pill-full">🟡 Lleno (${confirmedCount}/${quota})</span>`;
         } else {
@@ -994,7 +1004,7 @@
         }
 
         if (waitingCount > 0) {
-          badgeHtml += `<span class="day-status-pill" style="background:rgba(245,158,11,0.25); color:#FBBF24; margin-left:2px;">⏳ ${waitingCount} espera</span>`;
+          badgeHtml += `<span class="day-status-pill" style="background:#FEF3C7; color:#B45309; border:1px solid #FCD34D; margin-left:2px;">⏳ ${waitingCount}</span>`;
         }
 
         const cell = document.createElement('div');
@@ -1004,7 +1014,7 @@
         cell.innerHTML = `
           <div style="display:flex; justify-content:space-between; align-items:center;">
             <span class="day-num">${d}</span>
-            ${isToday ? '<span style="font-size:0.65rem; color:#60A5FA; font-weight:800;">HOY</span>' : ''}
+            ${isToday ? '<span style="font-size:0.65rem; color:#2563EB; font-weight:800;">HOY</span>' : ''}
           </div>
           <div>${badgeHtml}</div>
         `;
@@ -1032,15 +1042,15 @@
       const toggleBtn = document.getElementById('btn-toggle-block-modal');
 
       if (isBlocked) {
-        banner.style.background = 'rgba(239,68,68,0.15)';
-        banner.style.border = '1px solid rgba(239,68,68,0.4)';
-        statusText.innerHTML = `<span style="color:#F87171;">🔴 Día Bloqueado (Cerrado - Admite Lista de Espera)</span>`;
+        banner.style.background = '#FEF2F2';
+        banner.style.border = '1px solid #FECACA';
+        statusText.innerHTML = `<span style="color:#DC2626;">🔴 Día Bloqueado (Cerrado - Admite Lista de Espera)</span>`;
         toggleBtn.className = 'btn btn-success';
         toggleBtn.innerText = '🔓 Abrir / Desbloquear Día';
       } else {
-        banner.style.background = 'rgba(16,185,129,0.15)';
-        banner.style.border = '1px solid rgba(16,185,129,0.4)';
-        statusText.innerHTML = `<span style="color:#34D399;">🟢 Día Abierto para Citas Online</span>`;
+        banner.style.background = '#ECFDF5';
+        banner.style.border = '1px solid #A7F3D0';
+        statusText.innerHTML = `<span style="color:#059669;">🟢 Día Abierto para Citas Online</span>`;
         toggleBtn.className = 'btn btn-danger';
         toggleBtn.innerText = '🔒 Bloquear / Cerrar Día';
       }
@@ -1057,10 +1067,10 @@
           const time = (a.datetime || '').substring(11, 16) || '--:--';
           const isWait = a.status === 'waiting_list';
           return `
-            <div style="background:var(--surface); padding:10px 12px; border-radius:8px; border:1px solid var(--border); display:flex; justify-content:space-between; align-items:center; font-size:0.8rem;">
+            <div style="background:var(--surface); padding:10px 12px; border-radius:8px; border:1px solid var(--border); display:flex; justify-content:space-between; align-items:center; font-size:0.8rem; box-shadow:var(--shadow-sm);">
               <div>
-                <span style="color:${isWait ? '#FBBF24' : '#60A5FA'}; font-weight:800;">${isWait ? '⏳ Espera' : `${time} h`}</span>
-                <strong style="color:#FFF; margin-left:6px;">${a.name}</strong>
+                <span style="color:${isWait ? '#D97706' : '#2563EB'}; font-weight:800;">${isWait ? '⏳ Espera' : `${time} h`}</span>
+                <strong style="color:var(--text); margin-left:6px;">${a.name}</strong>
                 <span style="color:var(--text-dim); margin-left:6px;">(${a.car_model || ''} - ${a.license_plate || ''})</span>
               </div>
               <button class="btn btn-outline" style="padding:4px 8px; font-size:0.7rem;" onclick="closeDayModal(); openEditModal('${a.id}')">✏️ Gestionar</button>
@@ -1196,7 +1206,7 @@
       const waUrl = `https://wa.me/${waPhone}?text=${waMsg}`;
 
       return `
-        <div class="appt-card" style="${isWait ? 'border-color:rgba(245,158,11,0.4);' : ''}">
+        <div class="appt-card" style="${isWait ? 'border-color:#FCD34D; background:#FFFDF7;' : ''}">
           <div class="appt-header">
             <div>
               <div class="client-title">
@@ -1217,7 +1227,7 @@
           <div class="appt-body">
             <div class="info-item">
               <label>Fecha Solicitada</label>
-              <span style="color:${isWait ? '#FBBF24' : '#60A5FA'};">📅 ${dt} h</span>
+              <span style="color:${isWait ? '#D97706' : '#2563EB'};">📅 ${dt} h</span>
             </div>
             <div class="info-item">
               <label>Servicio</label>
@@ -1235,7 +1245,7 @@
             </a>
 
             <button class="btn btn-outline" onclick="openEditModal('${a.id}')">
-              <span>✏️ Editar / Reasignar Fecha</span>
+              <span>✏️ Editar / Reasignar</span>
             </button>
 
             ${a.status !== 'confirmed' ? `
@@ -1246,7 +1256,7 @@
 
             ${a.status !== 'completed' ? `
               <button class="btn btn-primary" onclick="updateStatus('${a.id}', 'completed')">
-                <span>🚘 Marcar Entregado</span>
+                <span>🚘 Entregado</span>
               </button>
             ` : ''}
 

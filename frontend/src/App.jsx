@@ -328,7 +328,7 @@ function App() {
       'BEGIN:VEVENT',
       `SUMMARY:Cita Taller - ${submittedAppointment.service || resolvedServiceName}`,
       `DESCRIPTION:Cita en Auto Talleres Romo para ${submittedAppointment.car_model || fullCarString} (${submittedAppointment.license_plate || licensePlate}).`,
-      'LOCATION:Auto Talleres Romo, Sant Adrià de Besòs, Barcelona',
+      'LOCATION:Auto Talleres Romo, Carretera de Mataró, 111, 08930 Sant Adrià de Besòs, Barcelona',
       `DTSTART:${toICSDate(dt)}`,
       `DTEND:${toICSDate(endDt)}`,
       'STATUS:CONFIRMED',
@@ -371,7 +371,7 @@ function App() {
                 </span>
               </div>
               <p className="text-xs text-slate-500 flex items-center gap-1.5 mt-0.5 font-medium">
-                <MapPin className="w-3.5 h-3.5 text-slate-400" /> Sant Adrià de Besòs, Barcelona
+                <MapPin className="w-3.5 h-3.5 text-slate-400" /> Carretera de Mataró, 111, Sant Adrià de Besòs
               </p>
             </div>
           </div>
@@ -994,7 +994,7 @@ function App() {
 
                     <div className="flex items-start justify-between gap-2">
                       <span className="text-slate-500 font-medium">Ubicación:</span>
-                      <span className="font-semibold text-slate-800 text-right">Sant Adrià de Besòs</span>
+                      <span className="font-semibold text-slate-800 text-right">Carretera de Mataró, 111 (Sant Adrià)</span>
                     </div>
                   </div>
 
@@ -1072,14 +1072,26 @@ function App() {
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-xs">
-                <div className="bg-white border border-slate-200 p-5 rounded-xl space-y-2 shadow-xs">
+                <div className="bg-white border border-slate-200 p-5 rounded-xl space-y-2.5 shadow-xs">
                   <div className="w-8 h-8 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center font-bold text-sm">
                     📍
                   </div>
                   <span className="font-bold text-sm text-slate-900 block">Ubicación & Acceso</span>
-                  <p className="text-slate-600 leading-relaxed">
+                  <p className="text-slate-900 font-bold text-xs leading-snug">
+                    Auto Talleres Romo, Carretera de Mataró, 111, 08930 Sant Adrià de Besòs, Barcelona
+                  </p>
+                  <p className="text-slate-500 text-[11px] leading-relaxed">
                     Situados estratégicamente junto a los accesos principales de Sant Adrià y Ronda Litoral. Fácil acceso y aparcamiento de clientes.
                   </p>
+                  <a
+                    href="https://www.google.com/maps/search/?api=1&query=Auto+Talleres+Romo+Carretera+de+Mataro+111+Sant+Adria+de+Besos"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-1 text-blue-600 hover:text-blue-700 font-bold text-[11px] pt-1"
+                  >
+                    <span>Ver en Google Maps</span>
+                    <ExternalLink className="w-3 h-3" />
+                  </a>
                 </div>
 
                 <div className="bg-white border border-slate-200 p-5 rounded-xl space-y-2 shadow-xs">
@@ -1119,8 +1131,8 @@ function App() {
             <span>— Taller Mecánico Especializado</span>
           </div>
 
-          <div className="flex items-center gap-6">
-            <span>Sant Adrià de Besòs (Barcelona)</span>
+          <div className="flex flex-col sm:flex-row items-center gap-2 sm:gap-6 text-center sm:text-right">
+            <span>Carretera de Mataró, 111, 08930 Sant Adrià de Besòs (Barcelona)</span>
             <span>© {new Date().getFullYear()} Todos los derechos reservados</span>
           </div>
         </div>
