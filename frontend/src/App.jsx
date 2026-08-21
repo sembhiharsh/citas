@@ -970,22 +970,33 @@ function App() {
                   </p>
                 </div>
 
-                {/* Direct Phone Assistance Card */}
-                <div className="bg-[#0F172A] border border-slate-800/80 rounded-xl p-4 text-xs text-slate-300 space-y-2">
+                {/* Direct Phone & WhatsApp Assistance Card */}
+                <div className="bg-[#0F172A] border border-slate-800/80 rounded-xl p-4 text-xs text-slate-300 space-y-3">
                   <div className="font-bold text-white flex items-center gap-1.5">
                     <Phone className="w-3.5 h-3.5 text-blue-400" />
-                    <span>¿Tienes una urgencia mecánica?</span>
+                    <span>¿Tienes una consulta o urgencia?</span>
                   </div>
                   <p className="text-slate-400 text-[11px] leading-relaxed">
-                    Si tu vehículo no arranca o necesitas servicio de grúa de urgencia, contáctanos directamente por teléfono.
+                    Contáctanos directamente con el taller por teléfono o WhatsApp para atención inmediata.
                   </p>
-                  <a
-                    href="tel:933812345"
-                    className="inline-flex items-center gap-1.5 font-bold text-blue-400 hover:text-blue-300 pt-1"
-                  >
-                    <span>Llamar al taller: 93 381 23 45</span>
-                    <ChevronRight className="w-3 h-3" />
-                  </a>
+                  <div className="flex flex-col gap-2 pt-1">
+                    <a
+                      href={directWhatsAppUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="w-full py-2.5 px-3 bg-emerald-600 hover:bg-emerald-500 text-white font-bold rounded-lg text-xs flex items-center justify-center gap-1.5 shadow-sm transition-all"
+                    >
+                      <MessageSquare className="w-3.5 h-3.5" />
+                      <span>Abrir WhatsApp del Taller</span>
+                    </a>
+                    <a
+                      href="tel:933812345"
+                      className="w-full py-2 px-3 bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white font-semibold rounded-lg text-xs flex items-center justify-center gap-1.5 border border-slate-700 transition-all"
+                    >
+                      <Phone className="w-3.5 h-3.5 text-blue-400" />
+                      <span>Llamar al taller: 93 381 23 45</span>
+                    </a>
+                  </div>
                 </div>
 
               </div>
