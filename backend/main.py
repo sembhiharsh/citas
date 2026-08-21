@@ -418,7 +418,8 @@ def admin_panel(user: str = Depends(authenticate_admin)):
     if not os.path.exists(admin_file):
         raise HTTPException(status_code=404, detail="Admin panel template not found.")
     with open(admin_file, "r", encoding="utf-8") as f:
-        return f.read()
+        content = f.read()
+    return HTMLResponse(content=content, headers={"Cache-Control": "no-cache, no-store, must-revalidate", "Pragma": "no-cache", "Expires": "0"})
 
 
 # ---------- Static Frontend Fallback ----------
