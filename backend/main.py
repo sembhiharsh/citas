@@ -81,7 +81,7 @@ class SettingsModel(BaseModel):
     api_key_gemini: Optional[str] = ""
     whisper_model: Optional[str] = "base"
     ollama_url: Optional[str] = "http://localhost:11434"
-    whatsapp_number: Optional[str] = "34600000000"
+    whatsapp_number: Optional[str] = "34934620254"
     shop_name: Optional[str] = "Auto Talleres Romo"
     opening_hours: Optional[str] = "Lunes a Viernes 08:30 - 13:00 / 15:00 - 18:30"
     daily_quota: Optional[int] = 5
@@ -103,6 +103,7 @@ class AppointmentModel(BaseModel):
     id: Optional[str] = None
     name: str
     phone: str
+    email: Optional[str] = None
     car_model: str
     license_plate: str
     service: str
@@ -300,6 +301,11 @@ async def create_appointment(appointment: AppointmentModel):
             append_appointment_to_sheet(app_data)
         except Exception:
             pass
+        try:
+            from utils.mailer import send_booking_confirmation
+            send_booking_confirmation(app_data)
+        except Exception as e:
+            logging.error(f"Resend email error: {e}")
         return {
             "status": "waiting_list",
             "message": "Anotado en lista de espera con éxito. Nos pondremos en contacto contigo por WhatsApp en breve en cuanto tengamos un hueco disponible.",
@@ -322,6 +328,13 @@ async def create_appointment(appointment: AppointmentModel):
     except Exception as e:
         logging.error(f"Google Sheet write failed: {e}")
 
+    # Send official booking confirmation email via Resend
+    try:
+        from utils.mailer import send_booking_confirmation
+        send_booking_confirmation(app_data)
+    except Exception as e:
+        logging.error(f"Resend email error: {e}")
+
     return {"status": "confirmed", "message": "¡Cita aceptada y confirmada con éxito!", "appointment": app_data}
 
 
@@ -340,6 +353,12 @@ async def update_appointment_status(appointment_id: str, payload: dict):
                 a["status"] = new_status
                 if new_status in {"confirmed", "cancelled"}:
                     notify_appointment(new_status, a)
+                if new_status == "confirmed":
+                    try:
+                        from utils.mailer import send_booking_confirmation
+                        send_booking_confirmation(a)
+                    except Exception as e:
+                        logging.error(f"Resend update email error: {e}")
 
             # Update datetime if provided
             if "datetime" in payload:

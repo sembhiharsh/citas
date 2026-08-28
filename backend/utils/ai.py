@@ -30,9 +30,9 @@ def load_settings() -> dict:
         "api_key_gemini": "",
         "whisper_model": "base", # tiny, base, small
         "ollama_url": "http://localhost:11434",
-        "whatsapp_number": "",
+        "whatsapp_number": "34934620254",
         "shop_name": "Auto Talleres Romo",
-        "opening_hours": "Lunes a Viernes 08:30 - 18:30"
+        "opening_hours": "Lunes a Viernes 08:30 - 13:00 / 15:00 - 18:30"
     }
 
 def save_settings(settings: dict) -> None:
